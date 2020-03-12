@@ -1,6 +1,6 @@
 """Check that version numbers match.
 
-Check version number in setup.json and aiida_zeopp/__init__.py and make sure
+Check version number in setup.json and aiida_orca/__init__.py and make sure
 they match.
 """
 import os
