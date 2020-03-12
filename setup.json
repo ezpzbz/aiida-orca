@@ -1,0 +1,54 @@
+{
+    "name": "aiida-orca",
+    "author": "Pezhman Zarabadi-Poor",
+    "author_email": "pzarabadip@gmail.com",
+    "description": "AiiDA plugin for ORCA code",
+    "url": "https://github.com/pzarabadip/aiida-orca",
+    "license": "MIT",
+    "classifiers": [
+        "Environment :: Plugins",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Framework :: AiiDA"
+    ],
+    "version": "0.1.0",
+    "setup_requires": ["reentry"],
+    "install_requires": [
+        "aiida_core[atomic_tools] >= 1.0.0, <2.0.0",
+        "cclib"
+    ],
+    "entry_points": {
+        "aiida.calculations": [
+            "orca = aiida_orca.calculations:OrcaCalculation"
+        ],
+        "aiida.parsers": [
+            "orca_base_parser = aiida_orca.parsers:OrcaBaseParser"
+        ]
+    },
+    "reentry_register": true,
+    "data_files": [
+        [".", ["setup.json"]]
+    ],
+    "extras_require": {
+      "test": [
+            "pgtest==1.2.0",
+            "pytest>=4.4,<5.0.0",
+            "pytest-cov>=2.6.1,<3.0.0"
+      ],
+	    "pre-commit": [
+		    "pre-commit==1.18.3",
+		    "yapf==0.28.0",
+		    "prospector==1.1.7",
+            "pylint==2.3.1"
+        ],
+        "docs": [
+            "sphinx",
+            "sphinxcontrib-contentui",
+            "sphinxcontrib-details-directive; python_version>='3.0'",
+            "sphinx-rtd-theme"
+        ]
+    }
+}
