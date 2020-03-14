@@ -63,7 +63,7 @@ class OrcaCalculation(CalcJob):
         if 'structure' in self.inputs:
             self._write_structure(self.inputs.structure, folder, self._DEFAULT_COORDS_FILE_NAME)
 
-        with io.open(folder.get_abs_path(self._DEFAULT_INPUT_FILE), mode="w", encoding="utf-8") as fobj:
+        with io.open(folder.get_abs_path(self._DEFAULT_INPUT_FILE), mode='w', encoding='utf-8') as fobj:
             fobj.write(inp.render())
 
         settings = self.inputs.settings.get_dict() if 'settings' in self.inputs else {}
@@ -102,8 +102,8 @@ class OrcaCalculation(CalcJob):
         # check for left over settings
         if settings:
             raise InputValidationError(
-                "The following keys have been found " + "in the settings input node {}, ".format(self.pk) +
-                "but were not understood: " + ",".join(settings.keys())
+                'The following keys have been found ' + 'in the settings input node {}, '.format(self.pk) +
+                'but were not understood: ' + ','.join(settings.keys())
             )
 
         return calcinfo
@@ -118,12 +118,12 @@ class OrcaCalculation(CalcJob):
         # from https://github.com/materialsproject/pymatgen/blob/
         # 5a3284fd2dce70ee27e8291e6558e73beaba5164/pymatgen/io/gaussian.py#L411
         def to_s(num):
-            return "%0.6f" % num
+            return '%0.6f' % num
 
         coords = []
         for site in mol:
-            coords.append(" ".join([site.species_string, " ".join([to_s(j) for j in site.coords])]))
+            coords.append(' '.join([site.species_string, ' '.join([to_s(j) for j in site.coords])]))
 
-        with io.open(folder.get_abs_path(name), mode="w") as fobj:
+        with io.open(folder.get_abs_path(name), mode='w') as fobj:
             fobj.write(u'{}\n\n'.format(len(coords)))
             fobj.write(u'\n'.join(coords))
