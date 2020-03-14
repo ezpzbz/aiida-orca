@@ -1,4 +1,4 @@
-"""Run simple DFT calculation"""
+"""Run Opt/Freq Calculation using AiiDA-Orca"""
 
 import sys
 import click
@@ -13,8 +13,8 @@ from aiida.plugins import CalculationFactory
 OrcaCalculation = CalculationFactory('orca')  #pylint: disable = invalid-name
 
 
-def example_dft(orca_code, submit=True):
-    """Run simple DFT calculation"""
+def example_opt_freq(orca_code, submit=True):
+    """Run Opt/Freq Calculation using AiiDA-Orca"""
 
     # structure
     structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
@@ -33,18 +33,8 @@ def example_dft(orca_code, submit=True):
                     'nproc': 2,
                 }
             },
-            'input_keywords': {
-                'RKS': None,
-                'BP': None,
-                'def2-TZVP': None,
-                'RI': None,
-                'def2/J': None,
-                'Grid5': None,
-                'NoFinalGrid': None,
-                'AnFreq': None,
-                'Opt': None,
-            },
-            'extra_input_keywords': {},
+            'input_kewords': ['RKS', 'BP', 'def2-TZVP', 'RI', 'def2/J'],
+            'extra_input_keywords': ['Grid5', 'NoFinalGrid', 'AnFreq', 'OPT'],
         }
     )
 
@@ -57,16 +47,15 @@ def example_dft(orca_code, submit=True):
     builder.code = orca_code
 
     builder.metadata.options.resources = {
-        "num_machines": 1,
-        "num_mpiprocs_per_machine": 2,
+        'num_machines': 1,
+        'num_mpiprocs_per_machine': 2,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 3 * 60
-    # builder.metadata.options.max_memory_kb = int(parameters['link0_parameters']['%mem'][:-2])
     if submit:
-        print("Testing ORCA Frequency Calculation...")
+        print('Testing ORCA Opt/Frequency Calculation...')
         res, pk = run_get_pk(builder)
-        print("calculation pk: ", pk)
-        print("Enthalpy is :", res['output_parameters'].dict['enthalpy'])
+        print('calculation pk: ', pk)
+        print('Enthalpy is :', res['output_parameters'].dict['enthalpy'])
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
@@ -82,7 +71,7 @@ def cli(codelabel, submit):
     except NotExistent:
         print("The code '{}' does not exist".format(codelabel))
         sys.exit(1)
-    example_dft(code, submit)
+    example_opt_freq(code, submit)
 
 
 if __name__ == '__main__':

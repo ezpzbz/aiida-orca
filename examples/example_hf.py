@@ -1,11 +1,11 @@
-"""Run simple DFT calculation"""
+"""Run simple HF calculation"""
 
 import sys
 import click
 
 import pymatgen as mg
 
-from aiida.engine import run
+from aiida.engine import run_get_pk
 from aiida.orm import (Code, Dict, StructureData)
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
@@ -13,10 +13,8 @@ from aiida.plugins import CalculationFactory
 OrcaCalculation = CalculationFactory('orca')  #pylint: disable=invalid-name
 
 
-def example_dft(orca_code, submit=True):
-    """Run simple DFT calculation"""
-
-    print("Testing Gaussian Input Creation")
+def example_hf(orca_code, submit=True):
+    """Run simple HF calculation"""
 
     # structure
     structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
@@ -34,11 +32,8 @@ def example_dft(orca_code, submit=True):
                     'nproc': 2,
                 }
             },
-            'input_keywords': {
-                'HF': None,
-                'def2-TZVP': None,
-            },
-            'extra_input_keywords': {},
+            'input_keywords': ['HF', 'def2-TZVP'],
+            'extra_input_keywords': [],
         }
     )
 
@@ -51,18 +46,15 @@ def example_dft(orca_code, submit=True):
     builder.code = orca_code
 
     builder.metadata.options.resources = {
-        "num_machines": 1,
-        "num_mpiprocs_per_machine": 2,
+        'num_machines': 1,
+        'num_mpiprocs_per_machine': 2,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 3 * 60
-    # builder.metadata.options.max_memory_kb = int(parameters['link0_parameters']['%mem'][:-2])
     if submit:
-
-        builder.metadata.dry_run = False
-        builder.metadata.store_provenance = True
-
-        print("Submitted calculation...")
-        run(builder)
+        print('Testing Orca HF Single Point Calculations...')
+        res, pk = run_get_pk(builder)
+        print('calculation pk: ', pk)
+        print('SCF Energy is :', res['output_parameters'].dict['SCF_energies'][0])
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
@@ -78,7 +70,7 @@ def cli(codelabel, submit):
     except NotExistent:
         print("The code '{}' does not exist".format(codelabel))
         sys.exit(1)
-    example_dft(code, submit)
+    example_hf(code, submit)
 
 
 if __name__ == '__main__':
