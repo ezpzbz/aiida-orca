@@ -1,6 +1,7 @@
 """AiiDA-ORCA output parser"""
 import io
 import os
+import re
 
 from cclib import io
 from cclib.parser.utils import PeriodicTable
@@ -19,6 +20,9 @@ class OrcaBaseParser(Parser):
     def parse(self, **kwargs):
         """Receives in input a dictionary of retrieved nodes. Does all the logic here."""
         results = {}
+        opt_run = False
+        freq_run = False
+
         try:
             out_folder = self.retrieved
         except NotExistent:
@@ -36,7 +40,18 @@ class OrcaBaseParser(Parser):
         # Quick hack to remedy cclib issue.
         output_dict['metadata'].update({'comments': 'AiiDA-ORCA Plugin'})
 
-        if 'Opt' in output_dict['metadata']['keywords']:
+        keywords = output_dict['metadata']['keywords']
+
+        opt_pattern = re.compile("(GDIIS-)?[CZ?OPT]", re.IGNORECASE)
+        freq_pattern = re.compile("(AN|NUM)?FREQ", re.IGNORECASE)
+
+        if any(re.match(opt_pattern, keyword) for keyword in keywords):
+            opt_run = True
+
+        if any(re.match(freq_pattern, keyword) for keyword in keywords):
+            freq_run = True
+
+        if opt_run:
             optimized_xyz_str = io.xyzwriter.XYZ(outobj, firstgeom=False, lastgeom=True).generate_repr()
             optimized_structure = StructureData(pymatgen_molecule=mp.Molecule.from_str(optimized_xyz_str, 'xyz'))
             self.out("output_structure", optimized_structure)
@@ -46,6 +61,14 @@ class OrcaBaseParser(Parser):
             results['atomchages_lowdin'] = output_dict['atomcharges']['lowdin'].tolist()
         results['MO_energies'] = output_dict['moenergies'][0].tolist()
         results['SCF_energies'] = output_dict['scfenergies'].tolist()
+
+        if freq_run:
+            results['entropy'] = output_dict['entropy']
+            results['enthalpy'] = output_dict['enthalpy']
+            results['freeenergy'] = output_dict['freeenergy']
+            results['frequencies'] = output_dict['vibfreqs'].tolist()
+            results['IRS'] = output_dict['vibirs'].tolist()
+            results['temperature'] = output_dict['temperature']
 
         pt = PeriodicTable()  #pylint: disable=invalid-name
 
