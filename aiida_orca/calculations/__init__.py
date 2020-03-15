@@ -4,7 +4,7 @@ import io
 import six
 
 from aiida.engine import CalcJob
-from aiida.orm import Computer, Dict, StructureData
+from aiida.orm import Computer, Dict, RemoteData, StructureData
 from aiida.common import CalcInfo, CodeInfo, InputValidationError
 
 
@@ -18,9 +18,10 @@ class OrcaCalculation(CalcJob):
     # Defaults
     _DEFAULT_INPUT_FILE = 'aiida.inp'
     _DEFAULT_OUTPUT_FILE = 'aiida.out'
-    _DEFAULT_COORDS_FILE_NAME = 'aiida.xyz'
+    _DEFAULT_COORDS_FILE_NAME = 'aiida.coords.xyz'
     _DEFAULT_PARSER = 'orca_base_parser'
     _DEFAULT_RESTART_FILE_NAME = 'aiida.gbw'
+    _DEFAULT_PARENT_CALC_FLDR_NAME = 'parent_calc'
 
     @classmethod
     def define(cls, spec):
@@ -30,6 +31,7 @@ class OrcaCalculation(CalcJob):
         spec.input('structure', valid_type=StructureData, required=False, help='the main input structure')
         spec.input('parameters', valid_type=Dict, help='the input parameters')
         spec.input('settings', valid_type=Dict, required=False, help='additional input parameters')
+        spec.input('parent_calc_folder', valid_type=RemoteData, required=False, help='remote folder used for restarts')
 
         # Specify default parser
         spec.input(
@@ -56,15 +58,9 @@ class OrcaCalculation(CalcJob):
         """
         from aiida_orca.utils import OrcaInput
 
-        # create ORCA input file
-        inp = OrcaInput(self.inputs.parameters.get_dict())
-
         # create input structure(s)
         if 'structure' in self.inputs:
             self._write_structure(self.inputs.structure, folder, self._DEFAULT_COORDS_FILE_NAME)
-
-        with io.open(folder.get_abs_path(self._DEFAULT_INPUT_FILE), mode='w', encoding='utf-8') as fobj:
-            fobj.write(inp.render())
 
         settings = self.inputs.settings.get_dict() if 'settings' in self.inputs else {}
 
@@ -93,11 +89,16 @@ class OrcaCalculation(CalcJob):
             comp_uuid = self.inputs.parent_calc_folder.computer.uuid
             remote_path = self.inputs.parent_calc_folder.get_remote_path()
             copy_info = (comp_uuid, remote_path, self._DEFAULT_PARENT_CALC_FLDR_NAME)
-            if self.inputs.code.computer.uuid == comp_uuid:  # if running on the same computer - make a symlink
-                # if not - copy the folder
-                calcinfo.remote_symlink_list.append(copy_info)
-            else:
+
+            # In orca we cannot benefit from symlinl.
+            # We need to provide the abosulte path of remote directory.
+            if self.inputs.code.computer.uuid != comp_uuid:
                 calcinfo.remote_copy_list.append(copy_info)
+
+        # create ORCA input file
+        inp = OrcaInput(self.inputs.parameters.get_dict(), remote_path=remote_path)
+        with io.open(folder.get_abs_path(self._DEFAULT_INPUT_FILE), mode='w', encoding='utf-8') as fobj:
+            fobj.write(inp.render())
 
         # check for left over settings
         if settings:
