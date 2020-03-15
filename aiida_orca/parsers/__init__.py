@@ -28,13 +28,15 @@ class OrcaBaseParser(Parser):
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
-        fname = self.node.process_class._DEFAULT_OUTPUT_FILE  #pylint: disable=protected-access
-        hessian_fname = self.node.process_class._DEFAULT_HESSIAN_FILE  #pylint: disable=protected-access
+        fname_out = self.node.process_class._DEFAULT_OUTPUT_FILE  #pylint: disable=protected-access
+        fname_relaxed = self.node.process_class._DEFAULT_RELAX_COORDS_FILE_NAME  #pylint: disable=protected-access
+        fname_traj = self.node.process_class._DEFAULT_TRAJECTORY_FILE_NAME  #pylint: disable=protected-access
+        fname_hessian = self.node.process_class._DEFAULT_HESSIAN_FILE  #pylint: disable=protected-access
 
-        if fname not in out_folder._repository.list_object_names():  #pylint: disable=protected-access
+        if fname_out not in out_folder._repository.list_object_names():  #pylint: disable=protected-access
             raise OutputParsingError('Orca output file not retrieved')
 
-        outobj = io.ccread(os.path.join(out_folder._repository._get_base_folder().abspath, fname))  #pylint: disable=protected-access
+        outobj = io.ccread(os.path.join(out_folder._repository._get_base_folder().abspath, fname_out))  #pylint: disable=protected-access
 
         output_dict = outobj.getattributes()
 
@@ -53,9 +55,17 @@ class OrcaBaseParser(Parser):
             freq_run = True
 
         if opt_run:
-            optimized_xyz_str = io.xyzwriter.XYZ(outobj, firstgeom=False, lastgeom=True).generate_repr()
-            optimized_structure = StructureData(pymatgen_molecule=mp.Molecule.from_str(optimized_xyz_str, 'xyz'))
-            self.out('output_structure', optimized_structure)
+            relaxed_structure = StructureData(
+                pymatgen_molecule=mp.Molecule.
+                from_file(os.path.join(out_folder._repository._get_base_folder().abspath, fname_relaxed))  #pylint: disable=protected-access
+            )
+            relaxation_trajectory = SinglefileData(
+                file=os.path.join(out_folder._repository._get_base_folder().abspath, fname_traj)  #pylint: disable=protected-access
+            )
+            # optimized_xyz_str = io.xyzwriter.XYZ(outobj, firstgeom=False, lastgeom=True).generate_repr()
+            # optimized_structure = StructureData(pymatgen_molecule=mp.Molecule.from_str(optimized_xyz_str, 'xyz'))
+            self.out('relaxed_structure', relaxed_structure)
+            self.out('relaxation_trajectory', relaxation_trajectory)
 
         if 'atomcharges' in output_dict:
             results['atomchages_mulliken'] = output_dict['atomcharges']['mulliken'].tolist()
@@ -71,7 +81,7 @@ class OrcaBaseParser(Parser):
             results['IRS'] = output_dict['vibirs'].tolist()
             results['temperature'] = output_dict['temperature']
             hessian = SinglefileData(
-                file=os.path.join(out_folder._repository._get_base_folder().abspath, hessian_fname)  #pylint: disable=protected-access
+                file=os.path.join(out_folder._repository._get_base_folder().abspath, fname_hessian)  #pylint: disable=protected-access
             )
             self.out('hessian', hessian)
 

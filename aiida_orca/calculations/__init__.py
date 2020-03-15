@@ -20,6 +20,8 @@ class OrcaCalculation(CalcJob):
     _DEFAULT_OUTPUT_FILE = 'aiida.out'
     _DEFAULT_HESSIAN_FILE = 'aiida.hess'
     _DEFAULT_COORDS_FILE_NAME = 'aiida.coords.xyz'
+    _DEFAULT_RELAX_COORDS_FILE_NAME = 'aiida.xyz'
+    _DEFAULT_TRAJECTORY_FILE_NAME = 'aiida_trj.xyz'
     _DEFAULT_PARSER = 'orca_base_parser'
     _DEFAULT_RESTART_FILE_NAME = 'aiida.gbw'
     _DEFAULT_PARENT_CALC_FLDR_NAME = 'parent_calc'
@@ -49,7 +51,8 @@ class OrcaCalculation(CalcJob):
 
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')
-        spec.output('output_structure', valid_type=StructureData, required=False, help='optional relaxed structure')
+        spec.output('relaxed_structure', valid_type=StructureData, required=False, help='optional relaxed structure')
+        spec.output('relaxation_trajectory', valid_type=SinglefileData, required=False, help='Relaxation trajectory')
         spec.output('hessian', valid_type=SinglefileData, required=False, help='Hessian calculated in a freq job.')
         spec.default_output_node = 'output_parameters'
 
@@ -90,7 +93,8 @@ class OrcaCalculation(CalcJob):
             )
 
         calcinfo.retrieve_list = [
-            self._DEFAULT_OUTPUT_FILE, self._DEFAULT_RESTART_FILE_NAME, self._DEFAULT_HESSIAN_FILE
+            self._DEFAULT_OUTPUT_FILE, self._DEFAULT_RESTART_FILE_NAME, self._DEFAULT_HESSIAN_FILE,
+            self._DEFAULT_RELAX_COORDS_FILE_NAME, self._DEFAULT_RELAXATION_TRAJECTORY_FILE_NAME
         ]
         calcinfo.retrieve_list += settings.pop('additional_retrieve_list', [])
 
