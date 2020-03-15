@@ -11,7 +11,7 @@ import pymatgen as mp
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.engine import ExitCode
-from aiida.orm import Dict, StructureData
+from aiida.orm import Dict, SinglefileData, StructureData
 
 
 class OrcaBaseParser(Parser):
@@ -29,6 +29,7 @@ class OrcaBaseParser(Parser):
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
         fname = self.node.process_class._DEFAULT_OUTPUT_FILE  #pylint: disable=protected-access
+        hessian_fname = self.node.process_class._DEFAULT_HESSIAN_FILE  #pylint: disable=protected-access
 
         if fname not in out_folder._repository.list_object_names():  #pylint: disable=protected-access
             raise OutputParsingError('Orca output file not retrieved')
@@ -69,6 +70,10 @@ class OrcaBaseParser(Parser):
             results['frequencies'] = output_dict['vibfreqs'].tolist()
             results['IRS'] = output_dict['vibirs'].tolist()
             results['temperature'] = output_dict['temperature']
+            hessian = SinglefileData(
+                file=os.path.join(out_folder._repository._get_base_folder().abspath, hessian_fname)  #pylint: disable=protected-access
+            )
+            self.out('hessian', hessian)
 
         pt = PeriodicTable()  #pylint: disable=invalid-name
 
