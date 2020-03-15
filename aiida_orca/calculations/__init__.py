@@ -4,7 +4,7 @@ import io
 import six
 
 from aiida.engine import CalcJob
-from aiida.orm import Computer, Dict, RemoteData, StructureData
+from aiida.orm import Computer, Dict, RemoteData, SinglefileData, StructureData
 from aiida.common import CalcInfo, CodeInfo, InputValidationError
 
 
@@ -18,6 +18,7 @@ class OrcaCalculation(CalcJob):
     # Defaults
     _DEFAULT_INPUT_FILE = 'aiida.inp'
     _DEFAULT_OUTPUT_FILE = 'aiida.out'
+    _DEFAULT_HESSIAN_FILE = 'aiida.hess'
     _DEFAULT_COORDS_FILE_NAME = 'aiida.coords.xyz'
     _DEFAULT_PARSER = 'orca_base_parser'
     _DEFAULT_RESTART_FILE_NAME = 'aiida.gbw'
@@ -32,6 +33,7 @@ class OrcaCalculation(CalcJob):
         spec.input('parameters', valid_type=Dict, help='the input parameters')
         spec.input('settings', valid_type=Dict, required=False, help='additional input parameters')
         spec.input('parent_calc_folder', valid_type=RemoteData, required=False, help='remote folder used for restarts')
+        spec.input('hessian', valid_type=SinglefileData, required=False, help='previously calculated hessian')
 
         # Specify default parser
         spec.input(
@@ -48,6 +50,7 @@ class OrcaCalculation(CalcJob):
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')
         spec.output('output_structure', valid_type=StructureData, required=False, help='optional relaxed structure')
+        spec.output('hessian', valid_type=SinglefileData, required=False, help='Hessian calculated in a freq job.')
         spec.default_output_node = 'output_parameters'
 
     def prepare_for_submission(self, folder):
@@ -79,12 +82,22 @@ class OrcaCalculation(CalcJob):
         calcinfo.stdout_name = self._DEFAULT_OUTPUT_FILE
         calcinfo.codes_info = [codeinfo]
 
-        calcinfo.retrieve_list = [self._DEFAULT_OUTPUT_FILE, self._DEFAULT_RESTART_FILE_NAME]
+        # files or additional structures
+        if 'hessian' in self.inputs:
+            calcinfo.local_copy_list = []
+            calcinfo.local_copy_list.append(
+                (self.inputs.hessian.uuid, self.inputs.hessian.filename, self.inputs.hessian.filename)
+            )
+
+        calcinfo.retrieve_list = [
+            self._DEFAULT_OUTPUT_FILE, self._DEFAULT_RESTART_FILE_NAME, self._DEFAULT_HESSIAN_FILE
+        ]
         calcinfo.retrieve_list += settings.pop('additional_retrieve_list', [])
 
         # symlinks
         calcinfo.remote_symlink_list = []
         calcinfo.remote_copy_list = []
+        remote_path = None
         if 'parent_calc_folder' in self.inputs:
             comp_uuid = self.inputs.parent_calc_folder.computer.uuid
             remote_path = self.inputs.parent_calc_folder.get_remote_path()
