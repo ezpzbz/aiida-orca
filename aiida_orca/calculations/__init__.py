@@ -94,7 +94,7 @@ class OrcaCalculation(CalcJob):
 
         calcinfo.retrieve_list = [
             self._DEFAULT_OUTPUT_FILE, self._DEFAULT_RESTART_FILE_NAME, self._DEFAULT_HESSIAN_FILE,
-            self._DEFAULT_RELAX_COORDS_FILE_NAME, self._DEFAULT_RELAXATION_TRAJECTORY_FILE_NAME
+            self._DEFAULT_RELAX_COORDS_FILE_NAME, self._DEFAULT_TRAJECTORY_FILE_NAME
         ]
         calcinfo.retrieve_list += settings.pop('additional_retrieve_list', [])
 
