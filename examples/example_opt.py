@@ -2,7 +2,7 @@
 
 import sys
 import click
-
+import pytest
 import pymatgen as mg
 
 from aiida.engine import run_get_pk
@@ -55,6 +55,7 @@ def example_opt(orca_code, submit=True):
         res, pk = run_get_pk(builder)
         print('calculation pk: ', pk)
         print('SCF Energy is :', res['output_parameters'].dict['SCF_energies'])
+        pytest.base_calc_pk = pk
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
