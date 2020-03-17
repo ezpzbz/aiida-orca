@@ -60,7 +60,7 @@ jobs:
         pip install --upgrade pip
         pip install -e .[test,pre-commit]
         cd ../..
-        git clone https://github.com/pzarabadip/aiida-core.git aiida-core
+        git clone https://github.com/aiidateam/aiida-core.git aiida-core
         cd aiida-core
         pip install -e .[atomic_tools]
         cd ../aiida-orca/aiida-orca
