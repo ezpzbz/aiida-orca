@@ -85,6 +85,9 @@ jobs:
         export LD_LIBRARY_PATH=${{ github.workspace }}/ompi216/lib:${LD_LIBRARY_PATH}
     - name: Run pytest
       run: |
+        which mpirun
+        echo $PATH
+        echo $LD_LIBRARY_PATH
         pytest --cov-report=xml --cov=./aiida_orca
     - name: Upload coverage to codecov
       uses: codecov/codecov-action@v1
