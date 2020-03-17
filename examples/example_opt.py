@@ -1,5 +1,5 @@
 """Run simple DFT calculation"""
-
+import os
 import sys
 import click
 import pytest
@@ -17,7 +17,9 @@ def example_opt(orca_code, submit=True):
     """Run simple DFT calculation"""
 
     # structure
-    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
+    thisdir = os.path.dirname(os.path.realpath(__file__))
+    xyz_path = os.path.join(thisdir, 'ch4.xyz')
+    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file(xyz_path))
 
     # parameters
     parameters = Dict(
