@@ -20,8 +20,7 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
     # This line is needed for tests only
     if opt_calc_pk is None:
         opt_calc_pk = pytest.opt_calc_pk  # pylint: disable=no-member
-    print(opt_calc_pk)
-    print(load_node(opt_calc_pk).outputs.remote_folder)
+
     # structure
     thisdir = os.path.dirname(os.path.realpath(__file__))
     xyz_path = os.path.join(thisdir, 'ch4.xyz')
