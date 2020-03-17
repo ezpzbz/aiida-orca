@@ -4,7 +4,7 @@ import io
 import six
 
 from aiida.engine import CalcJob
-from aiida.orm import Computer, Dict, RemoteData, SinglefileData, StructureData
+from aiida.orm import Computer, Dict, FolderData, SinglefileData, StructureData
 from aiida.common import CalcInfo, CodeInfo, InputValidationError
 
 
@@ -34,7 +34,7 @@ class OrcaCalculation(CalcJob):
         spec.input('structure', valid_type=StructureData, required=False, help='the main input structure')
         spec.input('parameters', valid_type=Dict, help='the input parameters')
         spec.input('settings', valid_type=Dict, required=False, help='additional input parameters')
-        spec.input('parent_calc_folder', valid_type=RemoteData, required=False, help='remote folder used for restarts')
+        spec.input('retrieved_folder', valid_type=FolderData, required=False, help='remote folder used for restarts')
         spec.input('hessian', valid_type=SinglefileData, required=False, help='previously calculated hessian')
 
         # Specify default parser
@@ -102,17 +102,17 @@ class OrcaCalculation(CalcJob):
         calcinfo.remote_symlink_list = []
         calcinfo.remote_copy_list = []
         remote_path = None
-        if 'parent_calc_folder' in self.inputs:
-            comp_uuid = self.inputs.parent_calc_folder.computer.uuid
-            print('comp_uuid {}'.format(comp_uuid))
-            remote_path = self.inputs.parent_calc_folder.get_remote_path()
+        if 'retrieved_folder' in self.inputs:
+            # comp_uuid = self.inputs.parent_calc_folder.computer.uuid
+            # print('comp_uuid {}'.format(comp_uuid))
+            remote_path = self.inputs.retrieved._repository._get_base_folder().abspath  #pylint: disable=protected-access
             print('remote path: {}'.format(remote_path))
 
             # In orca we cannot benefit from symlinl.
             # We need to provide the abosulte path of remote directory.
-            if self.inputs.code.computer.uuid != comp_uuid:
-                copy_info = (comp_uuid, remote_path, self._DEFAULT_PARENT_CALC_FLDR_NAME)
-                calcinfo.remote_copy_list.append(copy_info)
+            # if self.inputs.code.computer.uuid != comp_uuid:
+            #     copy_info = (comp_uuid, remote_path, self._DEFAULT_PARENT_CALC_FLDR_NAME)
+            #     calcinfo.remote_copy_list.append(copy_info)
 
         # create ORCA input file
         inp = OrcaInput(self.inputs.parameters.get_dict(), remote_path=remote_path)
