@@ -34,7 +34,7 @@ def example_opt_numfreq(orca_code, submit=True):
                 #     'nproc': 2,
                 # }
             },
-            'input_kewords': ['RKS', 'BP', 'def2-TZVP', 'RI', 'def2/J'],
+            'input_kewords': ['RKS', 'BP', 'def2-SVP', 'RI', 'def2/J'],
             'extra_input_keywords': ['Grid5', 'NoFinalGrid', 'NumFreq', 'OPT'],
         }
     )
