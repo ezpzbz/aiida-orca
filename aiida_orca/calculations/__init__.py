@@ -105,8 +105,8 @@ class OrcaCalculation(CalcJob):
         if 'retrieved_folder' in self.inputs:
             # comp_uuid = self.inputs.parent_calc_folder.computer.uuid
             # print('comp_uuid {}'.format(comp_uuid))
-            remote_path = self.inputs.retrieved._repository._get_base_folder().abspath  #pylint: disable=protected-access
-            print('remote path: {}'.format(remote_path))
+            remote_path = self.inputs.retrieved_folder._repository._get_base_folder().abspath  #pylint: disable=protected-access
+            # print('remote path: {}'.format(remote_path))
 
             # In orca we cannot benefit from symlinl.
             # We need to provide the abosulte path of remote directory.
