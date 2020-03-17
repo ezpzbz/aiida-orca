@@ -52,7 +52,7 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
     builder.structure = structure
     builder.parameters = parameters
     builder.code = orca_code
-    builder.parent_calc_folder = load_node(opt_calc_pk).outputs.remote_folder
+    builder.retrieved_folder = load_node(opt_calc_pk).outputs.retrieved
     builder.metadata.options.resources = {
         'num_machines': 1,
         'num_mpiprocs_per_machine': 1,
