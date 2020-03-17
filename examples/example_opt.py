@@ -30,9 +30,9 @@ def example_opt(orca_code, submit=True):
                 'scf': {
                     'convergence': 'tight',
                 },
-                # 'pal': {
-                #     'nproc': 2,
-                # }
+                'pal': {
+                    'nproc': 2,
+                }
             },
             'input_keywords': ['B3LYP/G', 'SV(P)', 'Opt'],
             'extra_input_keywords': [],
@@ -49,7 +49,7 @@ def example_opt(orca_code, submit=True):
 
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 1,
+        'num_mpiprocs_per_machine': 2,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
