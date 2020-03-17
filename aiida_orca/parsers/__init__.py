@@ -76,7 +76,7 @@ class OrcaBaseParser(Parser):
         if freq_run:
             results['entropy'] = output_dict['entropy']
             results['enthalpy'] = output_dict['enthalpy']
-            results['freeenergy'] = output_dict['freeenergy']
+            # results['freeenergy'] = output_dict['freeenergy'] #not working with pip version of cclib
             results['frequencies'] = output_dict['vibfreqs'].tolist()
             results['IRS'] = output_dict['vibirs'].tolist()
             results['temperature'] = output_dict['temperature']
