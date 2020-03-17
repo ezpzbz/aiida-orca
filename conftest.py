@@ -11,6 +11,5 @@ def orca_code(aiida_local_code_factory):  # pylint: disable=unused-argument
         'orca',
         'orca',
         prepend_text=
-        'export LD_LIBRARY_PATH=/home/runner/work/aiida-orca/aiida-orca/orca_4_2_1_linux_x86-64_shared_openmpi216' +
-        '\n' + 'export PATH=/home/runner/work/aiida-orca/aiida-orca/ompi216/bin:$PATH'
+        'export LD_LIBRARY_PATH=/home/runner/work/aiida-orca/aiida-orca/orca_4_2_1_linux_x86-64_shared_openmpi216'
     )

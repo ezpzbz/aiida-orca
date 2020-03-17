@@ -2,7 +2,7 @@
 
 import sys
 import click
-
+import pytest
 # import pymatgen as mg
 
 from aiida.engine import run_get_pk
@@ -16,10 +16,13 @@ OrcaCalculation = CalculationFactory('orca')  #pylint: disable = invalid-name
 def example_restart_numfreq(orca_code, submit=True):
     """Run restart numerical Freq Calculation using AiiDA-Orca"""
 
+    # This line is needed for tests only
+    if freq_calc_pk is None:
+        freq_calc_pk = pytest.freq_calc_pk  # pylint: disable=no-member
     # structure
     # Optimized structure
-    structure = load_node(2229)
-    hessian = load_node(2230)
+    # structure = load_node(2229)
+    # hessian = load_node(2230)
 
     # parameters
     parameters = Dict(
@@ -30,9 +33,9 @@ def example_restart_numfreq(orca_code, submit=True):
                 'scf': {
                     'convergence': 'tight',
                 },
-                'pal': {
-                    'nproc': 2,
-                },
+                # 'pal': {
+                #     'nproc': 2,
+                # },
                 'freq': {
                     'restart': 'True',
                     'temp': 273,
@@ -47,16 +50,16 @@ def example_restart_numfreq(orca_code, submit=True):
 
     builder = OrcaCalculation.get_builder()
 
-    builder.structure = structure
+    builder.structure = load_node(freq_calc_pk).outputs.relaxed_structure
     builder.parameters = parameters
     builder.code = orca_code
-    builder.hessian = hessian
+    builder.hessian = load_node(freq_calc_pk).outputs.hessian
 
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 2,
+        'num_mpiprocs_per_machine': 1,
     }
-    builder.metadata.options.max_wallclock_seconds = 1 * 3 * 60
+    builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
         print('Testing ORCA  restart numerical Frequency Calculation...')
         res, pk = run_get_pk(builder)

@@ -1,6 +1,8 @@
 """Run simple DFT calculation"""
+import os
 import sys
 import click
+import pytest
 
 import pymatgen as mg
 
@@ -12,12 +14,19 @@ from aiida.plugins import CalculationFactory
 OrcaCalculation = CalculationFactory('orca')  #pylint: disable = invalid-name
 
 
-def example_opt(orca_code, submit=True):
+def example_opt_restart(orca_code, submit=True):
     """Run simple DFT calculation"""
 
+    # This line is needed for tests only
+    if opt_calc_pk is None:
+        opt_calc_pk = pytest.opt_calc_pk  # pylint: disable=no-member
+
     # structure
-    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
-    parent_calc_folder = load_node(2104)
+    thisdir = os.path.dirname(os.path.realpath(__file__))
+    xyz_path = os.path.join(thisdir, 'ch4.xyz')
+    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file(xyz_path))
+
+    # parent_calc_folder = load_node(2104)
 
     # parameters
     parameters = Dict(
@@ -28,9 +37,9 @@ def example_opt(orca_code, submit=True):
                 'scf': {
                     'convergence': 'tight',
                 },
-                'pal': {
-                    'nproc': 2,
-                },
+                # 'pal': {
+                #     'nproc': 2,
+                # },
             },
             'input_keywords': ['B3LYP/G', 'def2-TZVP', 'Opt'],
             'extra_input_keywords': ['MOREAD'],
@@ -43,12 +52,12 @@ def example_opt(orca_code, submit=True):
     builder.structure = structure
     builder.parameters = parameters
     builder.code = orca_code
-    builder.parent_calc_folder = parent_calc_folder
+    builder.parent_calc_folder = load_node(opt_calc_pk).outputs.remote_folder
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 2,
+        'num_mpiprocs_per_machine': 1,
     }
-    builder.metadata.options.max_wallclock_seconds = 1 * 3 * 60
+    builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
         print('Testing Orca Opt Calculations...')
         res, pk = run_get_pk(builder)
@@ -69,7 +78,7 @@ def cli(codelabel, submit):
     except NotExistent:
         print("The code '{}' does not exist".format(codelabel))
         sys.exit(1)
-    example_opt(code, submit)
+    example_opt_restart(code, submit)
 
 
 if __name__ == '__main__':

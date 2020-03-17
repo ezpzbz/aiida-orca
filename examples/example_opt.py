@@ -30,9 +30,9 @@ def example_opt(orca_code, submit=True):
                 'scf': {
                     'convergence': 'tight',
                 },
-                'pal': {
-                    'nproc': 2,
-                }
+                # 'pal': { #Uncomment for parallel run.
+                #     'nproc': 2,
+                # }
             },
             'input_keywords': ['B3LYP/G', 'SV(P)', 'Opt'],
             'extra_input_keywords': [],
@@ -49,7 +49,7 @@ def example_opt(orca_code, submit=True):
 
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 2,
+        'num_mpiprocs_per_machine': 1,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
@@ -57,7 +57,7 @@ def example_opt(orca_code, submit=True):
         res, pk = run_get_pk(builder)
         print('calculation pk: ', pk)
         print('SCF Energy is :', res['output_parameters'].dict['SCF_energies'])
-        pytest.base_calc_pk = pk
+        pytest.opt_calc_pk = pk
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
