@@ -58,7 +58,6 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
         'num_mpiprocs_per_machine': 1,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
-    print(builder)
     if submit:
         print('Testing Orca Opt Calculations...')
         res, pk = run_get_pk(builder)

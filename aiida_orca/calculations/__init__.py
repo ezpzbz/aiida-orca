@@ -104,12 +104,14 @@ class OrcaCalculation(CalcJob):
         remote_path = None
         if 'parent_calc_folder' in self.inputs:
             comp_uuid = self.inputs.parent_calc_folder.computer.uuid
+            print('comp_uuid {}'.format(comp_uuid))
             remote_path = self.inputs.parent_calc_folder.get_remote_path()
-            copy_info = (comp_uuid, remote_path, self._DEFAULT_PARENT_CALC_FLDR_NAME)
+            print('remote path: {}'.format(remote_path))
 
             # In orca we cannot benefit from symlinl.
             # We need to provide the abosulte path of remote directory.
             if self.inputs.code.computer.uuid != comp_uuid:
+                copy_info = (comp_uuid, remote_path, self._DEFAULT_PARENT_CALC_FLDR_NAME)
                 calcinfo.remote_copy_list.append(copy_info)
 
         # create ORCA input file
