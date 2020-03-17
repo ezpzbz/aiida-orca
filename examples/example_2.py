@@ -29,13 +29,14 @@ def example_opt_numfreq(orca_code, submit=True):
             'input_blocks': {
                 'scf': {
                     'convergence': 'tight',
+                    'Print[P_SCFMemInfo]': 1
                 },
                 # 'pal': {
                 #     'nproc': 2,
                 # }
             },
             'input_kewords': ['RKS', 'BP', 'def2-SVP', 'RI', 'def2/J'],
-            'extra_input_keywords': ['Grid5', 'NoFinalGrid', 'NumFreq', 'OPT'],
+            'extra_input_keywords': ['Grid2', 'NoFinalGrid', 'NumFreq', 'OPT'],
         }
     )
 
