@@ -1,0 +1,27 @@
+# any Hartree-Fock or DFT model can be used here
+! RKS BP def2-TZVP RI def2/J
+# Tight SCF convergence and larger integration grids are advisable
+# in order to minimize the numerical noise in the frequencies.
+! TightSCF Grid5 NoFinalGrid
+
+# perform a geometry optimization first
+! Opt
+# Run an analytical or numerical frequency calculation afterwards
+! NumFreq # or just ‘‘! Freq’’
+# details of the analytical frequency calculation
+%freq Hess2ElFlags 1,2,2,1 # use the RIJCOSX approximation
+# (this is the new default for RIJCOSX Hessian)
+end
+# details of the numerical frequency calculation
+%freq CentralDiff true # use central-differences (this is the default)
+Increment 0.005 # increment in bohr for the
+# differentiation (default 0.005)
+end
+!PAL2
+! bohrs
+* xyz 0 1
+O -1.396288 -0.075107 0.052125
+O 1.396289 -0.016261 -0.089970
+H -1.775703 1.309756 -1.111179
+H 1.775687 0.140443 1.711854
+*

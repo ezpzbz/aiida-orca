@@ -72,6 +72,8 @@ jobs:
         .github/get_orca.sh ${{secrets.DB_TOKEN}} ${{secrets.ORCA_LINK}} ${{secrets.ORCA_PASSWORD}}
         tar -xvf orca.tar.xz
         mv orca_4_2_1_linux_x86-64_shared_openmpi216 orca421
+        cd orca421
+        pwd
     - name: Get OpenMPI from cache (or start caching)
       id: openmpi-cache
       uses: actions/cache@v1
@@ -81,7 +83,6 @@ jobs:
     - name: append orca o path
       run: |
         echo "::add-path::${{ github.workspace }}/orca421"
-        which orca
     - name: sourcing
       run: source .github/setup.sh
     - name: test if orca runs
