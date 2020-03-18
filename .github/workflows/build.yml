@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        python-version: [3.6]
+        python-version: [3.6,3.7,3.8]
         backend: ['django']
     steps:
     - uses: actions/checkout@v1
@@ -66,6 +66,10 @@ jobs:
         cd ../aiida-orca/aiida-orca
         pip install wrapt==1.11.2
         reentry scan -r aiida
+    - name: Run pre-commit
+      run: |
+        pre-commit install
+        pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
     - name: Get ORCA
       run: |
         chmod +x .github/get_orca.sh
@@ -78,17 +82,6 @@ jobs:
       with:
         path: ./ompi216
         key: ompi
-    # - name: append orca o path
-    #   run: |
-    #     echo "::add-path::${{ github.workspace }}/orca421"
-    # - name: sourcing
-    #   run: |
-    #     pwd
-    #     source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
-    # - name: test if orca runs
-    #   run: |
-    #     source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
-    #     /home/runner/work/aiida-orca/aiida-orca/orca421/orca myinp.inp
     - name: Run pytest
       run: |
         source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
