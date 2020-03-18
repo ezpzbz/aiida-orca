@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        python-version: [3.6]
+        python-version: [3.6,3.7]
         backend: ['django']
     steps:
     - uses: actions/checkout@v1
@@ -66,28 +66,25 @@ jobs:
         cd ../aiida-orca/aiida-orca
         pip install wrapt==1.11.2
         reentry scan -r aiida
+    - name: Run pre-commit
+      run: |
+        pre-commit install
+        pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
     - name: Get ORCA
       run: |
         chmod +x .github/get_orca.sh
         .github/get_orca.sh ${{secrets.DB_TOKEN}} ${{secrets.ORCA_LINK}} ${{secrets.ORCA_PASSWORD}}
         tar -xvf orca.tar.xz
-        cd orca_4_2_1_linux_x86-64_shared_openmpi216
+        mv orca_4_2_1_linux_x86-64_shared_openmpi216 orca421
     - name: Get OpenMPI from cache (or start caching)
       id: openmpi-cache
       uses: actions/cache@v1
       with:
         path: ./ompi216
         key: ompi
-    - name: append to path
-      run: |
-        echo "::add-path::${{ github.workspace }}/ompi216/bin/"
-        echo "::add-path::${{ github.workspace }}/orca_4_2_1_linux_x86-64_shared_openmpi216"
-        export LD_LIBRARY_PATH=${{ github.workspace }}/ompi216/lib:${LD_LIBRARY_PATH}
     - name: Run pytest
       run: |
-        which mpirun
-        echo $PATH
-        echo $LD_LIBRARY_PATH
+        source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
         pytest --cov-report=xml --cov=./aiida_orca
     - name: Upload coverage to codecov
       uses: codecov/codecov-action@v1
