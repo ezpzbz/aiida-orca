@@ -84,6 +84,7 @@ jobs:
     - name: Run pytest
       run: |
         pytest --cov-report=xml --cov=./aiida_orca
+        verdi code show 1
     - name: Upload coverage to codecov
       uses: codecov/codecov-action@v1
       with:

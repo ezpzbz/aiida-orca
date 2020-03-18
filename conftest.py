@@ -27,4 +27,4 @@ orca_bin = 'export LD_LIBRARY_PATH=/home/runner/work/aiida-orca/aiida-orca/orca4
 
 @pytest.fixture(scope='function')
 def orca_code(aiida_local_code_factory):  # pylint: disable=unused-argument
-    return aiida_local_code_factory('orca', 'orca', prepend_text=ompi_lib + '\n' + ompi_lib + '\n' + orca_bin)
+    return aiida_local_code_factory('orca', 'orca', prepend_text=ompi_lib + '\n' + ompi_lib + '\n' + orca_bin + '\n')
