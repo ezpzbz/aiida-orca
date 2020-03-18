@@ -1,12 +1,11 @@
 """Run restart numerical Freq Calculation using AiiDA-Orca"""
-
+import os
 import sys
 import click
 import pytest
-# import pymatgen as mg
 
 from aiida.engine import run_get_pk
-from aiida.orm import (load_node, Code, Dict)
+from aiida.orm import load_node, Code, Dict, SinglefileData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
@@ -19,10 +18,10 @@ def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
     # This line is needed for tests only
     if freq_calc_pk is None:
         freq_calc_pk = pytest.freq_calc_pk  # pylint: disable=no-member
-    # structure
-    # Optimized structure
-    # structure = load_node(2229)
-    # hessian = load_node(2230)
+
+    # old hess file
+    retr_fldr = load_node(freq_calc_pk).outputs.retrieved
+    hess_file = SinglefileData(os.path.join(retr_fldr._repository._get_base_folder().abspath, 'aiida.hess'))  #pylint: disable=protected-access
 
     # parameters
     parameters = Dict(
@@ -47,13 +46,14 @@ def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
     )
 
     # Construct process builder
-
     builder = OrcaCalculation.get_builder()
 
     builder.structure = load_node(freq_calc_pk).outputs.relaxed_structure
     builder.parameters = parameters
     builder.code = orca_code
-    builder.hessian = load_node(freq_calc_pk).outputs.hessian
+    builder.file = {
+        'hess': hess_file,
+    }
 
     builder.metadata.options.resources = {
         'num_machines': 1,

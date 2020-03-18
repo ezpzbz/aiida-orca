@@ -7,7 +7,7 @@ import pytest
 import pymatgen as mg
 
 from aiida.engine import run_get_pk
-from aiida.orm import (load_node, Code, Dict, StructureData)
+from aiida.orm import load_node, Code, Dict, SinglefileData, StructureData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
@@ -23,10 +23,12 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
 
     # structure
     thisdir = os.path.dirname(os.path.realpath(__file__))
-    xyz_path = os.path.join(thisdir, 'ch4.xyz')
+    xyz_path = os.path.join(thisdir, 'h2co.xyz')
     structure = StructureData(pymatgen_molecule=mg.Molecule.from_file(xyz_path))
 
-    # parent_calc_folder = load_node(2104)
+    # old gbw file
+    retr_fldr = load_node(opt_calc_pk).outputs.retrieved
+    gbw_file = SinglefileData(os.path.join(retr_fldr._repository._get_base_folder().abspath, 'aiida.gbw'))  #pylint: disable=protected-access
 
     # parameters
     parameters = Dict(
@@ -36,12 +38,13 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
             'input_blocks': {
                 'scf': {
                     'convergence': 'tight',
+                    'moinp': '"aiida_old.gbw"',
                 },
                 # 'pal': {
                 #     'nproc': 2,
                 # },
             },
-            'input_keywords': ['B3LYP/G', 'SV(P)', 'Opt'],
+            'input_keywords': ['B3LYP/G', 'def2-TZVP', 'Opt'],
             'extra_input_keywords': ['MOREAD'],
         }
     )
@@ -52,7 +55,9 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
     builder.structure = structure
     builder.parameters = parameters
     builder.code = orca_code
-    builder.retrieved_folder = load_node(opt_calc_pk).outputs.retrieved
+    builder.file = {
+        'gbw': gbw_file,
+    }
     builder.metadata.options.resources = {
         'num_machines': 1,
         'num_mpiprocs_per_machine': 1,

@@ -18,7 +18,7 @@ def example_opt_numfreq(orca_code, submit=True):
 
     # structure
     thisdir = os.path.dirname(os.path.realpath(__file__))
-    xyz_path = os.path.join(thisdir, 'ch4.xyz')
+    xyz_path = os.path.join(thisdir, 'h2co.xyz')
     structure = StructureData(pymatgen_molecule=mg.Molecule.from_file(xyz_path))
 
     # parameters
@@ -29,7 +29,6 @@ def example_opt_numfreq(orca_code, submit=True):
             'input_blocks': {
                 'scf': {
                     'convergence': 'tight',
-                    'Print[P_SCFMemInfo]': 1
                 },
                 # 'pal': {
                 #     'nproc': 2,
