@@ -1,6 +1,6 @@
 
-<!-- [![Actions Status](https://github.com/pzarabadip/aiida-orca/workflows/Build/badge.svg)](https://github.com/pzarabadip/aiida-orca/actions) -->
-<!-- [![codecov](https://codecov.io/gh/pzarabadip/aiida-orca/branch/github-actions/graph/badge.svg)](https://codecov.io/gh/pzarabadip/aiida-orca) -->
+[![Actions Status](https://github.com/pzarabadip/aiida-orca/workflows/Build/badge.svg)](https://github.com/pzarabadip/aiida-orca/actions)
+[![codecov](https://codecov.io/gh/pzarabadip/aiida-orca/branch/master/graph/badge.svg)](https://codecov.io/gh/pzarabadip/aiida-orca)
 
 <!-- [![PyPI version](https://badge.fury.io/py/aiida-orca.svg)](https://badge.fury.io/py/aiida-orca) -->
 <!-- [![PyPI pyversions](https://img.shields.io/pypi/pyversions/aiida-orca.svg)](https://pypi.python.org/pypi/aiida-orca/) -->
