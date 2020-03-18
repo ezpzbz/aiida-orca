@@ -30,9 +30,9 @@ def example_opt_numfreq(orca_code, submit=True):
                 'scf': {
                     'convergence': 'tight',
                 },
-                # 'pal': {
-                #     'nproc': 2,
-                # }
+                'pal': {
+                    'nproc': 2,
+                },
             },
             'input_kewords': ['RKS', 'BP', 'def2-SVP', 'RI', 'def2/J'],
             'extra_input_keywords': ['Grid2', 'NoFinalGrid', 'NumFreq', 'OPT'],

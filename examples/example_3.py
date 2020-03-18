@@ -32,9 +32,9 @@ def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
                 'scf': {
                     'convergence': 'tight',
                 },
-                # 'pal': {
-                #     'nproc': 2,
-                # },
+                'pal': {
+                    'nproc': 2,
+                },
                 'freq': {
                     'restart': 'True',
                     'temp': 273,

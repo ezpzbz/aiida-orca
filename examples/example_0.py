@@ -30,9 +30,9 @@ def example_opt(orca_code, submit=True):
                 'scf': {
                     'convergence': 'tight',
                 },
-                # 'pal': { #Uncomment for parallel run.
-                #     'nproc': 2,
-                # }
+                'pal': {  #Uncomment for parallel run.
+                    'nproc': 2,
+                }
             },
             'input_keywords': ['B3LYP/G', 'SV(P)', 'Opt'],
             'extra_input_keywords': [],

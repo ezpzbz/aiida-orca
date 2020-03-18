@@ -40,9 +40,9 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
                     'convergence': 'tight',
                     'moinp': '"aiida_old.gbw"',
                 },
-                # 'pal': {
-                #     'nproc': 2,
-                # },
+                'pal': {
+                    'nproc': 2,
+                },
             },
             'input_keywords': ['B3LYP/G', 'def2-TZVP', 'Opt'],
             'extra_input_keywords': ['MOREAD'],
