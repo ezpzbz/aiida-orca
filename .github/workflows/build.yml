@@ -34,38 +34,38 @@ jobs:
         backend: ['django']
     steps:
     - uses: actions/checkout@v1
-    # - name: Cache python dependencies
-    #   id: cache-pip
-    #   uses: actions/cache@v1
-    #   with:
-    #     path: ~/.cache/pip
-    #     key: pip-${{ matrix.python-version }}-tests-${{ hashFiles('**/setup.json') }}
-    #     restore-keys: |
-    #       pip-${{ matrix.python-version }}-tests
-    # - name: Set up Python ${{ matrix.python-version }}
-    #   uses: actions/setup-python@v1
-    #   with:
-    #     python-version: ${{ matrix.python-version }}
-    # - name: Install system dependencies
-    #   run: |
-    #     wget -O - "https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc" | sudo apt-key add -
-    #     echo 'deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang' | sudo tee -a /etc/apt/sources.list.d/bintray.rabbitmq.list
-    #     echo 'deb https://dl.bintray.com/rabbitmq/debian bionic main' | sudo tee -a /etc/apt/sources.list.d/bintray.rabbitmq.list
-    #     sudo rm -f /etc/apt/sources.list.d/dotnetdev.list /etc/apt/sources.list.d/microsoft-prod.list
-    #     sudo apt update
-    #     sudo apt install postgresql postgresql-server-dev-all postgresql-client rabbitmq-server graphviz
-    #     sudo systemctl status rabbitmq-server.service
-    # - name: Install python dependencies
-    #   run: |
-    #     pip install --upgrade pip
-    #     pip install -e .[test,pre-commit]
-    #     cd ../..
-    #     git clone https://github.com/aiidateam/aiida-core.git aiida-core
-    #     cd aiida-core
-    #     pip install -e .[atomic_tools]
-    #     cd ../aiida-orca/aiida-orca
-    #     pip install wrapt==1.11.2
-    #     reentry scan -r aiida
+    - name: Cache python dependencies
+      id: cache-pip
+      uses: actions/cache@v1
+      with:
+        path: ~/.cache/pip
+        key: pip-${{ matrix.python-version }}-tests-${{ hashFiles('**/setup.json') }}
+        restore-keys: |
+          pip-${{ matrix.python-version }}-tests
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install system dependencies
+      run: |
+        wget -O - "https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc" | sudo apt-key add -
+        echo 'deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang' | sudo tee -a /etc/apt/sources.list.d/bintray.rabbitmq.list
+        echo 'deb https://dl.bintray.com/rabbitmq/debian bionic main' | sudo tee -a /etc/apt/sources.list.d/bintray.rabbitmq.list
+        sudo rm -f /etc/apt/sources.list.d/dotnetdev.list /etc/apt/sources.list.d/microsoft-prod.list
+        sudo apt update
+        sudo apt install postgresql postgresql-server-dev-all postgresql-client rabbitmq-server graphviz
+        sudo systemctl status rabbitmq-server.service
+    - name: Install python dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -e .[test,pre-commit]
+        cd ../..
+        git clone https://github.com/aiidateam/aiida-core.git aiida-core
+        cd aiida-core
+        pip install -e .[atomic_tools]
+        cd ../aiida-orca/aiida-orca
+        pip install wrapt==1.11.2
+        reentry scan -r aiida
     - name: Get ORCA
       run: |
         chmod +x .github/get_orca.sh
@@ -78,23 +78,24 @@ jobs:
       with:
         path: ./ompi216
         key: ompi
-    - name: append orca o path
-      run: |
-        echo "::add-path::${{ github.workspace }}/orca421"
+    # - name: append orca o path
+    #   run: |
+    #     echo "::add-path::${{ github.workspace }}/orca421"
     # - name: sourcing
     #   run: |
     #     pwd
     #     source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
-    - name: test if orca runs
+    # - name: test if orca runs
+    #   run: |
+    #     source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
+    #     /home/runner/work/aiida-orca/aiida-orca/orca421/orca myinp.inp
+    - name: Run pytest
       run: |
         source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
-        /home/runner/work/aiida-orca/aiida-orca/orca421/orca myinp.inp
-    # - name: Run pytest
-    #   run: |
-    #     pytest --cov-report=xml --cov=./aiida_orca
-    # - name: Upload coverage to codecov
-    #   uses: codecov/codecov-action@v1
-    #   with:
-    #     token: ${{secrets.CODECOV_TOKEN}}
-    #     file: ./coverage.xml
+        pytest --cov-report=xml --cov=./aiida_orca
+    - name: Upload coverage to codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+        file: ./coverage.xml
     
