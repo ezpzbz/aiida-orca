@@ -87,7 +87,7 @@ jobs:
     #     source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
     - name: test if orca runs
       run: |
-        ource /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
+        source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
         /home/runner/work/aiida-orca/aiida-orca/orca421/orca myinp.inp
     # - name: Run pytest
     #   run: |
