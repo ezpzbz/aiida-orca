@@ -81,12 +81,13 @@ jobs:
     - name: append orca o path
       run: |
         echo "::add-path::${{ github.workspace }}/orca421"
-    - name: sourcing
-      run: |
-        pwd
-        source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
+    # - name: sourcing
+    #   run: |
+    #     pwd
+    #     source /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
     - name: test if orca runs
       run: |
+        ource /home/runner/work/aiida-orca/aiida-orca/.github/setup.sh
         /home/runner/work/aiida-orca/aiida-orca/orca421/orca myinp.inp
     # - name: Run pytest
     #   run: |
