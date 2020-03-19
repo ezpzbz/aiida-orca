@@ -67,7 +67,7 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
         print('Testing Orca Opt Calculations...')
         res, pk = run_get_pk(builder)
         print('calculation pk: ', pk)
-        print('SCF Energy is :', res['output_parameters'].dict['SCF_energies'])
+        print('SCF Energy is :', res['output_parameters'].dict['scfenergies'])
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False

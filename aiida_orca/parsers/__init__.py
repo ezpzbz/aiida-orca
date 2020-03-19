@@ -2,7 +2,7 @@
 import io
 import os
 import re
-
+import numpy as np
 from cclib import io
 from cclib.parser.utils import PeriodicTable
 
@@ -18,10 +18,14 @@ class OrcaBaseParser(Parser):
     """Basic AiiDA parser for the output of Orca"""
 
     def parse(self, **kwargs):
-        """Receives in input a dictionary of retrieved nodes. Does all the logic here."""
-        results = {}
+        """
+        It uses cclib to get the output dictionary.
+        Herein, we report all parsed data by ccli in output_dict which
+        can be parsed further at workchain level.
+        If it would be an optimization run, the relaxed structure also will
+        be stored under relaxed_structure key.
+        """
         opt_run = False
-        freq_run = False
 
         try:
             out_folder = self.retrieved
@@ -36,23 +40,35 @@ class OrcaBaseParser(Parser):
         if fname_out not in out_folder._repository.list_object_names():  #pylint: disable=protected-access
             raise OutputParsingError('Orca output file not retrieved')
 
-        outobj = io.ccread(os.path.join(out_folder._repository._get_base_folder().abspath, fname_out))  #pylint: disable=protected-access
+        parsed_obj = io.ccread(os.path.join(out_folder._repository._get_base_folder().abspath, fname_out))  #pylint: disable=protected-access
 
-        output_dict = outobj.getattributes()
+        parsed_dict = parsed_obj.getattributes()
 
-        # Quick hack to remedy cclib issue.
-        output_dict['metadata'].update({'comments': 'AiiDA-ORCA Plugin'})
+        def _remove_nan(parsed_dictionary):
+            """
+            cclib parsed object may contain nan values in ndarray.
+            It will results in an exception in aiida-core which comes from
+            json serialization and thereofore dictionary cannot be stored.
+            This removes nan values to remedy this issue.
+            See:
+            https://github.com/aiidateam/aiida-core/issues/2412
+            https://github.com/aiidateam/aiida-core/issues/3450
+            """
+            for key, value in parsed_dictionary.items():
+                if isinstance(value, np.ndarray):
+                    non_nan_value = np.nan_to_num(value, nan=123456789, posinf=2e308, neginf=-2e308)
+                    parsed_dictionary.update({key: non_nan_value})
+
+            return parsed_dictionary
+
+        output_dict = _remove_nan(parsed_dict)
 
         keywords = output_dict['metadata']['keywords']
 
         opt_pattern = re.compile('(GDIIS-)?[CZ?OPT]', re.IGNORECASE)
-        freq_pattern = re.compile('(AN|NUM)?FREQ', re.IGNORECASE)
 
         if any(re.match(opt_pattern, keyword) for keyword in keywords):
             opt_run = True
-
-        if any(re.match(freq_pattern, keyword) for keyword in keywords):
-            freq_run = True
 
         if opt_run:
             relaxed_structure = StructureData(
@@ -65,25 +81,11 @@ class OrcaBaseParser(Parser):
             self.out('relaxed_structure', relaxed_structure)
             # self.out('relaxation_trajectory', relaxation_trajectory)
 
-        if 'atomcharges' in output_dict:
-            results['atomchages_mulliken'] = output_dict['atomcharges']['mulliken'].tolist()
-            results['atomchages_lowdin'] = output_dict['atomcharges']['lowdin'].tolist()
-        results['MO_energies'] = output_dict['moenergies'][0].tolist()
-        results['SCF_energies'] = output_dict['scfenergies'].tolist()
-
-        if freq_run:
-            results['entropy'] = output_dict['entropy']
-            results['enthalpy'] = output_dict['enthalpy']
-            # results['freeenergy'] = output_dict['freeenergy'] #not working with pip version of cclib
-            results['frequencies'] = output_dict['vibfreqs'].tolist()
-            results['IRS'] = output_dict['vibirs'].tolist()
-            results['temperature'] = output_dict['temperature']
-
         pt = PeriodicTable()  #pylint: disable=invalid-name
 
-        results['elements'] = [pt.element[Z] for Z in output_dict['atomnos'].tolist()]
+        output_dict['elements'] = [pt.element[Z] for Z in output_dict['atomnos'].tolist()]
 
-        self.out('output_parameters', Dict(dict=results))
+        self.out('output_parameters', Dict(dict=output_dict))
 
         return ExitCode(0)
 
