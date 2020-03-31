@@ -9,7 +9,7 @@ from aiida.orm import load_node, Code, Dict
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
-OrcaCalculation = CalculationFactory('orca')  #pylint: disable = invalid-name
+OrcaCalculation = CalculationFactory('orca_main')  #pylint: disable = invalid-name
 
 
 def example_simple_tddft(orca_code, opt_calc_pk=None, submit=True):
