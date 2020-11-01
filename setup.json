@@ -27,6 +27,9 @@
         ],
         "aiida.parsers": [
             "orca_base_parser = aiida_orca.parsers:OrcaBaseParser"
+        ],
+        "aiida.workflows": [
+            "orca.base = aiida_orca.workchains:OrcaBaseWorkChain"
         ]
     },
     "reentry_register": true,
