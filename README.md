@@ -9,6 +9,7 @@
 **DISCLAIMER**: Under heavy development!
 
 [![Actions Status](https://github.com/pzarabadip/aiida-orca/workflows/Build/badge.svg)](https://github.com/pzarabadip/aiida-orca/actions)
+[![PyPI version](https://badge.fury.io/py/aiida-orca.svg)](https://badge.fury.io/py/aiida-orca)
 [![codecov](https://codecov.io/gh/pzarabadip/aiida-orca/branch/master/graph/badge.svg)](https://codecov.io/gh/pzarabadip/aiida-orca)
 [![GitHub license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/pzarabadip/aiida-orca/blob/master/LICENSE)
 
