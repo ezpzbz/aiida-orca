@@ -68,7 +68,7 @@ class OrcaBaseParser(Parser):
         #opt_pattern = re.compile('(GDIIS-)?[CZ?OPT]', re.IGNORECASE)
 
         #if any(re.match(opt_pattern, keyword) for keyword in keywords):
-            #opt_run = True
+        #opt_run = True
         opt_run = False
         for keyword in keywords:
             if 'opt' in keyword.lower():

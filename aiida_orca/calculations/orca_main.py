@@ -64,7 +64,7 @@ class OrcaCalculation(CalcJob):
         :param folder: an `aiida.common.folders.Folder` to temporarily write files on disk
         :return: `aiida.common.datastructures.CalcInfo` instance
         """
-        from aiida_orca.utils import OrcaInput
+        from aiida_orca.utils import OrcaInput  #pylint: disable=import-outside-toplevel
 
         # create input structure(s)
         if 'structure' in self.inputs:
