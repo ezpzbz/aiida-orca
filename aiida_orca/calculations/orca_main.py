@@ -2,15 +2,14 @@
 
 import io
 import six
-
+from typing import NoReturn
 from aiida.engine import CalcJob
 from aiida.orm import Dict, SinglefileData, StructureData
 from aiida.common import CalcInfo, CodeInfo
-
+from aiida.common.folders import Folder
 
 class OrcaCalculation(CalcJob):
-    """
-    This is a OrcaCalculation, subclass of JobCalculation,
+    """This is a OrcaCalculation, subclass of JobCalculation,
     to prepare input for an ab-initio ORCA calculation.
     For information on ORCA, refer to: https://orcaforum.kofo.mpg.de/app.php/portal
     This is responsible for doing main calculations in ORCA.
@@ -58,12 +57,16 @@ class OrcaCalculation(CalcJob):
         spec.output('relaxed_structure', valid_type=StructureData, required=False, help='relaxed structure')
         spec.output_node = 'output_parameters'
 
-    def prepare_for_submission(self, folder):
-        """Create the input files from the input nodes passed to this instance of the `CalcJob`.
+    def prepare_for_submission(self, folder: Folder) -> CalcInfo :
+        """Create the input files from the input nodes passed to this instance of the `CalcJob`
 
-        :param folder: an `aiida.common.folders.Folder` to temporarily write files on disk
-        :return: `aiida.common.datastructures.CalcInfo` instance
+        Args:
+            folder (Folder): to temporarily write files on disk
+
+        Returns:
+            CalcInfo: An instance of CalcInfo class
         """
+        
         from aiida_orca.utils import OrcaInput  #pylint: disable=import-outside-toplevel
 
         # create input structure(s)
@@ -109,8 +112,18 @@ class OrcaCalculation(CalcJob):
         return calcinfo
 
     @staticmethod
-    def _write_structure(structure, folder, name):
-        """Function that writes a structure and takes care of element tags"""
+    def _write_structure(structure: StructureData, folder: Folder, name: str) -> NoReturn:
+        """Function that writes a structure and takes care of element tags
+
+        Args:
+            structure (StructureData): Input structure
+            folder (Folder): Folder to write temporary files
+            name (str): Default name of coordination/structure file.
+
+        Returns:
+            NoReturn: It does not return any output directly.
+        """
+        
 
         # create file with the structure
         mol = structure.get_pymatgen_molecule()
