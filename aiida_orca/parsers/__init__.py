@@ -6,7 +6,8 @@ import numpy as np
 from cclib import io
 from cclib.parser.utils import PeriodicTable
 
-import pymatgen as mp
+# import pymatgen as mp
+from pymatgen.core import Molecule
 
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
@@ -82,7 +83,7 @@ class OrcaBaseParser(Parser):
 
         if opt_run:
             relaxed_structure = StructureData(
-                pymatgen_molecule=mp.Molecule.
+                pymatgen_molecule=Molecule.
                 from_file(os.path.join(out_folder._repository._get_base_folder().abspath, fname_relaxed))  #pylint: disable=protected-access
             )
             # relaxation_trajectory = SinglefileData(
