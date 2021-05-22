@@ -4,7 +4,8 @@ import sys
 import click
 import pytest
 
-import pymatgen as mg
+# import pymatgen as mg
+from pymatgen.core import Molecule
 
 from aiida.engine import run_get_pk
 from aiida.orm import load_node, Code, Dict, SinglefileData, StructureData
@@ -24,7 +25,7 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
     # structure
     thisdir = os.path.dirname(os.path.realpath(__file__))
     xyz_path = os.path.join(thisdir, 'h2co.xyz')
-    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file(xyz_path))
+    structure = StructureData(pymatgen_molecule=Molecule.from_file(xyz_path))
 
     # old gbw file
     retr_fldr = load_node(opt_calc_pk).outputs.retrieved
