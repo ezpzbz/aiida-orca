@@ -3,7 +3,7 @@ import os
 import sys
 import click
 import pytest
-# import pymatgen as mg
+
 from pymatgen.core import Molecule
 
 from aiida.engine import run_get_pk

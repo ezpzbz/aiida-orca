@@ -6,7 +6,6 @@ import numpy as np
 from cclib import io
 from cclib.parser.utils import PeriodicTable
 
-# import pymatgen as mp
 from pymatgen.core import Molecule
 
 from aiida.parsers import Parser

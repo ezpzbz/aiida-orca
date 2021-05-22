@@ -65,15 +65,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    # - name: Install system dependencies
-    #   run: |
-    #     wget -O - "https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc" | sudo apt-key add -
-    #     echo 'deb https://dl.bintray.com/rabbitmq-erlang/debian bionic erlang' | sudo tee -a /etc/apt/sources.list.d/bintray.rabbitmq.list
-    #     echo 'deb https://dl.bintray.com/rabbitmq/debian bionic main' | sudo tee -a /etc/apt/sources.list.d/bintray.rabbitmq.list
-    #     sudo rm -f /etc/apt/sources.list.d/dotnetdev.list /etc/apt/sources.list.d/microsoft-prod.list
-    #     sudo apt update
-    #     sudo apt install postgresql postgresql-server-dev-all postgresql-client rabbitmq-server graphviz
-    #     sudo systemctl status rabbitmq-server.service
     - name: Install python dependencies
       run: |
         pip install --upgrade pip
