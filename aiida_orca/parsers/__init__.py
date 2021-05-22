@@ -6,7 +6,7 @@ import numpy as np
 from cclib import io
 from cclib.parser.utils import PeriodicTable
 
-import pymatgen as mp
+from pymatgen.core import Molecule
 
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
@@ -59,7 +59,7 @@ class OrcaBaseParser(Parser):
             Returns:
                 dict: Parsed dictionary without `NaN`
             """
-            
+
             for key, value in parsed_dictionary.items():
                 if isinstance(value, np.ndarray):
                     non_nan_value = np.nan_to_num(value, nan=123456789, posinf=2e308, neginf=-2e308)
@@ -82,7 +82,7 @@ class OrcaBaseParser(Parser):
 
         if opt_run:
             relaxed_structure = StructureData(
-                pymatgen_molecule=mp.Molecule.
+                pymatgen_molecule=Molecule.
                 from_file(os.path.join(out_folder._repository._get_base_folder().abspath, fname_relaxed))  #pylint: disable=protected-access
             )
             # relaxation_trajectory = SinglefileData(

@@ -43,4 +43,6 @@ class OrcaAsaCalculation(CalcJob):
         calcinfo.retrieve_list = [self._OUTPUT_FILE]
 
         return calcinfo
+
+
 #EOF

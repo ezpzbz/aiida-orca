@@ -1,12 +1,13 @@
 """AiiDA-ORCA plugin -- Main Calculations"""
+from typing import NoReturn
 
 import io
 import six
-from typing import NoReturn
 from aiida.engine import CalcJob
 from aiida.orm import Dict, SinglefileData, StructureData
 from aiida.common import CalcInfo, CodeInfo
 from aiida.common.folders import Folder
+
 
 class OrcaCalculation(CalcJob):
     """This is a OrcaCalculation, subclass of JobCalculation,
@@ -57,7 +58,7 @@ class OrcaCalculation(CalcJob):
         spec.output('relaxed_structure', valid_type=StructureData, required=False, help='relaxed structure')
         spec.output_node = 'output_parameters'
 
-    def prepare_for_submission(self, folder: Folder) -> CalcInfo :
+    def prepare_for_submission(self, folder: Folder) -> CalcInfo:
         """Create the input files from the input nodes passed to this instance of the `CalcJob`
 
         Args:
@@ -66,7 +67,7 @@ class OrcaCalculation(CalcJob):
         Returns:
             CalcInfo: An instance of CalcInfo class
         """
-        
+
         from aiida_orca.utils import OrcaInput  #pylint: disable=import-outside-toplevel
 
         # create input structure(s)
@@ -123,7 +124,6 @@ class OrcaCalculation(CalcJob):
         Returns:
             NoReturn: It does not return any output directly.
         """
-        
 
         # create file with the structure
         mol = structure.get_pymatgen_molecule()
