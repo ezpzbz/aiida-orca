@@ -59,7 +59,7 @@ class OrcaBaseParser(Parser):
             Returns:
                 dict: Parsed dictionary without `NaN`
             """
-            
+
             for key, value in parsed_dictionary.items():
                 if isinstance(value, np.ndarray):
                     non_nan_value = np.nan_to_num(value, nan=123456789, posinf=2e308, neginf=-2e308)
