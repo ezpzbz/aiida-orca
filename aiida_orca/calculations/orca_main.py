@@ -62,7 +62,7 @@ class OrcaCalculation(CalcJob):
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')
         spec.output('relaxed_structure', valid_type=StructureData, required=False, help='relaxed structure')
-        spec.output_node = 'output_parameters'
+        spec.default_output_node = 'output_parameters'
 
     def prepare_for_submission(self, folder):
         """Create the input files from the input nodes passed to this instance of the `CalcJob`.
