@@ -46,6 +46,12 @@ class OrcaCalculation(CalcJob):
         # Specify default parser
         spec.input('metadata.options.parser_name', valid_type=six.string_types, default=cls._PARSER, non_db=True)
 
+        # Specify default input file
+        spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE)
+
+        # Specify default output file
+        spec.input('metadata.options.output_filename', valid_type=str, default=cls._OUTPUT_FILE)
+
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)
 
         # Exit codes
@@ -56,7 +62,7 @@ class OrcaCalculation(CalcJob):
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')
         spec.output('relaxed_structure', valid_type=StructureData, required=False, help='relaxed structure')
-        spec.output_node = 'output_parameters'
+        spec.default_output_node = 'output_parameters'
 
     def prepare_for_submission(self, folder):
         """Create the input files from the input nodes passed to this instance of the `CalcJob`.
