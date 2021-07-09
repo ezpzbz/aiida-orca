@@ -46,6 +46,12 @@ class OrcaCalculation(CalcJob):
         # Specify default parser
         spec.input('metadata.options.parser_name', valid_type=six.string_types, default=cls._PARSER, non_db=True)
 
+        # Specify default input file
+        spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE)
+
+        # Specify default output file
+        spec.input('metadata.options.output_filename', valid_type=str, default=cls._OUTPUT_FILE)
+
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)
 
         # Exit codes
