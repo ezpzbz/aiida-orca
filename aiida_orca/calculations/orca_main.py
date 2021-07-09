@@ -1,16 +1,16 @@
 """AiiDA-ORCA plugin -- Main Calculations"""
-from typing import NoReturn
 
 import io
 import six
+
 from aiida.engine import CalcJob
 from aiida.orm import Dict, SinglefileData, StructureData
 from aiida.common import CalcInfo, CodeInfo
-from aiida.common.folders import Folder
 
 
 class OrcaCalculation(CalcJob):
-    """This is a OrcaCalculation, subclass of JobCalculation,
+    """
+    This is a OrcaCalculation, subclass of JobCalculation,
     to prepare input for an ab-initio ORCA calculation.
     For information on ORCA, refer to: https://orcaforum.kofo.mpg.de/app.php/portal
     This is responsible for doing main calculations in ORCA.
@@ -46,6 +46,12 @@ class OrcaCalculation(CalcJob):
         # Specify default parser
         spec.input('metadata.options.parser_name', valid_type=six.string_types, default=cls._PARSER, non_db=True)
 
+        # Specify default input file
+        spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE)
+
+        # Specify default output file
+        spec.input('metadata.options.output_filename', valid_type=str, default=cls._OUTPUT_FILE)
+
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)
 
         # Exit codes
@@ -56,18 +62,14 @@ class OrcaCalculation(CalcJob):
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')
         spec.output('relaxed_structure', valid_type=StructureData, required=False, help='relaxed structure')
-        spec.output_node = 'output_parameters'
+        spec.default_output_node = 'output_parameters'
 
-    def prepare_for_submission(self, folder: Folder) -> CalcInfo:
-        """Create the input files from the input nodes passed to this instance of the `CalcJob`
+    def prepare_for_submission(self, folder):
+        """Create the input files from the input nodes passed to this instance of the `CalcJob`.
 
-        Args:
-            folder (Folder): to temporarily write files on disk
-
-        Returns:
-            CalcInfo: An instance of CalcInfo class
+        :param folder: an `aiida.common.folders.Folder` to temporarily write files on disk
+        :return: `aiida.common.datastructures.CalcInfo` instance
         """
-
         from aiida_orca.utils import OrcaInput  #pylint: disable=import-outside-toplevel
 
         # create input structure(s)
@@ -113,17 +115,8 @@ class OrcaCalculation(CalcJob):
         return calcinfo
 
     @staticmethod
-    def _write_structure(structure: StructureData, folder: Folder, name: str) -> NoReturn:
-        """Function that writes a structure and takes care of element tags
-
-        Args:
-            structure (StructureData): Input structure
-            folder (Folder): Folder to write temporary files
-            name (str): Default name of coordination/structure file.
-
-        Returns:
-            NoReturn: It does not return any output directly.
-        """
+    def _write_structure(structure, folder, name):
+        """Function that writes a structure and takes care of element tags"""
 
         # create file with the structure
         mol = structure.get_pymatgen_molecule()
