@@ -3,7 +3,6 @@ import os
 import sys
 import click
 import pytest
-import pymatgen as mg
 
 from aiida.engine import run_get_pk
 from aiida.orm import (Code, Dict, StructureData)

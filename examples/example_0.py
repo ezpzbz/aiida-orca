@@ -3,8 +3,9 @@ import os
 import sys
 import click
 import pytest
-import pymatgen as mg
+import pymatgen.core.structure as mg
 
+import aiida
 from aiida.engine import run_get_pk
 from aiida.orm import (Code, Dict, StructureData)
 from aiida.common import NotExistent
@@ -69,6 +70,7 @@ def example_opt(orca_code, submit=True):
 def cli(codelabel, submit):
     """Click interface"""
     try:
+        aiida.load_profile()
         code = Code.get_from_string(codelabel)
     except NotExistent:
         print("The code '{}' does not exist".format(codelabel))
