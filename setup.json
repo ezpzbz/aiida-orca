@@ -18,7 +18,7 @@
     "setup_requires": ["reentry"],
     "install_requires": [
         "aiida_core[atomic_tools] >= 1.0.0, <2.0.0",
-        "cclib"
+        "cclib >= 1.7.2"
     ],
     "entry_points": {
         "aiida.calculations": [
