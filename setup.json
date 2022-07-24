@@ -7,18 +7,17 @@
     "license": "MIT",
     "classifiers": [
         "Environment :: Plugins",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Framework :: AiiDA"
     ],
-    "version": "0.5.1",
+    "version": "1.0.0b",
     "setup_requires": ["reentry"],
     "install_requires": [
-        "aiida_core[atomic_tools] >= 1.0.0, <2.0.0",
-        "cclib"
+        "aiida_core[atomic_tools] >= 1.6.8, <2.0.0",
+        "periodictable==1.6.1"
     ],
     "entry_points": {
         "aiida.calculations": [
