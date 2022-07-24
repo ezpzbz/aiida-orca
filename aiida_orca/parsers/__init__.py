@@ -1,17 +1,15 @@
 """AiiDA-ORCA output parser"""
-import io
-import os
-import re
 import numpy as np
-from cclib import io
-from cclib.parser.utils import PeriodicTable
 
 from pymatgen.core import Molecule
 
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.engine import ExitCode
-from aiida.orm import Dict, SinglefileData, StructureData
+from aiida.orm import Dict, StructureData
+
+from .cclib.utils import PeriodicTable
+from .cclib.ccio import ccread
 
 
 class OrcaBaseParser(Parser):
@@ -25,7 +23,6 @@ class OrcaBaseParser(Parser):
         If it would be an optimization run, the relaxed structure also will
         be stored under relaxed_structure key.
         """
-        opt_run = False
 
         try:
             out_folder = self.retrieved
@@ -40,9 +37,12 @@ class OrcaBaseParser(Parser):
         if fname_out not in out_folder._repository.list_object_names():  #pylint: disable=protected-access
             raise OutputParsingError('Orca output file not retrieved')
 
-        parsed_obj = io.ccread(os.path.join(out_folder._repository._get_base_folder().abspath, fname_out))  #pylint: disable=protected-access
-
-        parsed_dict = parsed_obj.getattributes()
+        try:
+            with self.retrieved.open(fname_out) as handler:
+                parsed_obj = ccread(handler.name)
+                parsed_dict = parsed_obj.getattributes()
+        except:  #pylint: disable=bare-except
+            parsed_dict = None
 
         def _remove_nan(parsed_dictionary: dict) -> dict:
             """cclib parsed object may contain nan values in ndarray.
@@ -69,22 +69,21 @@ class OrcaBaseParser(Parser):
 
         output_dict = _remove_nan(parsed_dict)
 
-        keywords = output_dict['metadata']['keywords']
+        # keywords = output_dict['metadata']['keywords']
 
         #opt_pattern = re.compile('(GDIIS-)?[CZ?OPT]', re.IGNORECASE)
 
         #if any(re.match(opt_pattern, keyword) for keyword in keywords):
         #opt_run = True
-        opt_run = False
-        for keyword in keywords:
-            if 'opt' in keyword.lower():
-                opt_run = True
+        # opt_run = False
+        # for keyword in keywords:
+        #     if 'opt' in keyword.lower():
+        #         opt_run = True
 
-        if opt_run:
-            relaxed_structure = StructureData(
-                pymatgen_molecule=Molecule.
-                from_file(os.path.join(out_folder._repository._get_base_folder().abspath, fname_relaxed))  #pylint: disable=protected-access
-            )
+        # if opt_run:
+        if parsed_dict['optdone']:
+            with out_folder.open(fname_relaxed) as handler:
+                relaxed_structure = StructureData(pymatgen_molecule=Molecule.from_file(handler.name))
             # relaxation_trajectory = SinglefileData(
             #     file=os.path.join(out_folder._repository._get_base_folder().abspath, fname_traj)  #pylint: disable=protected-access
             # )
