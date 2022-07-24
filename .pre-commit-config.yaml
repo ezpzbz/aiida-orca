@@ -17,6 +17,10 @@
     entry: yapf
     language: system
     types: [python]
+    exclude: >
+      (?x)^(
+          docs/.*|
+      )$
     args: ["-i"]
 
   # prospector: collection of linters
@@ -28,7 +32,8 @@
     entry: prospector
     exclude: &exclude_files >
       (?x)^(
-        .*/test_.*.py
+        .*/test_.*.py |
+        docs/.*
       )$
 
   - id: version-number
