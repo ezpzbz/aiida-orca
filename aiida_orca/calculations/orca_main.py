@@ -1,11 +1,9 @@
 """AiiDA-ORCA plugin -- Main Calculations"""
 
-import io
-import six
-
 from aiida.engine import CalcJob
 from aiida.orm import Dict, SinglefileData, StructureData
 from aiida.common import CalcInfo, CodeInfo
+from aiida.common.folders import Folder
 
 
 class OrcaCalculation(CalcJob):
@@ -44,7 +42,7 @@ class OrcaCalculation(CalcJob):
         )
 
         # Specify default parser
-        spec.input('metadata.options.parser_name', valid_type=six.string_types, default=cls._PARSER, non_db=True)
+        spec.input('metadata.options.parser_name', valid_type=str, default=cls._PARSER, non_db=True)
 
         # Specify default input file
         spec.input('metadata.options.input_filename', valid_type=str, default=cls._INPUT_FILE)
@@ -64,11 +62,14 @@ class OrcaCalculation(CalcJob):
         spec.output('relaxed_structure', valid_type=StructureData, required=False, help='relaxed structure')
         spec.default_output_node = 'output_parameters'
 
-    def prepare_for_submission(self, folder):
+    def prepare_for_submission(self, folder: Folder) -> CalcInfo:
         """Create the input files from the input nodes passed to this instance of the `CalcJob`.
 
-        :param folder: an `aiida.common.folders.Folder` to temporarily write files on disk
-        :return: `aiida.common.datastructures.CalcInfo` instance
+        Args:
+            folder (Folder): ``AiiDA`` folder to temporarily write files on disk
+
+        Returns:
+            CalcInfo: ``AiiDA`` CalcInfo Instance
         """
         from aiida_orca.utils import OrcaInput  #pylint: disable=import-outside-toplevel
 
@@ -107,15 +108,15 @@ class OrcaCalculation(CalcJob):
         calcinfo.retrieve_list += settings.pop('additional_retrieve_list', [])
 
         # create ORCA input file
-        # inp = OrcaInput(self.inputs.parameters.get_dict(), remote_path=remote_path)
         inp = OrcaInput(self.inputs.parameters.get_dict())
-        with io.open(folder.get_abs_path(self._INPUT_FILE), mode='w') as fobj:
+
+        with open(folder.get_abs_path(self._INPUT_FILE), mode='w') as fobj:
             fobj.write(inp.render())
 
         return calcinfo
 
     @staticmethod
-    def _write_structure(structure, folder, name):
+    def _write_structure(structure, folder: Folder, name: str) -> None:
         """Function that writes a structure and takes care of element tags"""
 
         # create file with the structure
@@ -130,7 +131,7 @@ class OrcaCalculation(CalcJob):
         for site in mol:
             coords.append(' '.join([site.species_string, ' '.join([to_string(j) for j in site.coords])]))
 
-        with io.open(folder.get_abs_path(name), mode='w') as fobj:
+        with open(folder.get_abs_path(name), mode='w') as fobj:
             fobj.write(u'{}\n\n'.format(len(coords)))
             fobj.write(u'\n'.join(coords))
 
