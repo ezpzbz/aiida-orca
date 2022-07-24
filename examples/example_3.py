@@ -41,7 +41,7 @@ def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
                 }
             },
             'input_kewords': ['RKS', 'BP', 'def2-TZVP', 'RI', 'def2/J'],
-            'extra_input_keywords': ['Grid5', 'NoFinalGrid', 'NumFreq'],
+            'extra_input_keywords': ['DEFGRID1', 'NumFreq'],
         }
     )
 
