@@ -8,6 +8,7 @@
 from . import orcaparser
 from . import logfileparser
 
+
 def ccread(source):
     """Attempt to open and read computational chemistry data from a file.
 
@@ -24,9 +25,10 @@ def ccread(source):
     """
 
     log = ccopen(source)
-    
+
     return log.parse()
-    
+
+
 def ccopen(source):
     """Guess the identity of a particular log file and return an instance of it.
 
@@ -42,7 +44,6 @@ def ccopen(source):
     """
     inputfile = None
 
-    
     inputfile = logfileparser.openlogfile(source)
 
     filetype = orcaparser.ORCA
@@ -50,5 +51,3 @@ def ccopen(source):
     inputfile.seek(0, 0)
     inputfile.close()
     return filetype(source)
-
-

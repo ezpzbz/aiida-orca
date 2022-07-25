@@ -13,6 +13,7 @@ import periodictable
 
 _BUILTIN_FLOAT = float
 
+
 def float(number):
     """Convert a string to a float.
 
@@ -25,7 +26,7 @@ def float(number):
     if list(set(number)) == ['*']:
         return numpy.nan
 
-    return _BUILTIN_FLOAT(number.replace("D", "E"))
+    return _BUILTIN_FLOAT(number.replace('D', 'E'))
 
 
 def convertor(value, fromunits, tounits):
@@ -36,12 +37,10 @@ def convertor(value, fromunits, tounits):
         Documentation of GAMESS-US or other programs as noted
     """
 
-    _convertor = {
-        "hartree_to_eV":         lambda x: x * 27.21138505,
-        "ebohr_to_Debye":       lambda x: x * 2.5417462300
-    }
+    _convertor = {'hartree_to_eV': lambda x: x * 27.21138505, 'ebohr_to_Debye': lambda x: x * 2.5417462300}
 
-    return _convertor[f"{fromunits}_to_{tounits}"](value)
+    return _convertor[f'{fromunits}_to_{tounits}'](value)
+
 
 def skip_until_no_match(inputfile, regex):
     """Skip lines that match a regex. First non-matching line is returned.
@@ -55,10 +54,12 @@ def skip_until_no_match(inputfile, regex):
         line = next(inputfile)
     return line
 
+
 def str_contains_only(string, chars):
     """Checks if string contains only the specified characters.
     """
     return all([c in chars for c in string])
+
 
 class PeriodicTable:
     """Allows conversion between element name and atomic no."""
@@ -66,11 +67,11 @@ class PeriodicTable:
     def __init__(self):
         self.element = [None]
         self.number = {}
-        
+
         for e in periodictable.elements:
             if e.symbol != 'n':
                 self.element.append(e.symbol)
                 self.number[e.symbol] = e.number
 
-# EOF
 
+# EOF

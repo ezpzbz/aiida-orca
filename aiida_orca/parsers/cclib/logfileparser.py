@@ -6,7 +6,6 @@
 # It is modified to be used as part of aiida-orca package.
 """Generic output file parser and related tools"""
 
-
 import fileinput
 import inspect
 import io
@@ -18,6 +17,7 @@ import numpy
 
 from .utils import str_contains_only, PeriodicTable
 from . import data
+
 
 class FileWrapper:
     """Wrap a file-like object or stream with some custom tweaks"""
@@ -46,7 +46,7 @@ class FileWrapper:
 
         # Assume the position is what was passed to the constructor.
         self.pos = pos
-        
+
         self.last_line = None
 
     def next(self):
@@ -95,8 +95,8 @@ def openlogfile(filename, object=None):
     Given a list of filenames, this function returns a FileInput object,
     which can be used for seamless iteration without concatenation.
     """
-    
-    fileobject = FileWrapper(io.open(filename, "r", errors='ignore'))
+
+    fileobject = FileWrapper(io.open(filename, 'r', errors='ignore'))
 
     return fileobject
 
@@ -109,8 +109,15 @@ class Logfile(ABC):
         NWChem, ORCA, Psi, Q-Chem
     """
 
-    def __init__(self, source, loglevel=logging.ERROR, logname="Log",
-                 logstream=sys.stderr, datatype=data.ccData_optdone_bool, **kwds):
+    def __init__(
+        self,
+        source,
+        loglevel=logging.ERROR,
+        logname='Log',
+        logstream=sys.stderr,
+        datatype=data.ccData_optdone_bool,
+        **kwds
+    ):
         """Initialise the Logfile object.
 
         This should be called by a subclass in its own __init__ method.
@@ -137,12 +144,12 @@ class Logfile(ABC):
             self.filename = source
             self.isstream = False
             self.isfileinput = True
-        elif hasattr(source, "read"):
-            self.filename = f"stream {str(type(source))}"
+        elif hasattr(source, 'read'):
+            self.filename = f'stream {str(type(source))}'
             self.isstream = True
             self.stream = source
         else:
-            raise ValueError("Unexpected source type.")
+            raise ValueError('Unexpected source type.')
 
         # Set up the logger.
         # Note that calling logging.getLogger() with one name always returns the same instance.
@@ -150,21 +157,20 @@ class Logfile(ABC):
         #   which means that care needs to be taken not to duplicate handlers.
         self.loglevel = loglevel
         self.logname = logname
-        self.logger = logging.getLogger(f"{self.logname} {self.filename}")
+        self.logger = logging.getLogger(f'{self.logname} {self.filename}')
         self.logger.setLevel(self.loglevel)
         if len(self.logger.handlers) == 0:
             handler = logging.StreamHandler(logstream)
-            handler.setFormatter(logging.Formatter("[%(name)s %(levelname)s] %(message)s"))
+            handler.setFormatter(logging.Formatter('[%(name)s %(levelname)s] %(message)s'))
             self.logger.addHandler(handler)
 
         # Set up the metadata.
-        if not hasattr(self, "metadata"):
+        if not hasattr(self, 'metadata'):
             self.metadata = {}
-            self.metadata["package"] = self.logname
-            self.metadata["methods"] = []
+            self.metadata['package'] = self.logname
+            self.metadata['methods'] = []
             # Indicate if the computation has completed successfully
             self.metadata['success'] = False
-
 
         # Periodic table of elements.
         self.table = PeriodicTable()
@@ -175,24 +181,24 @@ class Logfile(ABC):
 
         # Change the class used if we want optdone to be a list or if the 'future' option
         # is used, which might have more consequences in the future.
-        optdone_as_list = kwds.get("optdone_as_list", False) or kwds.get("future", False)
+        optdone_as_list = kwds.get('optdone_as_list', False) or kwds.get('future', False)
         optdone_as_list = optdone_as_list if isinstance(optdone_as_list, bool) else False
         if optdone_as_list:
             self.datatype = data.ccData
         # Parsing of Natural Orbitals and Natural Spin Orbtials into one attribute
-        self.unified_no_nso = kwds.get("future",False)
+        self.unified_no_nso = kwds.get('future', False)
 
     def __setattr__(self, name, value):
 
         # Send info to logger if the attribute is in the list of attributes.
-        if name in data.ccData._attrlist and hasattr(self, "logger"):
+        if name in data.ccData._attrlist and hasattr(self, 'logger'):
 
             # Call logger.info() only if the attribute is new.
             if not hasattr(self, name):
                 if type(value) in [numpy.ndarray, list]:
-                    self.logger.info(f"Creating attribute {name}[]")
+                    self.logger.info(f'Creating attribute {name}[]')
                 else:
-                    self.logger.info(f"Creating attribute {name}: {str(value)}")
+                    self.logger.info(f'Creating attribute {name}: {str(value)}')
 
         # Set the attribute.
         object.__setattr__(self, name, value)
@@ -202,18 +208,12 @@ class Logfile(ABC):
 
         # Check that the sub-class has an extract attribute,
         #  that is callable with the proper number of arguemnts.
-        if not hasattr(self, "extract"):
-            raise AttributeError(
-                f"Class {self.__class__.__name__} has no extract() method."
-            )
+        if not hasattr(self, 'extract'):
+            raise AttributeError(f'Class {self.__class__.__name__} has no extract() method.')
         if not callable(self.extract):
-            raise AttributeError(
-                f"Method {self.__class__.__name__}._extract not callable."
-            )
+            raise AttributeError(f'Method {self.__class__.__name__}._extract not callable.')
         if len(inspect.getfullargspec(self.extract)[0]) != 3:
-            raise AttributeError(
-                f"Method {self.__class__.__name__}._extract takes wrong number of arguments."
-            )
+            raise AttributeError(f'Method {self.__class__.__name__}._extract takes wrong number of arguments.')
 
         # Save the current list of attributes to keep after parsing.
         # The dict of self should be the same after parsing.
@@ -244,7 +244,7 @@ class Logfile(ABC):
         # Loop over lines in the file object and call extract().
         # This is where the actual parsing is done.
         for line in inputfile:
-            self.updateprogress(inputfile, "Unsupported information", cupdate)
+            self.updateprogress(inputfile, 'Unsupported information', cupdate)
 
             # This call should check if the line begins a section of extracted data.
             # If it does, it parses some lines and sets the relevant attributes (to self).
@@ -253,11 +253,11 @@ class Logfile(ABC):
             try:
                 self.extract(inputfile, line)
             except StopIteration:
-                self.logger.error("Unexpectedly encountered end of logfile.")
+                self.logger.error('Unexpectedly encountered end of logfile.')
                 break
             except Exception as e:
-                self.logger.error("Encountered error when parsing.")
-                self.logger.error(f"Last line read: {inputfile.last_line}")
+                self.logger.error('Encountered error when parsing.')
+                self.logger.error(f'Last line read: {inputfile.last_line}')
                 raise
 
         # Close input file object.
@@ -269,19 +269,19 @@ class Logfile(ABC):
 
         # If atomcoords were not parsed, but some input coordinates were ("inputcoords").
         # This is originally from the Gaussian parser, a regression fix.
-        if not hasattr(self, "atomcoords") and hasattr(self, "inputcoords"):
+        if not hasattr(self, 'atomcoords') and hasattr(self, 'inputcoords'):
             self.atomcoords = numpy.array(self.inputcoords, 'd')
 
         # Set nmo if not set already - to nbasis.
-        if not hasattr(self, "nmo") and hasattr(self, "nbasis"):
+        if not hasattr(self, 'nmo') and hasattr(self, 'nbasis'):
             self.nmo = self.nbasis
 
         # Create a default coreelectrons array, unless it's impossible
         # to determine.
-        if not hasattr(self, "coreelectrons") and hasattr(self, "natom"):
-            self.coreelectrons = numpy.zeros(self.natom, "i")
-        if hasattr(self, "incorrect_coreelectrons"):
-            self.__delattr__("coreelectrons")
+        if not hasattr(self, 'coreelectrons') and hasattr(self, 'natom'):
+            self.coreelectrons = numpy.zeros(self.natom, 'i')
+        if hasattr(self, 'incorrect_coreelectrons'):
+            self.__delattr__('coreelectrons')
 
         # Create the data object we want to return. This is normally ccData, but can be changed
         # by passing the datatype argument to the constructor. All supported cclib attributes
@@ -305,8 +305,8 @@ class Logfile(ABC):
         data.check_values(logger=self.logger)
 
         # Update self.progress as done.
-        if hasattr(self, "progress"):
-            self.progress.update(inputfile.size, "Done")
+        if hasattr(self, 'progress'):
+            self.progress.update(inputfile.size, 'Done')
 
         return data
 
@@ -321,7 +321,7 @@ class Logfile(ABC):
     def updateprogress(self, inputfile, msg, xupdate=0.05):
         """Update progress."""
 
-        if hasattr(self, "progress") and random.random() < xupdate:
+        if hasattr(self, 'progress') and random.random() < xupdate:
             newstep = inputfile.pos
             if newstep != self.progress.step:
                 self.progress.update(newstep, msg)
@@ -343,7 +343,7 @@ class Logfile(ABC):
                         these won't be consistent and can't be converted
                         to an array easily
         """
-        for name in ("mpenergies",):
+        for name in ('mpenergies',):
             if hasattr(self, name):
                 delattr(self, name)
 
@@ -352,7 +352,7 @@ class Logfile(ABC):
 
         Note that this can be used for scalars and lists alike, whenever we want
         to set a value for an attribute.
-        
+
         Parameters
         ----------
         name: str
@@ -367,9 +367,7 @@ class Logfile(ABC):
             try:
                 numpy.testing.assert_equal(getattr(self, name), value)
             except AssertionError:
-                self.logger.warning(
-                    f"Attribute {name} changed value ({getattr(self, name)} -> {value})"
-                )
+                self.logger.warning(f'Attribute {name} changed value ({getattr(self, name)} -> {value})')
 
         setattr(self, name, value)
 
@@ -382,13 +380,12 @@ class Logfile(ABC):
 
     def extend_attribute(self, name, values):
         """Appends an iterable of values to an attribute."""
-        
+
         if not hasattr(self, name):
             self.set_attribute(name, [])
         getattr(self, name).extend(values)
 
-    def _assign_coreelectrons_to_element(self, element, ncore,
-                                         ncore_is_total_count=False):
+    def _assign_coreelectrons_to_element(self, element, ncore, ncore_is_total_count=False):
         """Assign core electrons to all instances of the element.
 
         It's usually reasonable to do this for all atoms of a given element,
@@ -438,13 +435,13 @@ class Logfile(ABC):
             line = next(inputfile)
 
             # Blank lines are perhaps the most common thing we want to check for.
-            if expected in ["blank", "b"]:
+            if expected in ['blank', 'b']:
                 try:
-                    assert line.strip() == ""
+                    assert line.strip() == ''
                 except AssertionError:
                     frame, fname, lno, funcname, funcline, index = inspect.getouterframes(inspect.currentframe())[1]
                     parser = fname.split('/')[-1]
-                    msg = f"In {parser}, line {int(lno)}, line not blank as expected: {line.strip()}"
+                    msg = f'In {parser}, line {int(lno)}, line not blank as expected: {line.strip()}'
                     self.logger.warning(msg)
 
             # All cases of heterogeneous lines can be dealt with by the same code.
@@ -455,7 +452,7 @@ class Logfile(ABC):
                     except AssertionError:
                         frame, fname, lno, funcname, funcline, index = inspect.getouterframes(inspect.currentframe())[1]
                         parser = fname.split('/')[-1]
-                        msg = f"In {parser}, line {int(lno)}, line not all {keys[0]} as expected: {line.strip()}"
+                        msg = f'In {parser}, line {int(lno)}, line not all {keys[0]} as expected: {line.strip()}'
                         self.logger.warning(msg)
                         continue
 
@@ -465,5 +462,6 @@ class Logfile(ABC):
         return lines
 
     skip_line = lambda self, inputfile, expected: self.skip_lines(inputfile, [expected])
+
 
 #EOF
