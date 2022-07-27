@@ -9,7 +9,7 @@ from aiida.orm import load_node, Code, Dict, SinglefileData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
-OrcaCalculation = CalculationFactory('orca_main')  #pylint: disable = invalid-name
+OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-name
 
 
 def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
@@ -41,7 +41,7 @@ def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
                 }
             },
             'input_kewords': ['RKS', 'BP', 'def2-TZVP', 'RI', 'def2/J'],
-            'extra_input_keywords': ['Grid5', 'NoFinalGrid', 'NumFreq'],
+            'extra_input_keywords': ['NumFreq'],
         }
     )
 
