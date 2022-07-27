@@ -11,7 +11,7 @@ from aiida.orm import (Code, Dict, StructureData)
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
-OrcaCalculation = CalculationFactory('orca_main')  #pylint: disable = invalid-name
+OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-name
 
 
 def example_opt(orca_code, submit=True):

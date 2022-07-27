@@ -41,8 +41,8 @@ class OrcaBaseParser(Parser):
             with self.retrieved.open(fname_out) as handler:
                 parsed_obj = ccread(handler.name)
                 parsed_dict = parsed_obj.getattributes()
-        except:  #pylint: disable=bare-except
-            parsed_dict = None
+        except OutputParsingError:  #pylint: disable=bare-except
+            return self.exit_codes.ERROR_OUTPUT_PARSING
 
         def _remove_nan(parsed_dictionary: dict) -> dict:
             """cclib parsed object may contain nan values in ndarray.
@@ -71,23 +71,13 @@ class OrcaBaseParser(Parser):
 
         # keywords = output_dict['metadata']['keywords']
 
-        #opt_pattern = re.compile('(GDIIS-)?[CZ?OPT]', re.IGNORECASE)
-
-        #if any(re.match(opt_pattern, keyword) for keyword in keywords):
-        #opt_run = True
-        # opt_run = False
-        # for keyword in keywords:
-        #     if 'opt' in keyword.lower():
-        #         opt_run = True
-
-        # if opt_run:
-        if parsed_dict['optdone']:
+        if parsed_dict.get('optdone', False):
             with out_folder.open(fname_relaxed) as handler:
                 relaxed_structure = StructureData(pymatgen_molecule=Molecule.from_file(handler.name))
+            self.out('relaxed_structure', relaxed_structure)
             # relaxation_trajectory = SinglefileData(
             #     file=os.path.join(out_folder._repository._get_base_folder().abspath, fname_traj)  #pylint: disable=protected-access
             # )
-            self.out('relaxed_structure', relaxed_structure)
             # self.out('relaxation_trajectory', relaxation_trajectory)
 
         pt = PeriodicTable()  #pylint: disable=invalid-name

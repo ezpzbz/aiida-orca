@@ -56,6 +56,7 @@ class OrcaCalculation(CalcJob):
         spec.exit_code(
             100, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed.'
         )
+        spec.exit_code(101, 'ERROR_OUTPUT_PARSING', message='The aiida.out could not be parses.')
 
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')

@@ -13,16 +13,16 @@
         "License :: OSI Approved :: MIT License",
         "Framework :: AiiDA"
     ],
-    "version": "1.0.0b",
+    "version": "0.6.0",
     "setup_requires": ["reentry"],
     "install_requires": [
-        "aiida_core[atomic_tools] >= 1.6.8, <2.0.0",
-        "periodictable==1.6.1"
+        "aiida_core[atomic_tools] >= 1.6.0, <2.0.0",
+        "periodictable"
     ],
     "entry_points": {
         "aiida.calculations": [
-            "orca_main = aiida_orca.calculations:OrcaCalculation",
-            "orca_asa = aiida_orca.calculations:OrcaAsaCalculation"
+            "orca.orca = aiida_orca.calculations:OrcaCalculation",
+            "orca.ase = aiida_orca.calculations:OrcaAsaCalculation"
         ],
         "aiida.parsers": [
             "orca_base_parser = aiida_orca.parsers:OrcaBaseParser"

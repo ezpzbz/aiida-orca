@@ -11,7 +11,7 @@ from aiida.orm import (Code, Dict, StructureData)
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
-OrcaCalculation = CalculationFactory('orca_main')  #pylint: disable = invalid-name
+OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-name
 
 
 def example_opt_numfreq(orca_code, submit=True):
@@ -36,7 +36,7 @@ def example_opt_numfreq(orca_code, submit=True):
                 },
             },
             'input_kewords': ['RKS', 'BP', 'def2-SVP', 'RI', 'def2/J'],
-            'extra_input_keywords': ['DEFGRID1', 'NumFreq', 'OPT'],
+            'extra_input_keywords': ['NumFreq', 'OPT'],
         }
     )
 

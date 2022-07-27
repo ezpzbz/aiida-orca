@@ -4,7 +4,7 @@ from aiida.common import AttributeDict
 from aiida.engine import BaseRestartWorkChain, while_
 from aiida.plugins import CalculationFactory
 
-OrcaCalculation = CalculationFactory('orca_main')  # pylint: disable=invalid-name
+OrcaCalculation = CalculationFactory('orca.orca')  # pylint: disable=invalid-name
 
 
 class OrcaBaseWorkChain(BaseRestartWorkChain):
