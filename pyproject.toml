@@ -33,7 +33,7 @@ Home = "https://github.com/pzarabadip/aiida-orca"
 
 [project.entry-points."aiida.calculations"]
 "orca.orca" = "aiida_orca.calculations:OrcaCalculation"
-"orca.ase" = "aiida_orca.calculations:OrcaAsaCalculation"
+"orca.asa" = "aiida_orca.calculations:OrcaAsaCalculation"
 
 [project.entry-points."aiida.parsers"]
 "orca_base_parser" = "aiida_orca.parsers:OrcaBaseParser"

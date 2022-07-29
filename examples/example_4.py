@@ -73,7 +73,7 @@ def cli(codelabel, previous_calc, submit):
     try:
         code = Code.get_from_string(codelabel)
     except NotExistent:
-        print('The code {codelabel} does not exist.')
+        print(f'The code {codelabel} does not exist.')
         sys.exit(1)
     example_simple_tddft(code, previous_calc, submit)
 

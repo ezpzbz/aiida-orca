@@ -84,7 +84,7 @@ def cli(codelabel, previous_calc, submit):
     try:
         code = Code.get_from_string(codelabel)
     except NotExistent:
-        print("The code '{}' does not exist".format(codelabel))
+        print(f'The code {codelabel} does not exist.')
         sys.exit(1)
     example_opt_restart(code, previous_calc, submit)
 
