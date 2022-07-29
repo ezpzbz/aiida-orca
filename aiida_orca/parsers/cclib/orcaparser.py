@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2020, the cclib development team
 #
 # This file is part of cclib (http://cclib.github.io) and is distributed under
@@ -20,7 +21,6 @@ from . import utils
 
 class ORCA(logfileparser.Logfile):
     """An ORCA log file."""
-
     def __init__(self, *args, **kwargs):
         super().__init__(logname='ORCA', *args, **kwargs)
 
@@ -51,24 +51,24 @@ class ORCA(logfileparser.Logfile):
         # ORCA doesn't add the dispersion energy to the "Total energy" (which
         # we parse), only to the "FINAL SINGLE POINT ENERGY" (which we don't
         # parse).
-        if hasattr(self, 'scfenergies') and hasattr(self, 'dispersionenergies'):
-            for i, (scfenergy, dispersionenergy) in enumerate(zip_longest(self.scfenergies, self.dispersionenergies)):
+        if hasattr(self, 'scfenergies') and hasattr(self,
+                                                    'dispersionenergies'):
+            for i, (scfenergy, dispersionenergy) in enumerate(
+                    zip_longest(self.scfenergies, self.dispersionenergies)):
                 # It isn't as problematic if there are more dispersion than
                 # SCF energies, since all dispersion energies can still be
                 # added to the SCF energies, hence the difference in log level.
                 if dispersionenergy is None:
                     self.logger.error(
                         'The number of SCF and dispersion energies are not equal: %d vs. %d, '
-                        "can't add dispersion energy to all SCF energies", len(self.scfenergies),
-                        len(self.dispersionenergies)
-                    )
+                        "can't add dispersion energy to all SCF energies",
+                        len(self.scfenergies), len(self.dispersionenergies))
                     break
                 if scfenergy is None:
                     self.logger.warning(
                         'The number of SCF and dispersion energies are not equal: %d vs. %d, '
-                        "can't add dispersion energy to all SCF energies", len(self.scfenergies),
-                        len(self.dispersionenergies)
-                    )
+                        "can't add dispersion energy to all SCF energies",
+                        len(self.scfenergies), len(self.dispersionenergies))
                     break
                 self.scfenergies[i] += dispersionenergy
 
@@ -79,7 +79,8 @@ class ORCA(logfileparser.Logfile):
         if 'Program Version' == line.strip()[:15]:
             # Handle development versions.
             self.metadata['legacy_package_version'] = line.split()[2]
-            self.metadata['package_version'] = self.metadata['legacy_package_version'].replace('.x', 'dev')
+            self.metadata['package_version'] = self.metadata[
+                'legacy_package_version'].replace('.x', 'dev')
             possible_revision_line = next(inputfile)
             if 'SVN: $Rev' in possible_revision_line:
                 version = re.search(r'\d+', possible_revision_line).group()
@@ -180,28 +181,60 @@ class ORCA(logfileparser.Logfile):
                     elif coord_type in ['int', 'internal']:
 
                         def splitter(line):
-                            atom, a1, a2, a3, bond, angle, dihedral = line.split()[:7]
+                            atom, a1, a2, a3, bond, angle, dihedral = line.split(
+                            )[:7]
                             # This could be some combination of floats and variables
                             # C                  0    0    0       0.0                  0.0                   0.0
                             # C                  3    2    1       {B3}                 {A2}                  {D1}
                             try:
-                                return [atom, int(a1), int(a2), int(a3), float(bond), float(angle), float(dihedral)]
+                                return [
+                                    atom,
+                                    int(a1),
+                                    int(a2),
+                                    int(a3),
+                                    float(bond),
+                                    float(angle),
+                                    float(dihedral)
+                                ]
                             except:
-                                return [atom, int(a1), int(a2), int(a3), str(bond), str(angle), str(dihedral)]
+                                return [
+                                    atom,
+                                    int(a1),
+                                    int(a2),
+                                    int(a3),
+                                    str(bond),
+                                    str(angle),
+                                    str(dihedral)
+                                ]
                     elif coord_type == 'gzmt':
 
                         def splitter(line):
                             vals = line.split()[:7]
                             if len(vals) == 7:
                                 atom, a1, bond, a2, angle, a3, dihedral = vals
-                                return [atom, int(a1), float(bond), int(a2), float(angle), int(a3), float(dihedral)]
+                                return [
+                                    atom,
+                                    int(a1),
+                                    float(bond),
+                                    int(a2),
+                                    float(angle),
+                                    int(a3),
+                                    float(dihedral)
+                                ]
                             elif len(vals) == 5:
-                                return [vals[0], int(vals[1]), float(vals[2]), int(vals[3]), float(vals[4])]
+                                return [
+                                    vals[0],
+                                    int(vals[1]),
+                                    float(vals[2]),
+                                    int(vals[3]),
+                                    float(vals[4])
+                                ]
                             elif len(vals) == 3:
                                 return [vals[0], int(vals[1]), float(vals[2])]
                             elif len(vals) == 1:
                                 return [vals[0]]
-                            self.logger.warning('Incorrect number of atoms in input geometry.')
+                            self.logger.warning(
+                                'Incorrect number of atoms in input geometry.')
                     elif 'file' in coord_type:
                         pass
                     else:
@@ -246,7 +279,9 @@ class ORCA(logfileparser.Logfile):
         #         *************************************************************
 
         if 'Parameter Scan Calculation' in line:
-            self.skip_lines(inputfile, ['s', 'b', 'Trajectory settings', 'Surface information', 'b'])
+            self.skip_lines(
+                inputfile,
+                ['s', 'b', 'Trajectory settings', 'Surface information', 'b'])
             line = next(inputfile)
             num_params = int(line.strip().split()[2])
             for i in range(num_params):
@@ -407,7 +442,8 @@ class ORCA(logfileparser.Logfile):
             if not hasattr(self, 'scftargets'):
                 self.scftargets = []
 
-            energy = utils.convertor(self.scfvalues[-1][-1][0], 'hartree', 'eV')
+            energy = utils.convertor(self.scfvalues[-1][-1][0], 'hartree',
+                                     'eV')
             self.scfenergies.append(energy)
 
             self._append_scfvalues_scftargets(inputfile, line)
@@ -449,7 +485,8 @@ Dispersion correction           -0.016199959
             line = next(inputfile)
             while 'Dispersion correction' not in line:
                 line = next(inputfile)
-            dispersion = utils.convertor(float(line.split()[-1]), 'hartree', 'eV')
+            dispersion = utils.convertor(float(line.split()[-1]), 'hartree',
+                                         'eV')
             self.append_attribute('dispersionenergies', dispersion)
 
         # The convergence targets for geometry optimizations are printed at the
@@ -483,14 +520,17 @@ Dispersion correction           -0.016199959
                 line = next(inputfile)
 
             if hasattr(self, 'geotargets'):
-                self.logger.warning('The geotargets attribute should not exist yet. There is a problem in the parser.')
+                self.logger.warning(
+                    'The geotargets attribute should not exist yet. There is a problem in the parser.'
+                )
             self.geotargets = []
             self.geotargets_names = []
 
             # There should always be five tolerance values printed here.
             for i in range(5):
                 line = next(inputfile)
-                name = line[:25].strip().lower().replace('.', '').replace('displacement', 'step')
+                name = line[:25].strip().lower().replace('.', '').replace(
+                    'displacement', 'step')
                 target = float(line.split()[-2])
                 self.geotargets_names.append(name)
                 self.geotargets.append(target)
@@ -536,7 +576,8 @@ Dispersion correction           -0.016199959
             # There should always be five tolerance values printed here.
             for i in range(5):
                 line = next(inputfile)
-                name = line[:25].strip().lower().replace('.', '').replace('displacement', 'step')
+                name = line[:25].strip().lower().replace('.', '').replace(
+                    'displacement', 'step')
                 target = float(line.split()[-2])
                 self.geotargets_names.append(name)
                 self.geotargets.append(target)
@@ -554,7 +595,8 @@ Dispersion correction           -0.016199959
 
             self.mpenergies.append([])
             mp2energy = utils.float(line.split()[-2])
-            self.mpenergies[-1].append(utils.convertor(mp2energy, 'hartree', 'eV'))
+            self.mpenergies[-1].append(
+                utils.convertor(mp2energy, 'hartree', 'eV'))
 
         # MP2 energy output line is different for MP3, since it uses the MDCI
         # code, which is also in charge of coupled cluster.
@@ -576,13 +618,15 @@ Dispersion correction           -0.016199959
 
             self.mpenergies.append([])
             mp2energy = utils.float(line.split()[-1])
-            self.mpenergies[-1].append(utils.convertor(mp2energy, 'hartree', 'eV'))
+            self.mpenergies[-1].append(
+                utils.convertor(mp2energy, 'hartree', 'eV'))
 
             line = next(inputfile)
             if line[:6] == 'E(MP3)':
                 self.metadata['methods'].append('MP3')
                 mp3energy = utils.float(line.split()[2])
-                self.mpenergies[-1].append(utils.convertor(mp3energy, 'hartree', 'eV'))
+                self.mpenergies[-1].append(
+                    utils.convertor(mp3energy, 'hartree', 'eV'))
             else:
                 assert line[:14] == 'Initial E(tot)'
 
@@ -599,12 +643,16 @@ Dispersion correction           -0.016199959
             self.skip_lines(inputfile, ['d', 'b'])
             line = next(inputfile)
             assert line[:4] == 'E(0)'
-            scfenergy = utils.convertor(utils.float(line.split()[-1]), 'hartree', 'eV')
+            scfenergy = utils.convertor(utils.float(line.split()[-1]),
+                                        'hartree', 'eV')
             line = next(inputfile)
             assert line[:7] == 'E(CORR)'
             while 'E(TOT)' not in line:
                 line = next(inputfile)
-            self.append_attribute('ccenergies', utils.convertor(utils.float(line.split()[-1]), 'hartree', 'eV'))
+            self.append_attribute(
+                'ccenergies',
+                utils.convertor(utils.float(line.split()[-1]), 'hartree',
+                                'eV'))
             line = next(inputfile)
             assert line[:23] == 'Singles Norm <S|S>**1/2'
             line = next(inputfile)
@@ -624,7 +672,9 @@ Dispersion correction           -0.016199959
         # 0:   0.01527469  -0.00292883   0.01125000
         # 1:   0.00098782  -0.00040549   0.00196825
         # 2:  -0.01626251   0.00333431  -0.01321825
-        if line[:18] == 'CARTESIAN GRADIENT' or line[:22] == 'The final MP2 gradient':
+        if line[:
+                18] == 'CARTESIAN GRADIENT' or line[:
+                                                    22] == 'The final MP2 gradient':
 
             grads = []
             if line[:18] == 'CARTESIAN GRADIENT':
@@ -632,12 +682,14 @@ Dispersion correction           -0.016199959
 
             line = next(inputfile).strip()
             if 'CONSTRAINED CARTESIAN COORDINATES' in line:
-                self.skip_line(inputfile, 'constrained Cartesian coordinate warning')
+                self.skip_line(inputfile,
+                               'constrained Cartesian coordinate warning')
                 line = next(inputfile).strip()
 
             while line:
                 tokens = line.split()
-                x, y, z = float(tokens[-3]), float(tokens[-2]), float(tokens[-1])
+                x, y, z = float(tokens[-3]), float(tokens[-2]), float(
+                    tokens[-1])
                 grads.append((x, y, z))
                 line = next(inputfile).strip()
 
@@ -733,7 +785,8 @@ Dispersion correction           -0.016199959
         1 O     8.0000    0    15.999    0.000000    0.000000    1.889726
         2 H     1.0000    0     1.008    0.000000    1.889726    1.889726
         """
-        if line[0:28] == 'CARTESIAN COORDINATES (A.U.)' and not hasattr(self, 'atommasses'):
+        if line[0:28] == 'CARTESIAN COORDINATES (A.U.)' and not hasattr(
+                self, 'atommasses'):
             next(inputfile)
             next(inputfile)
 
@@ -742,7 +795,8 @@ Dispersion correction           -0.016199959
             while len(line) > 1:
                 if line[:32] == '* core charge reduced due to ECP':
                     break
-                if line.strip() == '> coreless ECP center with (optional) point charge':
+                if line.strip(
+                ) == '> coreless ECP center with (optional) point charge':
                     break
                 no, lb, za, frag, mass, x, y, z = line.split()
                 if lb[-1] != '>':
@@ -775,7 +829,8 @@ Dispersion correction           -0.016199959
                 if self.uses_symmetry:
                     mosym = self.normalisesym(info[4].split('-')[1])
                 self.mooccnos[0].append(mooccno)
-                self.moenergies[0].append(utils.convertor(moenergy, 'hartree', 'eV'))
+                self.moenergies[0].append(
+                    utils.convertor(moenergy, 'hartree', 'eV'))
                 self.mosyms[0].append(mosym)
                 line = next(inputfile)
 
@@ -798,7 +853,8 @@ Dispersion correction           -0.016199959
                     if self.uses_symmetry:
                         mosym = self.normalisesym(info[4].split('-')[1])
                     self.mooccnos[1].append(mooccno)
-                    self.moenergies[1].append(utils.convertor(moenergy, 'hartree', 'eV'))
+                    self.moenergies[1].append(
+                        utils.convertor(moenergy, 'hartree', 'eV'))
                     self.mosyms[1].append(mosym)
                     line = next(inputfile)
 
@@ -810,14 +866,18 @@ Dispersion correction           -0.016199959
                     self.set_attribute('homos', [doubly_occupied - 1])
                 # Restricted open-shell.
                 elif doubly_occupied > 0 and singly_occupied > 0:
-                    self.set_attribute('homos', [doubly_occupied + singly_occupied - 1, doubly_occupied - 1])
+                    self.set_attribute('homos', [
+                        doubly_occupied + singly_occupied - 1,
+                        doubly_occupied - 1
+                    ])
                 # Unrestricted.
                 else:
                     assert len(self.moenergies) == 2
                     assert doubly_occupied == 0
                     assert self.mooccnos[1].count(2) == 0
                     nbeta = self.mooccnos[1].count(1)
-                    self.set_attribute('homos', [singly_occupied - 1, nbeta - 1])
+                    self.set_attribute('homos',
+                                       [singly_occupied - 1, nbeta - 1])
 
         # So nbasis was parsed at first with the first pattern, but it turns out that
         # semiempirical methods (at least AM1 as reported by Julien Idé) do not use this.
@@ -842,7 +902,8 @@ Dispersion correction           -0.016199959
                 for j in range(self.nbasis):
                     line = next(inputfile)
                     broken = line.split()
-                    self.aooverlaps[j, i:i + size] = list(map(float, broken[1:size + 1]))
+                    self.aooverlaps[j, i:i + size] = list(
+                        map(float, broken[1:size + 1]))
 
         # Molecular orbital coefficients are parsed here, but also related things
         #like atombasis and aonames if possible.
@@ -883,7 +944,8 @@ Dispersion correction           -0.016199959
 
                 if spin == 1:
                     self.skip_line(inputfile, 'blank')
-                    mocoeffs.append(numpy.zeros((self.nbasis, self.nbasis), 'd'))
+                    mocoeffs.append(
+                        numpy.zeros((self.nbasis, self.nbasis), 'd'))
 
                 for i in range(0, self.nbasis, 6):
 
@@ -901,7 +963,8 @@ Dispersion correction           -0.016199959
                             num = int(line[0:3])
                             orbital = line.split()[1].upper()
 
-                            aonames.append(f'{atomname}{int(num + 1)}_{orbital}')
+                            aonames.append(
+                                f'{atomname}{int(num + 1)}_{orbital}')
                             atombasis[num].append(j)
 
                         # This regex will tease out all number with exactly
@@ -911,7 +974,9 @@ Dispersion correction           -0.016199959
                         # Something is very wrong if this does not hold.
                         assert len(coeffs) <= 6
 
-                        mocoeffs[spin][i:i + len(coeffs), j] = [float(c) for c in coeffs]
+                        mocoeffs[spin][i:i + len(coeffs), j] = [
+                            float(c) for c in coeffs
+                        ]
 
             self.set_attribute('aonames', aonames)
             self.set_attribute('atombasis', atombasis)
@@ -1010,7 +1075,8 @@ Dispersion correction           -0.016199959
             self.set_attribute('zpve', float(next(inputfile).split()[4]))
             thermal_vibrational_correction = float(next(inputfile).split()[4])
             thermal_rotional_correction = float(next(inputfile).split()[4])
-            thermal_translational_correction = float(next(inputfile).split()[4])
+            thermal_translational_correction = float(
+                next(inputfile).split()[4])
             self.skip_lines(inputfile, ['dashes'])
             total_thermal_energy = float(next(inputfile).split()[3])
 
@@ -1038,11 +1104,14 @@ Dispersion correction           -0.016199959
 
             # ORCA prints -inf for single atom entropy.
             if self.natom > 1:
-                self.entropy = float(next(inputfile).split()[4]) / self.temperature
+                self.entropy = float(
+                    next(inputfile).split()[4]) / self.temperature
             else:
-                self.entropy = (electronic_entropy + translational_entropy) / self.temperature
+                self.entropy = (electronic_entropy +
+                                translational_entropy) / self.temperature
 
-            while (line[:25] != 'Final Gibbs free enthalpy') and (line[:23] != 'Final Gibbs free energy'):
+            while (line[:25] != 'Final Gibbs free enthalpy') and (
+                    line[:23] != 'Final Gibbs free energy'):
                 line = next(inputfile)
             self.skip_lines(inputfile, ['dashes'])
 
@@ -1127,7 +1196,8 @@ State   Energy  Wavelength   fosc         T2         TX        TY        TZ
    1 5184116.7      1.9   0.040578220   0.00258  -0.05076  -0.00000  -0.00000
 """
                     try:
-                        state, energy, wavelength, intensity, t2, tx, ty, tz = line.split()
+                        state, energy, wavelength, intensity, t2, tx, ty, tz = line.split(
+                        )
                     except ValueError as e:
                         # Must be spin forbidden and thus no intensity
                         energy = line.split()[1]
@@ -1148,7 +1218,8 @@ State   Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
 ------------------------------------------------------------------------------------------------------
    1 61784150.6      0.2   0.00000   0.00000   3.23572   0.00000323571519   0.00000   0.00000   1.00000
 """
-                    state, energy, wavelength, d2, m2, q2, intensity, d2_contrib, m2_contrib, q2_contrib = line.split()
+                    state, energy, wavelength, d2, m2, q2, intensity, d2_contrib, m2_contrib, q2_contrib = line.split(
+                    )
                     return energy, intensity
 
             elif line == 'COMBINED ELECTRIC DIPOLE + MAGNETIC DIPOLE + ELECTRIC QUADRUPOLE SPECTRUM (Origin Independent, Length Representation)':
@@ -1182,11 +1253,15 @@ State  Energy   Wavelength       D2            m2              Q2               
 -------------------------------------------------------------------------------------
     1   90a ->    0a      8748.824     0.000002678629     0.00004  -0.00001   0.00003
 """
-                    state, start, arrow, end, energy, intensity, tx, ty, tz = line.split()
+                    state, start, arrow, end, energy, intensity, tx, ty, tz = line.split(
+                    )
                     return energy, intensity
 
-            elif line[:70] == 'COMBINED ELECTRIC DIPOLE + MAGNETIC DIPOLE + ELECTRIC QUADRUPOLE X-RAY':
-                header = ['header', 'd', 'header', 'd', 'header', 'header', 'd']
+            elif line[:
+                      70] == 'COMBINED ELECTRIC DIPOLE + MAGNETIC DIPOLE + ELECTRIC QUADRUPOLE X-RAY':
+                header = [
+                    'header', 'd', 'header', 'd', 'header', 'header', 'd'
+                ]
 
                 def energy_intensity(line):
                     """ XAS with quadrupole (origin adjusted)
@@ -1205,7 +1280,8 @@ State  Energy   Wavelength       D2            m2              Q2               
                     )
                     return energy, intensity
 
-            elif line[:55] == 'SPIN ORBIT CORRECTED ABSORPTION SPECTRUM VIA TRANSITION':
+            elif line[:
+                      55] == 'SPIN ORBIT CORRECTED ABSORPTION SPECTRUM VIA TRANSITION':
 
                 def energy_intensity(line):
                     """ ROCIS dipole approximation with SOC == True (electric or velocity dipole moments)
@@ -1218,7 +1294,8 @@ States    Energy  Wavelength   fosc         T2         TX        TY        TZ
  0  1       0.0      0.0   0.000000000   0.00000   0.00000   0.00000   0.00000
  0  2 5184116.4      1.9   0.020288451   0.00258   0.05076   0.00003   0.00000
 """
-                    state, state2, energy, wavelength, intensity, t2, tx, ty, tz = line.split()
+                    state, state2, energy, wavelength, intensity, t2, tx, ty, tz = line.split(
+                    )
                     return energy, intensity
 
             elif line[:79] == 'ROCIS COMBINED ELECTRIC DIPOLE + MAGNETIC DIPOLE + ELECTRIC QUADRUPOLE SPECTRUM' \
@@ -1255,7 +1332,8 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
 """
                     reg = r'(\d+)\( ?(\d+)\)-> ?(\d+)\( ?(\d+)\) (\d+)' + r'\s+(\d+\.\d+)' * 4 + r'\s+(-?\d+\.\d+)' * 3
                     res = re.search(reg, line)
-                    jstate, jblock, istate, iblock, mult, energy, wavelength, intensity, t2, tx, ty, tz = res.groups()
+                    jstate, jblock, istate, iblock, mult, energy, wavelength, intensity, t2, tx, ty, tz = res.groups(
+                    )
                     return energy, intensity
 
             name = line
@@ -1279,7 +1357,8 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
 
                 self.set_attribute('etenergies', etenergies)
                 self.set_attribute('etoscs', etoscs)
-                self.transprop[name] = (numpy.asarray(etenergies), numpy.asarray(etoscs))
+                self.transprop[name] = (numpy.asarray(etenergies),
+                                        numpy.asarray(etoscs))
 
         if line.strip() == 'CD SPECTRUM':
             # -------------------------------------------------------------------
@@ -1304,9 +1383,12 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
             #------------------------------------------------------------------------------
             etenergies = []
             etrotats = []
-            self.skip_lines(inputfile, ['d', 'State   Energy Wavelength', '(cm-1)   (nm)', 'd'])
+            self.skip_lines(
+                inputfile,
+                ['d', 'State   Energy Wavelength', '(cm-1)   (nm)', 'd'])
             line = next(inputfile)
-            while line.strip() and not utils.str_contains_only(line.strip(), ['-']):
+            while line.strip() and not utils.str_contains_only(
+                    line.strip(), ['-']):
                 tokens = line.split()
                 if 'spin forbidden' in line:
                     etrotat, mx, my, mz = 0.0, 0.0, 0.0, 0.0
@@ -1318,7 +1400,9 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
                 line = next(inputfile)
             self.set_attribute('etrotats', etrotats)
             if not hasattr(self, 'etenergies'):
-                self.logger.warning('etenergies not parsed before ECD section, ' 'the output file may be malformed')
+                self.logger.warning(
+                    'etenergies not parsed before ECD section, '
+                    'the output file may be malformed')
                 self.set_attribute('etenergies', etenergies)
 
         # ---------------
@@ -1369,7 +1453,8 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
             nmrtensors = dict()
             while line.strip() != 'CHEMICAL SHIELDING SUMMARY (ppm)':
                 if line[:8] == ' Nucleus':
-                    atom = int(re.search(r'Nucleus\s+(\d+)\w', line).groups()[0])
+                    atom = int(
+                        re.search(r'Nucleus\s+(\d+)\w', line).groups()[0])
                     self.skip_lines(inputfile, ['-', ''])
                     atomtensors = dict()
                     for _ in range(3):
@@ -1401,7 +1486,8 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
 
             # Starting with 4.1, a scaling factor for frequencies is printed
             if float(self.metadata['package_version'][:3]) > 4.0:
-                self.skip_lines(inputfile, ['Scaling factor for frequencies', 'b'])
+                self.skip_lines(inputfile,
+                                ['Scaling factor for frequencies', 'b'])
 
             if self.natom > 1:
                 vibfreqs = numpy.zeros(3 * self.natom)
@@ -1436,16 +1522,21 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
         # ...
         if line[:12] == 'NORMAL MODES':
             if self.natom > 1:
-                all_vibdisps = numpy.zeros((3 * self.natom, self.natom, 3), 'd')
+                all_vibdisps = numpy.zeros((3 * self.natom, self.natom, 3),
+                                           'd')
 
-                self.skip_lines(inputfile, ['d', 'b', 'text', 'text', 'text', 'b'])
+                self.skip_lines(inputfile,
+                                ['d', 'b', 'text', 'text', 'text', 'b'])
 
                 for mode in range(0, 3 * self.natom, 6):
                     header = next(inputfile)
                     for atom in range(self.natom):
-                        all_vibdisps[mode:mode + 6, atom, 0] = next(inputfile).split()[1:]
-                        all_vibdisps[mode:mode + 6, atom, 1] = next(inputfile).split()[1:]
-                        all_vibdisps[mode:mode + 6, atom, 2] = next(inputfile).split()[1:]
+                        all_vibdisps[mode:mode +
+                                     6, atom, 0] = next(inputfile).split()[1:]
+                        all_vibdisps[mode:mode +
+                                     6, atom, 1] = next(inputfile).split()[1:]
+                        all_vibdisps[mode:mode +
+                                     6, atom, 2] = next(inputfile).split()[1:]
 
                 self.set_attribute('vibdisps', all_vibdisps[self.first_mode:])
             else:
@@ -1478,7 +1569,8 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
         if line[:11] == 'IR SPECTRUM':
             package_version = self.metadata.get('package_version', None)
             if package_version is None:
-                self.logger.warn('package_version has not been set, assuming 5.x.x')
+                self.logger.warn(
+                    'package_version has not been set, assuming 5.x.x')
                 package_version = '5.x.x'
             major_version = int(package_version[0])
             if major_version <= 4:
@@ -1489,7 +1581,7 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
                 regex = r'\s+(?P<num>\d+):\s+(?P<frequency>\d+\.\d+)\s+(?P<eps>\d+\.\d+)\s+(?P<intensity>\d+\.\d+)'
 
             if self.natom > 1:
-                all_vibirs = numpy.zeros((3 * self.natom,), 'd')
+                all_vibirs = numpy.zeros((3 * self.natom, ), 'd')
 
                 line = next(inputfile)
                 matches = re.match(regex, line)
@@ -1526,7 +1618,8 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
                     all_vibramans[num] = float(line.split()[2])
                     line = next(inputfile)
 
-                self.set_attribute('vibramans', all_vibramans[self.first_mode:])
+                self.set_attribute('vibramans',
+                                   all_vibramans[self.first_mode:])
             else:
                 # we have a single atom
                 self.set_attribute('vibramans', numpy.array([]))
@@ -1582,7 +1675,8 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
         #
         if line.strip() == 'DIPOLE MOMENT':
 
-            self.skip_lines(inputfile, ['d', 'XYZ', 'electronic', 'nuclear', 'd'])
+            self.skip_lines(inputfile,
+                            ['d', 'XYZ', 'electronic', 'nuclear', 'd'])
             total = next(inputfile)
             assert 'Total Dipole Moment' in total
 
@@ -1596,11 +1690,14 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
                 try:
                     assert numpy.all(self.moments[1] == dipole)
                 except AssertionError:
-                    self.logger.warning('Overwriting previous multipole moments with new values')
+                    self.logger.warning(
+                        'Overwriting previous multipole moments with new values'
+                    )
                     self.set_attribute('moments', [reference, dipole])
 
         if 'Molecular Dynamics Iteration' in line:
-            self.skip_lines(inputfile, ['d', 'ORCA MD', 'd', 'New Coordinates'])
+            self.skip_lines(inputfile,
+                            ['d', 'ORCA MD', 'd', 'New Coordinates'])
             line = next(inputfile)
             tokens = line.split()
             assert tokens[0] == 'time'
@@ -1673,7 +1770,8 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
             total_el = int(next(inputfile).split()[-1])
             total_orbs = int(next(inputfile).split()[-1])
 
-            line = utils.skip_until_no_match(inputfile, r'^\s*$|^Total number aux.*$|^Determined.*$')
+            line = utils.skip_until_no_match(
+                inputfile, r'^\s*$|^Total number aux.*$|^Determined.*$')
 
             # Determined orbital ranges:
             #    Internal       0 -   -1 (   0 orbitals)
@@ -1826,7 +1924,8 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
                 for j, line in zip(range(num_orbs), inputfile):
                     density[j][i:i + 6] = list(map(float, line.split()[1:]))
 
-            line = utils.skip_until_no_match(inputfile, r'^\s*$|^-*$|^Trace.*$|^Extracting.*$')
+            line = utils.skip_until_no_match(
+                inputfile, r'^\s*$|^-*$|^Trace.*$|^Extracting.*$')
 
             # This is only printed for open-shells.
             # -------------------
@@ -1842,7 +1941,9 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
                 for i in range(0, num_orbs, 6):
                     next(inputfile)
                     for j, line in zip(range(num_orbs), inputfile):
-                        spin_density[j][i:i + 6] = list(map(float, line.split()[1:]))
+                        spin_density[j][i:i + 6] = list(
+                            map(float,
+                                line.split()[1:]))
                 self.skip_lines(inputfile, ['Trace', 'b', 'd', 'ENERGY'])
             self.skip_lines(inputfile, ['d', 'b'])
 
@@ -1979,23 +2080,34 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
                     # code looks like:
                     # %3i %17.10f%12.12f%11.8f %11.8f
                     if line[1].count('.') == 2:
-                        integer1, decimal1_integer2, decimal2 = line[1].split('.')
-                        decimal1, integer2 = decimal1_integer2[:10], decimal1_integer2[10:]
+                        integer1, decimal1_integer2, decimal2 = line[1].split(
+                            '.')
+                        decimal1, integer2 = decimal1_integer2[:
+                                                               10], decimal1_integer2[
+                                                                   10:]
                         energy = float(integer1 + '.' + decimal1)
                         deltaE = float(integer2 + '.' + decimal2)
                         maxDP = float(line[2 + int(not diis_active)])
                         rmsDP = float(line[3 + int(not diis_active)])
                     elif line[1].count('.') == 3:
-                        integer1, decimal1_integer2, decimal2_integer3, decimal3 = line[1].split('.')
-                        decimal1, integer2 = decimal1_integer2[:10], decimal1_integer2[10:]
-                        decimal2, integer3 = decimal2_integer3[:12], decimal2_integer3[12:]
+                        integer1, decimal1_integer2, decimal2_integer3, decimal3 = line[
+                            1].split('.')
+                        decimal1, integer2 = decimal1_integer2[:
+                                                               10], decimal1_integer2[
+                                                                   10:]
+                        decimal2, integer3 = decimal2_integer3[:
+                                                               12], decimal2_integer3[
+                                                                   12:]
                         energy = float(integer1 + '.' + decimal1)
                         deltaE = float(integer2 + '.' + decimal2)
                         maxDP = float(integer3 + '.' + decimal3)
                         rmsDP = float(line[2 + int(not diis_active)])
                     elif line[2].count('.') == 2:
-                        integer1, decimal1_integer2, decimal2 = line[2].split('.')
-                        decimal1, integer2 = decimal1_integer2[:12], decimal1_integer2[12:]
+                        integer1, decimal1_integer2, decimal2 = line[2].split(
+                            '.')
+                        decimal1, integer2 = decimal1_integer2[:
+                                                               12], decimal1_integer2[
+                                                                   12:]
                         deltaE = float(integer1 + '.' + decimal1)
                         maxDP = float(integer2 + '.' + decimal2)
                         rmsDP = float(line[3 + int(not diis_active)])
@@ -2007,7 +2119,9 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
             try:
                 line = next(inputfile).split()
             except StopIteration:
-                self.logger.warning(f'File terminated before end of last SCF! Last Max-DP: {maxDP}')
+                self.logger.warning(
+                    f'File terminated before end of last SCF! Last Max-DP: {maxDP}'
+                )
                 break
 
     def parse_scf_expanded_format(self, inputfile, line):

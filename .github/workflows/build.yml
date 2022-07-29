@@ -32,7 +32,7 @@ jobs:
       matrix:
         python-version: [3.8,3.9]
         backend: ['django']
-    
+
     services:
       postgres:
         image: postgres:12
@@ -95,4 +95,3 @@ jobs:
     #   with:
     #     token: ${{secrets.CODECOV_TOKEN}}
     #     file: ./coverage.xml
-    

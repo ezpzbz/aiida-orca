@@ -1,0 +1,140 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "aiida_orca"
+dynamic = ["version", "description"]
+authors = [{name = "Pezhman Zarabadi-Poor", email = "pzarabadip@gmail.com"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 3 - Development",
+    "Framework :: AiiDA",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering"
+]
+
+keywords = ["aiida", "orca"]
+requires-python = ">=3.8"
+dependencies = [
+    "aiida_core[atomic_tools] >= 1.6.0, <2.0.0",
+    "periodictable"
+]
+
+[project.urls]
+Home = "https://github.com/pzarabadip/aiida-orca"
+
+[project.entry-points."aiida.calculations"]
+"orca.orca" = "aiida_orca.calculations:OrcaCalculation"
+"orca.ase" = "aiida_orca.calculations:OrcaAsaCalculation"
+
+[project.entry-points."aiida.parsers"]
+"orca_base_parser" = "aiida_orca.parsers:OrcaBaseParser"
+
+[project.entry-points."aiida.workflows"]
+"orca.base" = "aiida_orca.workchains:OrcaBaseWorkChain"
+
+[project.optional-dependencies]
+test = [
+    "pgtest==1.2.0",
+    "pytest>=4.4,<5.0.0",
+    "pytest-cov>=2.6.1,<3.0.0"
+]
+pre-commit = [
+    "mypy==0.930",
+    "pre-commit~=2.2",
+    "yapf==0.28.0",
+    "pylint==2.11.1"
+]
+docs = [
+    "sphinx",
+    "sphinxcontrib-contentui",
+    "sphinxcontrib-details-directive",
+    "sphinx-rtd-theme"
+]
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.messages_control]
+disable = [
+    "bad-continuation",
+    "bad-option-value",
+    "consider-using-f-string",
+    "cyclic-import",
+    "duplicate-code",
+    "import-outside-toplevel",
+    "inconsistent-return-statements",
+    "locally-disabled",
+    "logging-fstring-interpolation",
+    "no-else-raise",
+    "raise-missing-from",
+    "too-few-public-methods",
+    "too-many-ancestors",
+    "too-many-arguments",
+    "too-many-instance-attributes",
+    # this can be removed when https://github.com/PyCQA/astroid/issues/1015 is fixed
+    "not-context-manager",
+]
+
+[tool.pylint.basic]
+good-names = [
+    "pk",
+    "OrcaBaseParser",
+    "OrcaAsaCalculation",
+    "OrcaCalculation",
+    "OrcaBaseWorkChain"
+]
+
+[tool.pylint.design]
+max-locals = 20
+
+[tool.mypy]
+show_error_codes = true
+check_untyped_defs = true
+scripts_are_modules = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_warn_no_return = true
+show_traceback = true
+
+[[tool.mypy.overrides]]
+module = 'aiida.*'
+# can only follow these imports when more of the code is typed
+follow_imports = "skip"
+
+[[tool.mypy.overrides]]
+module = 'tests.*'
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    'circus.*',
+    'kiwipy.*',
+    'numpy.*',
+    'pytz.*',
+    'ruamel.*',
+    'scipy.*',
+    'tabulate.*',
+    'tqdm.*',
+    'wrapt.*',
+    'aiida.*'
+]
+ignore_missing_imports = true
+
+
+[tool.yapf]
+based_on_style = "google"
+column_limit = 120
+dedent_closing_brackets = true
+coalesce_brackets = true
+align_closing_bracket_with_visual_indent = true
+split_arguments_when_comma_terminated = true
+indent_dictionary_value = false

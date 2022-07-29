@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 For pytest initialise a test database and profile
 """
@@ -9,15 +10,17 @@ pytest_plugins = ['aiida.manage.tests.pytest_fixtures']  # pylint: disable=inval
 thisdir = os.path.dirname(os.path.realpath(__file__))  # pylint: disable=invalid-name
 prepend_text = 'source ' + str(os.path.join(thisdir, '.github', 'setup.sh'))  # pylint: disable=invalid-name
 
-# Example of how to define your own fixture
-# @pytest.fixture(scope='function', autouse=True)
-# def clear_database_auto(clear_database):
-#     """Automatically clear database in between tests."""
-#     pass
-
 
 @pytest.fixture(scope='function')
 def orca_code(aiida_local_code_factory):  # pylint: disable=unused-argument
+    """_summary_
+
+    Args:
+        aiida_local_code_factory (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return aiida_local_code_factory('orca', 'orca', prepend_text=prepend_text)
 
 

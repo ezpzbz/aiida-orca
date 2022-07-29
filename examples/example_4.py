@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Run simple TDDFT Calculation using AiiDA-Orca"""
 
 import sys
@@ -72,7 +73,7 @@ def cli(codelabel, previous_calc, submit):
     try:
         code = Code.get_from_string(codelabel)
     except NotExistent:
-        print("The code '{}' does not exist".format(codelabel))
+        print('The code {codelabel} does not exist.')
         sys.exit(1)
     example_simple_tddft(code, previous_calc, submit)
 

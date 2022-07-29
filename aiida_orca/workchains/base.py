@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Base work chain to run an ORCA calculation"""
 
 from aiida.common import AttributeDict

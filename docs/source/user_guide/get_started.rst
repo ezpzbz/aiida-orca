@@ -15,9 +15,9 @@ Use the following commands to install the plugin::
 
     git clone https://github.com/pzarabadip/aiida-orca .
     cd aiida-orca
-    pip install -e .  
+    pip install -e .
     #pip install -e .[pre-commit,testing] # install extras for more features
-    
+
 
 Available calculations
 ++++++++++++++++++++++

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Run simple DFT calculation"""
 import os
 import sys
@@ -72,7 +73,7 @@ def cli(codelabel, submit):
     try:
         code = Code.get_from_string(codelabel)
     except NotExistent:
-        print("The code '{}' does not exist".format(codelabel))
+        print('The code {codelabel} does not exist.')
         sys.exit(1)
     example_opt(code, submit)
 
