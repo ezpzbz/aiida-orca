@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2020, the cclib development team
 #
 # This file is part of cclib (http://cclib.github.io) and is distributed under
@@ -37,7 +38,10 @@ def convertor(value, fromunits, tounits):
         Documentation of GAMESS-US or other programs as noted
     """
 
-    _convertor = {'hartree_to_eV': lambda x: x * 27.21138505, 'ebohr_to_Debye': lambda x: x * 2.5417462300}
+    _convertor = {
+        'hartree_to_eV': lambda x: x * 27.21138505,
+        'ebohr_to_Debye': lambda x: x * 2.5417462300
+    }
 
     return _convertor[f'{fromunits}_to_{tounits}'](value)
 
@@ -63,7 +67,6 @@ def str_contains_only(string, chars):
 
 class PeriodicTable:
     """Allows conversion between element name and atomic no."""
-
     def __init__(self):
         self.element = [None]
         self.number = {}

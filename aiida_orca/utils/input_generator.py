@@ -1,13 +1,13 @@
+# -*- coding: utf-8 -*-
 """AiiDA-ORCA input generator"""
 
-from typing import NoReturn
 from copy import deepcopy
 
 
 class OrcaInput:
     """Transforms dictionary into ORCA input"""
 
-    def __init__(self, params: dict) -> NoReturn:
+    def __init__(self, params: dict) -> None:
         """Initializing OrcaInput object
 
         Args:
@@ -30,7 +30,7 @@ class OrcaInput:
         return '\n'.join(output)
 
     @staticmethod
-    def _render_input(output: str, params: dict) -> str:
+    def _render_input(output: list, params: dict) -> list:
         """Rendering differnt sections
 
         Args:

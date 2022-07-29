@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """AiiDA-ORCA plugin -- ASA Calculations"""
 
 from aiida.orm import SinglefileData

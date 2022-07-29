@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """AiiDA-ORCA output parser"""
 import numpy as np
 

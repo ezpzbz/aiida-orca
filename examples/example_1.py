@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Run simple DFT calculation"""
 import os
 import sys
@@ -28,7 +29,8 @@ def example_opt_restart(orca_code, opt_calc_pk=None, submit=True):
 
     # old gbw file
     retr_fldr = load_node(opt_calc_pk).outputs.retrieved
-    gbw_file = SinglefileData(os.path.join(retr_fldr._repository._get_base_folder().abspath, 'aiida.gbw'))  #pylint: disable=protected-access
+    with open(retr_fldr.open('aiida.gbw'), mode='r', encoding='utf-8') as handler:
+        gbw_file = SinglefileData(handler.name)
 
     # parameters
     parameters = Dict(

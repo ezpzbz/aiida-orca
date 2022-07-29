@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2020, the cclib development team
 #
 # This file is part of cclib (http://cclib.github.io) and is distributed under
@@ -21,7 +22,6 @@ from . import data
 
 class FileWrapper:
     """Wrap a file-like object or stream with some custom tweaks"""
-
     def __init__(self, source, pos=0):
 
         self.src = source
@@ -39,7 +39,8 @@ class FileWrapper:
 
         except (AttributeError, IOError, io.UnsupportedOperation):
             # Stream returned by urllib should have size information.
-            if hasattr(self.src, 'headers') and 'content-length' in self.src.headers:
+            if hasattr(self.src,
+                       'headers') and 'content-length' in self.src.headers:
                 self.size = int(self.src.headers['content-length'])
             else:
                 self.size = pos
@@ -108,16 +109,13 @@ class Logfile(ABC):
         ADF, DALTON, GAMESS, GAMESSUK, Gaussian, Jaguar, Molpro, MOPAC,
         NWChem, ORCA, Psi, Q-Chem
     """
-
-    def __init__(
-        self,
-        source,
-        loglevel=logging.ERROR,
-        logname='Log',
-        logstream=sys.stderr,
-        datatype=data.ccData_optdone_bool,
-        **kwds
-    ):
+    def __init__(self,
+                 source,
+                 loglevel=logging.ERROR,
+                 logname='Log',
+                 logstream=sys.stderr,
+                 datatype=data.ccData_optdone_bool,
+                 **kwds):
         """Initialise the Logfile object.
 
         This should be called by a subclass in its own __init__ method.
@@ -137,7 +135,8 @@ class Logfile(ABC):
         if isinstance(source, str):
             self.filename = source
             self.isstream = False
-        elif isinstance(source, list) and all([isinstance(s, str) for s in source]):
+        elif isinstance(source, list) and all(
+            [isinstance(s, str) for s in source]):
             self.filename = source
             self.isstream = False
         elif isinstance(source, fileinput.FileInput):
@@ -161,7 +160,8 @@ class Logfile(ABC):
         self.logger.setLevel(self.loglevel)
         if len(self.logger.handlers) == 0:
             handler = logging.StreamHandler(logstream)
-            handler.setFormatter(logging.Formatter('[%(name)s %(levelname)s] %(message)s'))
+            handler.setFormatter(
+                logging.Formatter('[%(name)s %(levelname)s] %(message)s'))
             self.logger.addHandler(handler)
 
         # Set up the metadata.
@@ -181,8 +181,10 @@ class Logfile(ABC):
 
         # Change the class used if we want optdone to be a list or if the 'future' option
         # is used, which might have more consequences in the future.
-        optdone_as_list = kwds.get('optdone_as_list', False) or kwds.get('future', False)
-        optdone_as_list = optdone_as_list if isinstance(optdone_as_list, bool) else False
+        optdone_as_list = kwds.get('optdone_as_list', False) or kwds.get(
+            'future', False)
+        optdone_as_list = optdone_as_list if isinstance(optdone_as_list,
+                                                        bool) else False
         if optdone_as_list:
             self.datatype = data.ccData
         # Parsing of Natural Orbitals and Natural Spin Orbtials into one attribute
@@ -198,7 +200,8 @@ class Logfile(ABC):
                 if type(value) in [numpy.ndarray, list]:
                     self.logger.info(f'Creating attribute {name}[]')
                 else:
-                    self.logger.info(f'Creating attribute {name}: {str(value)}')
+                    self.logger.info(
+                        f'Creating attribute {name}: {str(value)}')
 
         # Set the attribute.
         object.__setattr__(self, name, value)
@@ -209,11 +212,15 @@ class Logfile(ABC):
         # Check that the sub-class has an extract attribute,
         #  that is callable with the proper number of arguemnts.
         if not hasattr(self, 'extract'):
-            raise AttributeError(f'Class {self.__class__.__name__} has no extract() method.')
+            raise AttributeError(
+                f'Class {self.__class__.__name__} has no extract() method.')
         if not callable(self.extract):
-            raise AttributeError(f'Method {self.__class__.__name__}._extract not callable.')
+            raise AttributeError(
+                f'Method {self.__class__.__name__}._extract not callable.')
         if len(inspect.getfullargspec(self.extract)[0]) != 3:
-            raise AttributeError(f'Method {self.__class__.__name__}._extract takes wrong number of arguments.')
+            raise AttributeError(
+                f'Method {self.__class__.__name__}._extract takes wrong number of arguments.'
+            )
 
         # Save the current list of attributes to keep after parsing.
         # The dict of self should be the same after parsing.
@@ -330,7 +337,6 @@ class Logfile(ABC):
     @abstractmethod
     def normalisesym(self, symlabel):
         """Standardise the symmetry labels between parsers."""
-
     def new_internal_job(self):
         """Delete attributes that can be problematic in multistep jobs.
 
@@ -343,7 +349,7 @@ class Logfile(ABC):
                         these won't be consistent and can't be converted
                         to an array easily
         """
-        for name in ('mpenergies',):
+        for name in ('mpenergies', ):
             if hasattr(self, name):
                 delattr(self, name)
 
@@ -367,7 +373,9 @@ class Logfile(ABC):
             try:
                 numpy.testing.assert_equal(getattr(self, name), value)
             except AssertionError:
-                self.logger.warning(f'Attribute {name} changed value ({getattr(self, name)} -> {value})')
+                self.logger.warning(
+                    f'Attribute {name} changed value ({getattr(self, name)} -> {value})'
+                )
 
         setattr(self, name, value)
 
@@ -385,7 +393,10 @@ class Logfile(ABC):
             self.set_attribute(name, [])
         getattr(self, name).extend(values)
 
-    def _assign_coreelectrons_to_element(self, element, ncore, ncore_is_total_count=False):
+    def _assign_coreelectrons_to_element(self,
+                                         element,
+                                         ncore,
+                                         ncore_is_total_count=False):
         """Assign core electrons to all instances of the element.
 
         It's usually reasonable to do this for all atoms of a given element,
@@ -439,7 +450,8 @@ class Logfile(ABC):
                 try:
                     assert line.strip() == ''
                 except AssertionError:
-                    frame, fname, lno, funcname, funcline, index = inspect.getouterframes(inspect.currentframe())[1]
+                    frame, fname, lno, funcname, funcline, index = inspect.getouterframes(
+                        inspect.currentframe())[1]
                     parser = fname.split('/')[-1]
                     msg = f'In {parser}, line {int(lno)}, line not blank as expected: {line.strip()}'
                     self.logger.warning(msg)
@@ -448,9 +460,11 @@ class Logfile(ABC):
             for character, keys in expected_characters.items():
                 if expected in keys:
                     try:
-                        assert str_contains_only(line.strip(), [character, ' '])
+                        assert str_contains_only(line.strip(),
+                                                 [character, ' '])
                     except AssertionError:
-                        frame, fname, lno, funcname, funcline, index = inspect.getouterframes(inspect.currentframe())[1]
+                        frame, fname, lno, funcname, funcline, index = inspect.getouterframes(
+                            inspect.currentframe())[1]
                         parser = fname.split('/')[-1]
                         msg = f'In {parser}, line {int(lno)}, line not all {keys[0]} as expected: {line.strip()}'
                         self.logger.warning(msg)
@@ -461,7 +475,8 @@ class Logfile(ABC):
 
         return lines
 
-    skip_line = lambda self, inputfile, expected: self.skip_lines(inputfile, [expected])
+    skip_line = lambda self, inputfile, expected: self.skip_lines(
+        inputfile, [expected])
 
 
 #EOF

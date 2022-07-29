@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """AiiDA-ORCA plugin -- Main Calculations"""
 
 from aiida.engine import CalcJob
@@ -111,7 +112,7 @@ class OrcaCalculation(CalcJob):
         # create ORCA input file
         inp = OrcaInput(self.inputs.parameters.get_dict())
 
-        with open(folder.get_abs_path(self._INPUT_FILE), mode='w') as fobj:
+        with open(folder.get_abs_path(self._INPUT_FILE), mode='w', encoding='utf-8') as fobj:
             fobj.write(inp.render())
 
         return calcinfo
@@ -132,9 +133,9 @@ class OrcaCalculation(CalcJob):
         for site in mol:
             coords.append(' '.join([site.species_string, ' '.join([to_string(j) for j in site.coords])]))
 
-        with open(folder.get_abs_path(name), mode='w') as fobj:
-            fobj.write(u'{}\n\n'.format(len(coords)))
-            fobj.write(u'\n'.join(coords))
+        with open(folder.get_abs_path(name), mode='w', encoding='utf-8') as fobj:
+            fobj.write('{}\n\n'.format(len(coords)))
+            fobj.write('\n'.join(coords))
 
 
 #EOF

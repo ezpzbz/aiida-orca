@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 """Run restart numerical Freq Calculation using AiiDA-Orca"""
-import os
 import sys
 import click
 import pytest
@@ -21,7 +21,8 @@ def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
 
     # old hess file
     retr_fldr = load_node(freq_calc_pk).outputs.retrieved
-    hess_file = SinglefileData(os.path.join(retr_fldr._repository._get_base_folder().abspath, 'aiida.hess'))  #pylint: disable=protected-access
+    with open(retr_fldr.open('aiida.hess'), mode='r', encoding='utf-8') as handler:
+        hess_file = SinglefileData(handler.name)
 
     # parameters
     parameters = Dict(
@@ -79,7 +80,7 @@ def cli(codelabel, previous_calc, submit):
     try:
         code = Code.get_from_string(codelabel)
     except NotExistent:
-        print("The code '{}' does not exist".format(codelabel))
+        print('The code {codelabel} does not exist.')
         sys.exit(1)
     example_restart_numfreq(code, previous_calc, submit)
 

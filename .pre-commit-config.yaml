@@ -1,43 +1,60 @@
 # # Install pre-commit hooks via
 # pre-commit install
 
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.2.3
-  hooks:
-  - id: trailing-whitespace
-    types: [python]
-  - id: double-quote-string-fixer
-    types: [python]
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+    -   id: double-quote-string-fixer
+    -   id: end-of-file-fixer
+        exclude: &exclude_pre_commit_hooks >
+            (?x)^(
+                tests/.*(?<!\.py)$|
+                docs/source/.+\.aiida/repo/.+|
+            )$
+    -   id: fix-encoding-pragma
+    -   id: mixed-line-ending
+    -   id: trailing-whitespace
+        exclude: *exclude_pre_commit_hooks
+    -   id: check-yaml
+
+-   repo: https://github.com/pre-commit/mirrors-yapf
+    rev: v0.32.0
+    hooks:
+    -   id: yapf
+        name: yapf
+        types: [python]
+        exclude: &exclude_files >
+            (?x)^(
+                docs/.* |
+                aiida_orca/parsers/cclib/.* |
+            )$
+        args: ['-i']
+        additional_dependencies: ['toml']
 
 - repo: local
+
   hooks:
-  # yapf = yet another python formatter
-  - id: yapf
-    name: yapf
-    entry: yapf
-    language: system
+
+  - id: mypy
+    name: mypy
+    entry: mypy
+    args: [--config-file=pyproject.toml]
+    language: python
     types: [python]
-    exclude: >
-      (?x)^(
-          docs/.*|
-      )$
-    args: ["-i"]
+    require_serial: true
+    pass_filenames: true
+    files: >-
+        (?x)^(
+            aiida_orca/calculations/orca_orca.py |
+            aiida_orca/parsers/__init__.py |
+            aiida_orca/utils/input_generator.py |
+            aiida_orca/workchains/base.py
+        )$
 
-  # prospector: collection of linters
-  - id: prospector
+  - id: pylint
+    name: pylint
+    entry: pylint
+    types: [python]
     language: system
-    types: [file, python]
-    name: prospector
-    description: "This hook runs Prospector: https://github.com/landscapeio/prospector"
-    entry: prospector
-    exclude: &exclude_files >
-      (?x)^(
-        .*/test_.*.py |
-        docs/.*
-      )$
-
-  - id: version-number
-    name: Check version numbers
-    entry: python ./.github/check_version.py
-    language: system
-    files: '^(setup.json)|(aiida_porousmaterials/__init__.py)'
+    exclude: *exclude_files
