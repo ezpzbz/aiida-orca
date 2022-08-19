@@ -11,17 +11,18 @@ thisdir = os.path.dirname(os.path.realpath(__file__))  # pylint: disable=invalid
 prepend_text = 'source ' + str(os.path.join(thisdir, '.github', 'setup.sh'))  # pylint: disable=invalid-name
 
 
+def pytest_addoption(parser):
+    """Add cmdline options to pytest"""
+    parser.addoption('--nproc', action='store', default=1)
+
+
 @pytest.fixture(scope='function')
 def orca_code(aiida_local_code_factory):  # pylint: disable=unused-argument
-    """_summary_
-
-    Args:
-        aiida_local_code_factory (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
+    """Fixture for fetching Orca Code node from AiiDA DB"""
     return aiida_local_code_factory('orca', 'orca', prepend_text=prepend_text)
 
 
-#EOF
+@pytest.fixture(scope='session')
+def nproc(request):
+    """Fixture for number of CPUs"""
+    return request.config.option.nproc if request.config.option.nproc else 2
