@@ -15,7 +15,7 @@ from aiida.plugins import WorkflowFactory
 OrcaBaseWorkChain = WorkflowFactory('orca.base')  #pylint: disable = invalid-name
 
 
-def example_opt(orca_code, submit=True):
+def example_opt(orca_code, nproc, submit=True):
     """Run simple DFT calculation"""
 
     # structure
@@ -32,11 +32,11 @@ def example_opt(orca_code, submit=True):
                 'scf': {
                     'convergence': 'tight',
                 },
-                'pal': {  #Uncomment for parallel run.
-                    'nproc': 2,
+                'pal': {
+                    'nproc': nproc,
                 }
             },
-            'input_keywords': ['B3LYP/G', 'SV(P)', 'Opt'],
+            'input_keywords': ['PBE', 'SV(P)', 'Opt'],
             'extra_input_keywords': [],
         }
     )
@@ -63,19 +63,21 @@ def example_opt(orca_code, submit=True):
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
+        res, pk = run_get_pk(builder)
 
 
 @click.command('cli')
 @click.argument('codelabel')
+@click.option('--nproc', default=1, show_default=True, help='Number of processors for ORCA calculation')
 @click.option('--submit', is_flag=True, help='Actually submit calculation')
-def cli(codelabel, submit):
+def cli(codelabel, nproc, submit):
     """Click interface"""
     try:
         code = Code.get_from_string(codelabel)
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)
-    example_opt(code, submit)
+    example_opt(code, nproc, submit)
 
 
 if __name__ == '__main__':

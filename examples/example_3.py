@@ -12,7 +12,7 @@ from aiida.plugins import CalculationFactory
 OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-name
 
 
-def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
+def example_restart_numfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
     """Run restart numerical Freq Calculation using AiiDA-Orca"""
 
     # This line is needed for tests only
@@ -34,14 +34,14 @@ def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
                     'convergence': 'tight',
                 },
                 'pal': {
-                    'nproc': 2,
+                    'nproc': nproc,
                 },
                 'freq': {
                     'restart': 'True',
                     'temp': 273,
                 }
             },
-            'input_kewords': ['RKS', 'BP', 'def2-TZVP', 'RI', 'def2/J'],
+            'input_keywords': ['RKS', 'BP', 'def2-TZVP', 'RI', 'def2/J'],
             'extra_input_keywords': ['NumFreq'],
         }
     )
@@ -69,20 +69,22 @@ def example_restart_numfreq(orca_code, freq_calc_pk=None, submit=True):
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
+        res, pk = run_get_pk(builder)
 
 
 @click.command('cli')
 @click.argument('codelabel')
+@click.option('--nproc', default=1, show_default=True, help='Number of processors for ORCA calculation')
 @click.option('--previous_calc', '-p', required=True, type=int, help='PK of example_2.py calculation')
 @click.option('--submit', is_flag=True, help='Actually submit calculation')
-def cli(codelabel, previous_calc, submit):
+def cli(codelabel, nproc, previous_calc, submit):
     """Click interface"""
     try:
         code = Code.get_from_string(codelabel)
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)
-    example_restart_numfreq(code, previous_calc, submit)
+    example_restart_numfreq(code, nproc, previous_calc, submit)
 
 
 if __name__ == '__main__':

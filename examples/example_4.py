@@ -13,7 +13,7 @@ from aiida.plugins import CalculationFactory
 OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-name
 
 
-def example_simple_tddft(orca_code, opt_calc_pk=None, submit=True):
+def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
     """Run simple TDDFT Calculation using AiiDA-Orca"""
 
     # This line is needed for tests only
@@ -30,7 +30,7 @@ def example_simple_tddft(orca_code, opt_calc_pk=None, submit=True):
                     'convergence': 'tight',
                 },
                 'pal': {
-                    'nproc': 2,
+                    'nproc': nproc,
                 },
                 'tddft': {
                     'nroots': 8,
@@ -38,7 +38,7 @@ def example_simple_tddft(orca_code, opt_calc_pk=None, submit=True):
                     'triplets': 'true',
                 }
             },
-            'input_kewords': ['RKS', 'B3LYP/G', 'SV(P)'],
+            'input_keywords': ['RKS', 'PBE', 'SV(P)'],
             'extra_input_keywords': [],
         }
     )
@@ -59,23 +59,26 @@ def example_simple_tddft(orca_code, opt_calc_pk=None, submit=True):
         res, pk = run_get_pk(builder)
         print('calculation pk: ', pk)
         print('1st ET energy is :', res['output_parameters'].dict['etenergies'][0])
+        print('1st oscillator strength energy is :', res['output_parameters'].dict['etoscs'][0])
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
+        res, pk = run_get_pk(builder)
 
 
 @click.command('cli')
 @click.argument('codelabel')
+@click.option('--nproc', default=1, show_default=True, help='Number of processors for ORCA calculation')
 @click.option('--previous_calc', '-p', required=True, type=int, help='PK of example_2.py calculation')
 @click.option('--submit', is_flag=True, help='Actually submit calculation')
-def cli(codelabel, previous_calc, submit):
+def cli(codelabel, nproc, previous_calc, submit):
     """Click interface"""
     try:
         code = Code.get_from_string(codelabel)
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)
-    example_simple_tddft(code, previous_calc, submit)
+    example_simple_tddft(code, nproc, previous_calc, submit)
 
 
 if __name__ == '__main__':
