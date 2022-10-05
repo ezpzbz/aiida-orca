@@ -12,7 +12,7 @@ class OrcaCalculation(CalcJob):
     This is a OrcaCalculation, subclass of JobCalculation,
     to prepare input for an ab-initio ORCA calculation.
     For information on ORCA, refer to: https://orcaforum.kofo.mpg.de/app.php/portal
-    This is responsible for doing main calculations in ORCA.
+    This class is responsible for doing main calculations in ORCA.
     """
 
     # Defaults
@@ -32,13 +32,13 @@ class OrcaCalculation(CalcJob):
 
         # Input parameters
         spec.input('structure', valid_type=StructureData, required=True, help='Input structure')
-        spec.input('parameters', valid_type=Dict, required=True, help='Input paramters to generate the input file.')
-        spec.input('settings', valid_type=Dict, required=False, help='additional input parameters')
+        spec.input('parameters', valid_type=Dict, required=True, help='Input parameters to generate the input file.')
+        spec.input('settings', valid_type=Dict, required=False, help='Additional input parameters')
         spec.input_namespace(
             'file',
             valid_type=SinglefileData,
             required=False,
-            help='additional input files like gbw or hessian',
+            help='Additional input files like gbw or hessian',
             dynamic=True
         )
 
@@ -57,7 +57,10 @@ class OrcaCalculation(CalcJob):
         spec.exit_code(
             100, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed.'
         )
-        spec.exit_code(101, 'ERROR_OUTPUT_PARSING', message='The aiida.out could not be parses.')
+        spec.exit_code(101, 'ERROR_OUTPUT_PARSING', message=f'The ORCA output {cls._OUTPUT_FILE} could not be parsed.')
+        spec.exit_code(
+            102, 'ERROR_CALCULATION_UNSUCCESSFUL', message='The ORCA calculation did not finish succesfully.'
+        )
 
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')

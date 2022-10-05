@@ -70,8 +70,6 @@ class OrcaBaseParser(Parser):
 
         output_dict = _remove_nan(parsed_dict)
 
-        # keywords = output_dict['metadata']['keywords']
-
         if parsed_dict.get('optdone', False):
             with out_folder.open(fname_relaxed) as handler:
                 relaxed_structure = StructureData(pymatgen_molecule=Molecule.from_file(handler.name))
@@ -83,11 +81,12 @@ class OrcaBaseParser(Parser):
 
         pt = PeriodicTable()  #pylint: disable=invalid-name
 
-        output_dict['elements'] = [pt.element[Z] for Z in output_dict['atomnos'].tolist()]
+        if output_dict.get('atommnos'):
+            output_dict['elements'] = [pt.element[Z] for Z in output_dict['atomnos'].tolist()]
 
         self.out('output_parameters', Dict(dict=output_dict))
 
-        return ExitCode(0)
-
-
-#EOF
+        if output_dict.get('metadata') and output_dict["metadata"].get('success'):
+            return ExitCode(0)
+        else:
+            return self.exit_codes.ERROR_CALCULATION_UNSUCCESSFUL
