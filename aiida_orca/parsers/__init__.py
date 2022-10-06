@@ -86,7 +86,6 @@ class OrcaBaseParser(Parser):
 
         self.out('output_parameters', Dict(dict=output_dict))
 
-        if output_dict.get('metadata') and output_dict["metadata"].get('success'):
+        if output_dict.get('metadata') and output_dict['metadata'].get('success'):
             return ExitCode(0)
-        else:
-            return self.exit_codes.ERROR_CALCULATION_UNSUCCESSFUL
+        return self.exit_codes.ERROR_CALCULATION_UNSUCCESSFUL
