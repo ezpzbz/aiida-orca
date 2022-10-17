@@ -24,7 +24,6 @@ classifiers = [
 keywords = ["aiida", "orca"]
 requires-python = ">=3.8"
 dependencies = [
-    "aiida_core[atomic_tools] >= 1.6.0, <3.0.0",
     "periodictable"
 ]
 

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """AiiDA-ORCA output parser"""
 import numpy as np
-
-from pymatgen.core import Molecule
+import ase.io
 
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
@@ -74,8 +73,12 @@ class OrcaBaseParser(Parser):
 
         if parsed_dict.get('optdone', False):
             with out_folder.open(fname_relaxed) as handler:
-                relaxed_structure = StructureData(pymatgen_molecule=Molecule.from_file(handler.name))
-            self.out('relaxed_structure', relaxed_structure)
+                ase_structure = ase.io.read(handler.name, format='xyz', index=0)
+                if not traj:
+                    print(f'Could not read any information from the file {handler.name}')
+                    return self.exit_codes.ERROR_OUTPUT_PARSING
+                relaxed_structure = StructureData(ase=ase_structure)
+                self.out('relaxed_structure', relaxed_structure)
             # relaxation_trajectory = SinglefileData(
             #     file=os.path.join(out_folder._repository._get_base_folder().abspath, fname_traj)  #pylint: disable=protected-access
             # )
