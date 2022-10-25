@@ -34,9 +34,6 @@ class OrcaBaseParser(Parser):
         # fname_traj = self.node.process_class._TRAJECTORY_FILE  #pylint: disable=protected-access
         # fname_hessian = self.node.process_class._HESSIAN_FILE  #pylint: disable=protected-access
 
-        if fname_out not in out_folder._repository.list_object_names():  #pylint: disable=protected-access
-            raise OutputParsingError('Orca output file not retrieved')
-
         try:
             with self.retrieved.open(fname_out) as handler:
                 parsed_obj = ccread(handler.name)
