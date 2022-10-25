@@ -36,7 +36,7 @@ class OrcaBaseParser(Parser):
 
         try:
             with self.retrieved.open(fname_out) as handler:
-                parsed_obj = ccread(handler.name)
+                parsed_obj = ccread(handler)
                 parsed_dict = parsed_obj.getattributes()
         except OutputParsingError:  #pylint: disable=bare-except
             return self.exit_codes.ERROR_OUTPUT_PARSING
@@ -70,10 +70,12 @@ class OrcaBaseParser(Parser):
 
         if parsed_dict.get('optdone', False):
             with out_folder.open(fname_relaxed) as handler:
-                ase_structure = ase.io.read(handler.name, format='xyz', index=0)
-                if not traj:
-                    print(f'Could not read any information from the file {handler.name}')
+                ase_structure = ase.io.read(handler, format='xyz', index=0)
+                if not ase_structure:
+                    self.report(f'Could not read any information from the file {fname_relaxed}')
                     return self.exit_codes.ERROR_OUTPUT_PARSING
+                # Temporary hack
+                ase_structure.set_cell([1.0, 1.0, 1.0])
                 relaxed_structure = StructureData(ase=ase_structure)
                 self.out('relaxed_structure', relaxed_structure)
             # relaxation_trajectory = SinglefileData(
@@ -88,6 +90,3 @@ class OrcaBaseParser(Parser):
         self.out('output_parameters', Dict(dict=output_dict))
 
         return ExitCode(0)
-
-
-#EOF

@@ -7,8 +7,6 @@
 """Tools for identifying, reading and writing files and streams."""
 
 from . import orcaparser
-from . import logfileparser
-
 
 def ccread(source):
     """Attempt to open and read computational chemistry data from a file.
@@ -25,30 +23,6 @@ def ccread(source):
         a ccData object containing cclib data attributes
     """
 
-    log = ccopen(source)
+    logparser = orcaparser.ORCA(source)
 
     return log.parse()
-
-
-def ccopen(source):
-    """Guess the identity of a particular log file and return an instance of it.
-
-    Inputs:
-        source - a single logfile, a list of logfiles (for a single job),
-                 an input stream, or an URL pointing to a log file.
-        *args, **kwargs - arguments and keyword arguments passed to filetype
-
-    Returns:
-      one of ADF, DALTON, GAMESS, GAMESS UK, Gaussian, Jaguar,
-      Molpro, MOPAC, NWChem, ORCA, Psi3, Psi/Psi4, QChem, CJSON or None
-      (if it cannot figure it out or the file does not exist).
-    """
-    inputfile = None
-
-    inputfile = logfileparser.openlogfile(source)
-
-    filetype = orcaparser.ORCA
-
-    inputfile.seek(0, 0)
-    inputfile.close()
-    return filetype(source)
