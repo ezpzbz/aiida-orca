@@ -69,7 +69,6 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install -e .[test,pre-commit]
-        reentry scan -r aiida
     - name: Run pre-commit
       run: |
         pre-commit install
