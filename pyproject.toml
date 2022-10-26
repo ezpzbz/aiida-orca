@@ -117,7 +117,7 @@ check_untyped_defs = false
 
 [[tool.mypy.overrides]]
 module = [
-    'ase.*'
+    'ase.*',
     'circus.*',
     'kiwipy.*',
     'numpy.*',
