@@ -72,7 +72,7 @@ class OrcaBaseParser(Parser):
             with out_folder.open(fname_relaxed) as handler:
                 ase_structure = ase.io.read(handler, format='xyz', index=0)
                 if not ase_structure:
-                    self.report(f'Could not read any information from the file {fname_relaxed}')
+                    print(f'Could not read any information from the file {fname_relaxed}')
                     return self.exit_codes.ERROR_OUTPUT_PARSING
                 # Temporary hack
                 ase_structure.set_cell([1.0, 1.0, 1.0])
