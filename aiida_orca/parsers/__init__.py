@@ -39,6 +39,7 @@ class OrcaBaseParser(Parser):
                 parsed_obj = ccread(handler)
                 parsed_dict = parsed_obj.getattributes()
         except OutputParsingError:  #pylint: disable=bare-except
+            self.logger.error(f'Could not parse file {fname_out}')
             return self.exit_codes.ERROR_OUTPUT_PARSING
 
         def _remove_nan(parsed_dictionary: dict) -> dict:
@@ -72,7 +73,7 @@ class OrcaBaseParser(Parser):
             with out_folder.open(fname_relaxed) as handler:
                 ase_structure = ase.io.read(handler, format='xyz', index=0)
                 if not ase_structure:
-                    print(f'Could not read any information from the file {fname_relaxed}')
+                    self.logger.error(f'Could not read structure from output file {fname_relaxed}')
                     return self.exit_codes.ERROR_OUTPUT_PARSING
                 # Temporary hack
                 ase_structure.set_cell([1.0, 1.0, 1.0])
