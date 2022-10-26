@@ -30,15 +30,12 @@ class OrcaInput:
         return '\n'.join(output)
 
     @staticmethod
-    def _render_input(output: list, params: dict) -> list:
-        """Rendering differnt sections
+    def _render_input(output: list, params: dict) -> None:
+        """Rendering different ORCA input sections
 
         Args:
-            output (str): Initialized input string
+            output (list): Initialized input string
             params (dict): Input parameters
-
-        Returns:
-            str: Complete rendered input string.
         """
 
         #pylint: disable = too-many-branches
@@ -79,10 +76,7 @@ class OrcaInput:
                 inp_block += 'end\n'
         output.append(inp_block)
 
-        #     coordinate section
+        # coordinate section
         coord_sec = '* xyzfile'
         coord_sec += f" {params['charge']} {params['multiplicity']} aiida.coords.xyz\n"
         output.append(coord_sec)
-
-
-#EOF
