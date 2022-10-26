@@ -23,6 +23,5 @@ def ccread(source):
         a ccData object containing cclib data attributes
     """
 
-    logparser = orcaparser.ORCA(source)
-
+    log = orcaparser.ORCA(source)
     return log.parse()

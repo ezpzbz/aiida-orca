@@ -21,7 +21,10 @@ def example_opt(orca_code, nproc, submit=True):
     # structure
     thisdir = os.path.dirname(os.path.realpath(__file__))
     xyz_path = os.path.join(thisdir, 'h2co.xyz')
-    structure = StructureData(ase=ase.io.read(xyz_path, format='xyz', index=0))
+    ase_struct = ase.io.read(xyz_path, format='xyz', index=0)
+    # Workaround for aiida-1.0
+    ase_struct.set_cell([1.0, 1.0, 1.0])
+    structure = StructureData(ase=ase_struct)
 
     # parameters
     parameters = Dict(

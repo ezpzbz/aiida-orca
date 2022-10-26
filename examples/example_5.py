@@ -5,7 +5,7 @@ import sys
 import click
 import pytest
 
-from pymatgen.core import Molecule
+import ase.io
 
 from aiida.engine import run_get_pk
 from aiida.orm import (Code, Dict, StructureData)
@@ -21,7 +21,9 @@ def example_opt(orca_code, nproc, submit=True):
     # structure
     thisdir = os.path.dirname(os.path.realpath(__file__))
     xyz_path = os.path.join(thisdir, 'h2co.xyz')
-    structure = StructureData(pymatgen_molecule=Molecule.from_file(xyz_path))
+    ase_struct = ase.io.read(xyz_path, format='xyz', index=0)
+    ase_struct.set_cell([1.0, 1.0, 1.0])
+    structure = StructureData(ase=ase_struct)
 
     # parameters
     parameters = Dict(

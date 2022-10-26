@@ -122,7 +122,6 @@ class OrcaCalculation(CalcJob):
         """Function that writes a structure and takes care of element tags"""
 
         # create file with the structure
-        # TODO: Use ase
         mol = structure.get_pymatgen_molecule()
 
         # from https://github.com/materialsproject/pymatgen/blob/
@@ -137,6 +136,3 @@ class OrcaCalculation(CalcJob):
         with open(folder.get_abs_path(name), mode='w', encoding='utf-8') as fobj:
             fobj.write('{}\n\n'.format(len(coords)))
             fobj.write('\n'.join(coords))
-
-
-#EOF
