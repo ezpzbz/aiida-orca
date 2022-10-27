@@ -16,7 +16,7 @@ OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-na
 
 
 def example_opt(orca_code, nproc, submit=True):
-    """Run simple DFT calculation"""
+    """Run simple DFT optimization calculation"""
 
     # structure
     thisdir = os.path.dirname(os.path.realpath(__file__))
@@ -39,22 +39,24 @@ def example_opt(orca_code, nproc, submit=True):
                     'nproc': nproc,
                 }
             },
-            'input_keywords': ['PBE', 'SV(P)', 'Opt'],
+            'input_keywords': ['PBE', 'def2-SVP', 'Opt'],
             'extra_input_keywords': [],
         }
     )
 
     # Construct process builder
-
     builder = OrcaCalculation.get_builder()
 
     builder.structure = structure
     builder.parameters = parameters
     builder.code = orca_code
 
+    # 'withmpi' needs to be always set to False even for parallel
+    # calculations, because ORCA uses mpirun internally.
+    builder.metadata.options.withmpi = False
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 1,
+        'num_mpiprocs_per_machine': nproc,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:

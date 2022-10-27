@@ -6,6 +6,7 @@ import pytest
 
 pytest_plugins = ['aiida.manage.tests.pytest_fixtures']
 
+
 def pytest_addoption(parser):
     """Add cmdline options to pytest"""
     parser.addoption('--nproc', action='store', default=1)

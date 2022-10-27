@@ -48,7 +48,7 @@ def example_opt_restart(orca_code, nproc, submit=True, opt_calc_pk=None):
                     'nproc': nproc,
                 },
             },
-            'input_keywords': ['PBE', 'def2-TZVP', 'Opt'],
+            'input_keywords': ['PBE', 'def2-SVP', 'Opt'],
             'extra_input_keywords': ['MOREAD'],
         }
     )
@@ -64,14 +64,15 @@ def example_opt_restart(orca_code, nproc, submit=True, opt_calc_pk=None):
     }
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 1,
+        'num_mpiprocs_per_machine': nproc,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
         print('Testing Orca single point calculation...')
         res, pk = run_get_pk(builder)
-        print('calculation pk: ', pk)
-        print('SCF Energy is :', res['output_parameters'].dict['scfenergies'])
+        print(f'Calculation PK: {pk}')
+        print(f'Optimized structure PK: {res["relaxed_structure"].pk}')
+        print(f'SCF Energy: {res["output_parameters"]["scfenergies"]}')
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
@@ -90,7 +91,7 @@ def cli(codelabel, nproc, previous_calc, submit):
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)
-    example_opt_restart(code, nproc, previous_calc, submit)
+    example_opt_restart(code, nproc, submit, previous_calc)
 
 
 if __name__ == '__main__':

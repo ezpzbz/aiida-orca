@@ -9,11 +9,11 @@ from aiida.orm import load_node, Code, Dict, SinglefileData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
-OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-name
+OrcaCalculation = CalculationFactory('orca.orca')
 
 
-def example_restart_numfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
-    """Run restart numerical Freq Calculation using AiiDA-Orca"""
+def example_restart_anfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
+    """Run restart analytical frequency calculation using AiiDA-Orca"""
 
     # This line is needed for tests only
     if freq_calc_pk is None:
@@ -41,8 +41,8 @@ def example_restart_numfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
                     'temp': 273,
                 }
             },
-            'input_keywords': ['RKS', 'BP', 'def2-TZVP', 'RI', 'def2/J'],
-            'extra_input_keywords': ['NumFreq'],
+            'input_keywords': ['RKS', 'BP', 'STO-3G'],
+            'extra_input_keywords': ['AnFreq'],
         }
     )
 
@@ -58,11 +58,11 @@ def example_restart_numfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
 
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 1,
+        'num_mpiprocs_per_machine': nproc,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
-        print('Testing ORCA  restart numerical Frequency Calculation...')
+        print('Testing ORCA restart analytical frequency calculation...')
         res, pk = run_get_pk(builder)
         print('calculation pk: ', pk)
         print('Enthalpy is :', res['output_parameters'].dict['enthalpy'])
@@ -84,7 +84,7 @@ def cli(codelabel, nproc, previous_calc, submit):
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)
-    example_restart_numfreq(code, nproc, previous_calc, submit)
+    example_restart_anfreq(code, nproc, submit, previous_calc)
 
 
 if __name__ == '__main__':
