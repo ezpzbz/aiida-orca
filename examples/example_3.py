@@ -21,8 +21,8 @@ def example_restart_anfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
 
     # old hess file
     retr_fldr = load_node(freq_calc_pk).outputs.retrieved
-    with retr_fldr.open('aiida.hess') as handler:
-        hess_file = SinglefileData(handler.name)
+    with retr_fldr.open('aiida.hess', 'rb') as handler:
+        hess_file = SinglefileData(handler)
 
     # parameters
     parameters = Dict(
@@ -64,8 +64,14 @@ def example_restart_anfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
     if submit:
         print('Testing ORCA restart analytical frequency calculation...')
         res, pk = run_get_pk(builder)
-        print('calculation pk: ', pk)
-        print('Enthalpy is :', res['output_parameters'].dict['enthalpy'])
+        output = res['output_parameters']
+        print(f'calculation pk: {pk}')
+        print(f'Frequencies: {output["vibfreqs"]}')
+        print(f'Temperature: {output["temperature"]}')
+        print(f'Zero-point energy: {output["zpve"]}')
+        print(f'Enthalpy: {output["enthalpy"]}')
+        print(f'Entropy: {output["entropy"]}')
+        print(f'Free energy: {output["freeenergy"]}')
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False

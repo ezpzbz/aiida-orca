@@ -31,8 +31,8 @@ def example_opt_restart(orca_code, nproc, submit=True, opt_calc_pk=None):
 
     # old gbw file
     retr_fldr = load_node(opt_calc_pk).outputs.retrieved
-    with retr_fldr.open('aiida.gbw') as handler:
-        gbw_file = SinglefileData(handler.name)
+    with retr_fldr.open('aiida.gbw', 'rb') as handler:
+        gbw_file = SinglefileData(handler)
 
     # parameters
     parameters = Dict(
