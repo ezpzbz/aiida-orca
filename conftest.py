@@ -2,14 +2,9 @@
 """
 For pytest initialise a test database and profile
 """
-import os
 import pytest
 
-pytest_plugins = ['aiida.manage.tests.pytest_fixtures']  # pylint: disable=invalid-name
-
-thisdir = os.path.dirname(os.path.realpath(__file__))  # pylint: disable=invalid-name
-prepend_text = 'source ' + str(os.path.join(thisdir, '.github', 'setup.sh'))  # pylint: disable=invalid-name
-
+pytest_plugins = ['aiida.manage.tests.pytest_fixtures']
 
 def pytest_addoption(parser):
     """Add cmdline options to pytest"""
@@ -19,7 +14,7 @@ def pytest_addoption(parser):
 @pytest.fixture(scope='function')
 def orca_code(aiida_local_code_factory):  # pylint: disable=unused-argument
     """Fixture for fetching Orca Code node from AiiDA DB"""
-    return aiida_local_code_factory('orca', 'orca', prepend_text=prepend_text)
+    return aiida_local_code_factory('orca', 'orca')
 
 
 @pytest.fixture(scope='session')
