@@ -35,6 +35,8 @@ class OrcaBaseParser(Parser):
         # fname_hessian = self.node.process_class._HESSIAN_FILE  #pylint: disable=protected-access
 
         try:
+            # Change this when we drop AiiDA 1.x support
+            # with self.retrieved.base.repository.open(fname_out) as handler:
             with self.retrieved.open(fname_out) as handler:
                 parsed_obj = ccread(handler)
                 parsed_dict = parsed_obj.getattributes()
@@ -70,6 +72,8 @@ class OrcaBaseParser(Parser):
         # keywords = output_dict['metadata']['keywords']
 
         if parsed_dict.get('optdone', False):
+            # Change this when we drop AiiDA 1.x support
+            #with out_folder.base.repository.open(fname_relaxed) as handler:
             with out_folder.open(fname_relaxed) as handler:
                 ase_structure = ase.io.read(handler, format='xyz', index=0)
                 if not ase_structure:
