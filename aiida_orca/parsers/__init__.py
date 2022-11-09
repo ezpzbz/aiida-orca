@@ -66,6 +66,15 @@ class OrcaBaseParser(Parser):
                     non_nan_value = np.nan_to_num(value, nan=123456789, posinf=2e308, neginf=-2e308)
                     parsed_dictionary.update({key: non_nan_value})
 
+            # Hack for full TDDFT calculations without the TDA approximation,
+            # which do not provide CI coefficients and cclib parser returns NaNs.
+            # In this case we're deleting the entry,
+            # which seems safer than returning bogus info.
+            # This is not handled by the code above
+            # because the value is not a numpy array.
+            if "etsecs" in parsed_dictionary and np.isnan(parsed_dictionary["etsecs"][0][0][-1]):
+                del parsed_dictionary["etsecs"]
+
             return parsed_dictionary
 
         output_dict = _remove_nan(parsed_dict)
