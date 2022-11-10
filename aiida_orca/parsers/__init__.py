@@ -72,8 +72,8 @@ class OrcaBaseParser(Parser):
             # which seems safer than returning bogus info.
             # This is not handled by the code above
             # because the value is not a numpy array.
-            if "etsecs" in parsed_dictionary and np.isnan(parsed_dictionary["etsecs"][0][0][-1]):
-                del parsed_dictionary["etsecs"]
+            if 'etsecs' in parsed_dictionary and np.isnan(parsed_dictionary['etsecs'][0][0][-1]):
+                del parsed_dictionary['etsecs']
 
             return parsed_dictionary
 
