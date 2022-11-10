@@ -33,9 +33,8 @@ def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
                     'nproc': nproc,
                 },
                 'tddft': {
-                    'nroots': 8,
-                    'maxdim': 2,
-                    'triplets': 'true',
+                    'nroots': 3,
+                    'tda': 'false',
                 }
             },
             'input_keywords': ['RKS', 'PBE', 'SV(P)'],
