@@ -2,10 +2,10 @@
 """Base work chain to run an ORCA calculation"""
 
 from aiida.common import AttributeDict
-from aiida.engine import BaseRestartWorkChain, while_
+from aiida.engine import BaseRestartWorkChain, ProcessHandlerReport, process_handler, while_
 from aiida.plugins import CalculationFactory
 
-OrcaCalculation = CalculationFactory('orca.orca')  # pylint: disable=invalid-name
+OrcaCalculation = CalculationFactory('orca.orca')
 
 
 class OrcaBaseWorkChain(BaseRestartWorkChain):
@@ -26,6 +26,11 @@ class OrcaBaseWorkChain(BaseRestartWorkChain):
             cls.results,
         )
         spec.expose_outputs(OrcaCalculation)
+        spec.exit_code(
+            300,
+            'ERROR_UNRECOVERABLE_FAILURE',
+            message='The calculation failed with an unidentified unrecoverable error.'
+        )
 
     def setup(self):
         """Call the `setup` of the `BaseRestartWorkChain` and then create the inputs dictionary in `self.ctx.inputs`.
@@ -46,5 +51,9 @@ class OrcaBaseWorkChain(BaseRestartWorkChain):
         self.report('{}<{}> failed with exit status {}: {}'.format(*arguments))
         self.report('Action taken: {}'.format(action))
 
-
-#EOF
+    @process_handler(priority=600)
+    def handle_unrecoverable_failure(self, calculation):
+        """Handle calculations with an exit status below 400 which are unrecoverable, so abort the work chain."""
+        if calculation.is_failed and calculation.exit_status < 400:
+            self.report_error_handled(calculation, 'unrecoverable error, aborting...')
+            return ProcessHandlerReport(True, self.exit_codes.ERROR_UNRECOVERABLE_FAILURE)  # pylint: disable=no-member
