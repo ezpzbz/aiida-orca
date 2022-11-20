@@ -80,5 +80,4 @@ class OrcaInput:
         coord_sec = '* xyzfile'
         coord_sec += f" {params['charge']} {params['multiplicity']} aiida.coords.xyz\n"
         output.append(coord_sec)
-
         return output
