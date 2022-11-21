@@ -37,7 +37,12 @@ jobs:
 
         strategy:
             matrix:
-                python-version: ['3.8', '3.9', '3.10']
+                versions: [
+                    {'python': '3.8', 'aiida-core': '1.6'},
+                    {'python': '3.8', 'aiida-core': '2.0'},
+                    {'python': '3.9', 'aiida-core': '2.0'},
+                    {'python': '3.10', 'aiida-core': '2.0'},
+                ]
 
         services:
             postgres:
@@ -54,17 +59,24 @@ jobs:
             uses: actions/cache@v1
             with:
                 path: ~/.cache/pip
-                key: pip-${{ matrix.python-version }}-tests-${{ hashFiles('**/setup.json') }}
+                key: pip-${{ matrix.versions.python }}-tests-${{ hashFiles('**/setup.json') }}
                 restore-keys:
-                    pip-${{ matrix.python-version }}-tests
+                    pip-${{ matrix.versions.python }}-tests
 
-        -   name: Set up Python ${{ matrix.python-version }}
+        -   name: Set up Python ${{ matrix.versions.python }}
             uses: actions/setup-python@v2
             with:
-                python-version: ${{ matrix.python-version }}
+                python-version: ${{ matrix.versions.python }}
 
         -   name: Install Python dependencies
-            run: pip install -e .[test] && reentry scan
+            run: pip install -e .[test]
+
+        -   name: Install aiida-core ${{ matrix.versions.aiida-core }}
+            run: pip install aiida-core~=${{ matrix.versions.aiida-core }}
+
+        -   name: Reentry scan
+            if: ${{ startsWith(matrix.versions.aiida-core, '1.6') }}
+            run: reentry scan
 
         -   name: Run pytest
             env:
