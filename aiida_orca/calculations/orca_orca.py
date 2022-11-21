@@ -125,4 +125,4 @@ class OrcaCalculation(CalcJob):
         ase_struct = structure.get_ase()
         # ORCA cannot read the extended XYZ format, hence plain=True is needed.
         # https://wiki.fysik.dtu.dk/ase/ase/io/formatoptions.html#ase.io.extxyz.write_extxyz
-        ase_struct.write(folder.get_abs_path(filename), format='xyz', plain=True)
+        ase_struct.write(folder.get_abs_path(filename), format='extxyz', plain=True)
