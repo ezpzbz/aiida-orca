@@ -63,6 +63,8 @@ def generate_structure():
     """Return a ``StructureData`` representing a water molecule."""
     from ase.build import molecule
     from aiida.orm import StructureData
+    # NOTE: Adding a default cell, even if PBC=false,
+    # is here only temporarily for compatibility with AiiDA 1.x
     return StructureData(ase=molecule('H2O', vacuum=5.0))
 
 
