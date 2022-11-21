@@ -45,8 +45,8 @@ Home = "https://github.com/pzarabadip/aiida-orca"
 [project.optional-dependencies]
 test = [
     "pgtest==1.2.0",
-    "pytest>=4.4,<5.0.0",
-    "pytest-cov>=2.6.1,<3.0.0"
+    "pytest~=6.0",
+    "pytest-regressions~=2.3",
 ]
 pre-commit = [
     "mypy>=0.930,<1.0.0",
@@ -106,6 +106,15 @@ warn_redundant_casts = true
 no_warn_no_return = true
 show_traceback = true
 
+[tool.pytest.ini_options]
+minversion = '6.0'
+testpaths = [
+    'tests',
+]
+filterwarnings = [
+    'ignore:Creating AiiDA configuration folder.*:UserWarning',
+]
+
 [[tool.mypy.overrides]]
 module = 'aiida.*'
 # can only follow these imports when more of the code is typed
@@ -130,7 +139,6 @@ module = [
     'aiida.*'
 ]
 ignore_missing_imports = true
-
 
 [tool.yapf]
 based_on_style = "google"
