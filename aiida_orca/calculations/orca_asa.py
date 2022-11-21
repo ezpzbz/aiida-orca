@@ -38,7 +38,6 @@ class OrcaAsaCalculation(CalcJob):
 
         # create calculation info
         calcinfo = CalcInfo()
-        calcinfo.uuid = self.uuid
         calcinfo.codes_info = [codeinfo]
         calcinfo.retrieve_list = [self._OUTPUT_FILE]
 
