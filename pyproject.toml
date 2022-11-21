@@ -25,7 +25,7 @@ keywords = ["aiida", "orca"]
 requires-python = ">=3.8"
 dependencies = [
     "aiida_core >= 1.6.0, <3.0.0",
-    "ase",
+    "ase>=3.19",
     "periodictable"
 ]
 
