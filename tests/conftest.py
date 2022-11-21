@@ -63,7 +63,7 @@ def generate_structure():
     """Return a ``StructureData`` representing a water molecule."""
     from ase.build import molecule
     from aiida.orm import StructureData
-    return StructureData(ase=molecule('H2O', vacuum=5.0))
+    return StructureData(ase=molecule('H2O'))
 
 
 @pytest.fixture
