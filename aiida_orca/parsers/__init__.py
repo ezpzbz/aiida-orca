@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """AiiDA-ORCA output parser"""
+import pathlib
+import shutil
+import tempfile
+
 import numpy as np
 import ase.io
 
@@ -23,16 +27,17 @@ class OrcaBaseParser(Parser):
         If it would be an optimization run, the relaxed structure also will
         be stored under relaxed_structure key.
         """
-
         try:
             out_folder = self.retrieved
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
-        fname_out = self.node.process_class._OUTPUT_FILE  #pylint: disable=protected-access
-        fname_relaxed = self.node.process_class._RELAX_COORDS_FILE  #pylint: disable=protected-access
-        # fname_traj = self.node.process_class._TRAJECTORY_FILE  #pylint: disable=protected-access
-        # fname_hessian = self.node.process_class._HESSIAN_FILE  #pylint: disable=protected-access
+        process_cls = self.node.process_class
+        fname_out = process_cls._OUTPUT_FILE  # pylint: disable=protected-access
+        fname_relaxed = process_cls._RELAX_COORDS_FILE  # pylint: disable=protected-access
+
+        if fname_out not in out_folder.list_object_names():
+            return process_cls.exit_codes.ERROR_OUTPUT_STDOUT_MISSING
 
         try:
             # Change this when we drop AiiDA 1.x support
@@ -40,9 +45,9 @@ class OrcaBaseParser(Parser):
             with self.retrieved.open(fname_out) as handler:
                 parsed_obj = ccread(handler)
                 parsed_dict = parsed_obj.getattributes()
-        except OutputParsingError:  #pylint: disable=bare-except
+        except Exception:  # pylint: disable=broad-except
             self.logger.error(f'Could not parse file {fname_out}')
-            return self.exit_codes.ERROR_OUTPUT_PARSING
+            return self.exit_codes.ERROR_OUTPUT_STDOUT_PARSE
 
         def _remove_nan(parsed_dictionary: dict) -> dict:
             """cclib parsed object may contain nan values in ndarray.
@@ -69,8 +74,6 @@ class OrcaBaseParser(Parser):
 
         output_dict = _remove_nan(parsed_dict)
 
-        # keywords = output_dict['metadata']['keywords']
-
         if parsed_dict.get('optdone', False):
             # Change this when we drop AiiDA 1.x support
             #with out_folder.base.repository.open(fname_relaxed) as handler:
@@ -83,12 +86,8 @@ class OrcaBaseParser(Parser):
                 ase_structure.set_cell([1.0, 1.0, 1.0])
                 relaxed_structure = StructureData(ase=ase_structure)
                 self.out('relaxed_structure', relaxed_structure)
-            # relaxation_trajectory = SinglefileData(
-            #     file=os.path.join(out_folder._repository._get_base_folder().abspath, fname_traj)  #pylint: disable=protected-access
-            # )
-            # self.out('relaxation_trajectory', relaxation_trajectory)
 
-        pt = PeriodicTable()  #pylint: disable=invalid-name
+        pt = PeriodicTable()  # pylint: disable=invalid-name
 
         output_dict['elements'] = [pt.element[Z] for Z in output_dict['atomnos'].tolist()]
 

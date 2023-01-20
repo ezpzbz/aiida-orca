@@ -59,6 +59,91 @@ def generate_calc_job(fixture_sandbox):
 
 
 @pytest.fixture
+def generate_calc_job_node(aiida_localhost):
+    """Fixture to generate a mock `CalcJobNode` for testing parsers."""
+
+    def flatten_inputs(inputs, prefix=''):
+        """Flatten inputs recursively like :meth:`aiida.engine.processes.process::Process._flatten_inputs`."""
+        from collections.abc import Mapping
+        flat_inputs = []
+        for key, value in inputs.items():
+            if isinstance(value, Mapping):
+                flat_inputs.extend(flatten_inputs(value, prefix=prefix + key + '__'))
+            else:
+                flat_inputs.append((prefix + key, value))
+        return flat_inputs
+
+    def _generate_calc_job_node(entry_point_name='base', computer=None, test_name=None, inputs=None):
+        """Fixture to generate a mock `CalcJobNode` for testing parsers.
+
+        :param entry_point_name: entry point name of the calculation class
+        :param computer: a `Computer` instance
+        :param test_name: relative path of directory with test output files in the `fixtures/{entry_point_name}` folder.
+        :param inputs: any optional nodes to add as input links to the corrent CalcJobNode
+        :return: `CalcJobNode` instance with an attached `FolderData` as the `retrieved` node.
+        """
+        import os
+
+        from aiida import orm
+        from aiida.common import LinkType
+        from aiida.plugins.entry_point import format_entry_point_string
+
+        entry_point = format_entry_point_string('aiida.calculations', entry_point_name)
+
+        node = orm.CalcJobNode(computer=computer or aiida_localhost, process_type=entry_point)
+        node.set_attribute('input_filename', 'aiida.in')
+        node.set_attribute('output_filename', 'aiida.out')
+        node.set_attribute('error_filename', 'aiida.err')
+        node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
+        node.set_option('max_wallclock_seconds', 1800)
+
+        if inputs:
+            for name, option in inputs.pop('metadata', {}).get('options', {}).items():
+                node.set_option(name, option)
+
+            for link_label, input_node in flatten_inputs(inputs):
+                input_node.store()
+                node.add_incoming(input_node, link_type=LinkType.INPUT_CALC, link_label=link_label)
+
+        node.store()
+
+        if test_name is not None:
+            basepath = os.path.dirname(os.path.abspath(__file__))
+            filename = os.path.join(entry_point_name[len('orca.'):], test_name)
+            filepath_folder = os.path.join(basepath, 'parsers', 'fixtures', filename)
+
+            retrieved = orm.FolderData()
+            retrieved.put_object_from_tree(filepath_folder)
+
+            retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
+            retrieved.store()
+
+            remote_folder = orm.RemoteData(computer=computer or aiida_localhost, remote_path='/tmp')
+            remote_folder.add_incoming(node, link_type=LinkType.CREATE, link_label='remote_folder')
+            remote_folder.store()
+
+        return node
+
+    return _generate_calc_job_node
+
+
+@pytest.fixture(scope='session')
+def generate_parser():
+    """Fixture to load a parser class for testing parsers."""
+
+    def _generate_parser(entry_point_name):
+        """Fixture to load a parser class for testing parsers.
+
+        :param entry_point_name: entry point name of the parser class
+        :return: the `Parser` sub class
+        """
+        from aiida.plugins import ParserFactory
+        return ParserFactory(entry_point_name)
+
+    return _generate_parser
+
+
+@pytest.fixture
 def generate_structure():
     """Return a ``StructureData`` representing a water molecule."""
     from ase.build import molecule
