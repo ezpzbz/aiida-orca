@@ -1,6 +1,3 @@
-
-
-
 ![logo](./miscellaneous/aiida-orca_logo.png)
 
 # aiida-orca
@@ -28,8 +25,9 @@ Compatible with:
 
 
 # Installation
+
+Instalation from PyPI
 ```console
-git clone https://github.com/pzarabadip/aiida-orca
 pip install aiida-orca
 ```
 
@@ -47,9 +45,19 @@ It is recommended to install `pre-commit` such the pre-commit hooks are automati
 ```console
 pre-commit install
 ```
-To run the tests, run:
+To run the unit tests, run:
 ```console
-pytest
+pytest tests/
+```
+
+To run the end-to-end tests, that require the ORCA package installed, run:
+```console
+pytest examples/
+```
+
+or using multiple cores with OpenMPI parallelization
+```console
+pytest --nproc 2 examples/
 ```
 
 ## `pytest-regressions`
