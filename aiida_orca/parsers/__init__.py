@@ -85,7 +85,7 @@ class OrcaBaseParser(Parser):
         pt = PeriodicTable()  # pylint: disable=invalid-name
 
         if output_dict.get('atommnos'):
-            output_dict['elements'] = [pt.element[Z] for Z in output_dict['atomnos'].tolist()]
+            output_dict['elements'] = [pt.element[Z] for Z in output_dict['atomnos']]
 
         self.out('output_parameters', Dict(dict=output_dict))
 
