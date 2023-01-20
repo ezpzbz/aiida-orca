@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """AiiDA-ORCA output parser"""
+import pathlib
+import shutil
+import tempfile
+
 import numpy as np
 
 from pymatgen.core import Molecule
@@ -24,26 +28,26 @@ class OrcaBaseParser(Parser):
         If it would be an optimization run, the relaxed structure also will
         be stored under relaxed_structure key.
         """
-
         try:
             out_folder = self.retrieved
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
-        fname_out = self.node.process_class._OUTPUT_FILE  #pylint: disable=protected-access
-        fname_relaxed = self.node.process_class._RELAX_COORDS_FILE  #pylint: disable=protected-access
-        # fname_traj = self.node.process_class._TRAJECTORY_FILE  #pylint: disable=protected-access
-        # fname_hessian = self.node.process_class._HESSIAN_FILE  #pylint: disable=protected-access
+        process_cls = self.node.process_class
+        fname_out = process_cls._OUTPUT_FILE  # pylint: disable=protected-access
+        fname_relaxed = process_cls._RELAX_COORDS_FILE  # pylint: disable=protected-access
 
-        if fname_out not in out_folder._repository.list_object_names():  #pylint: disable=protected-access
-            raise OutputParsingError('Orca output file not retrieved')
+        if fname_out not in out_folder.list_object_names():
+            return process_cls.exit_codes.ERROR_OUTPUT_STDOUT_MISSING
 
         try:
-            with self.retrieved.open(fname_out) as handler:
-                parsed_obj = ccread(handler.name)
+            with self.retrieved.open(fname_out, 'rb') as handle:
+                with tempfile.NamedTemporaryFile('w+b') as tmpfile:
+                    shutil.copyfileobj(handle, tmpfile)
+                    parsed_obj = ccread(tmpfile.name)
                 parsed_dict = parsed_obj.getattributes()
-        except OutputParsingError:  #pylint: disable=bare-except
-            return self.exit_codes.ERROR_OUTPUT_PARSING
+        except Exception:  # pylint: disable=broad-except
+            return self.exit_codes.ERROR_OUTPUT_STDOUT_PARSE
 
         def _remove_nan(parsed_dictionary: dict) -> dict:
             """cclib parsed object may contain nan values in ndarray.
@@ -71,15 +75,14 @@ class OrcaBaseParser(Parser):
         output_dict = _remove_nan(parsed_dict)
 
         if parsed_dict.get('optdone', False):
-            with out_folder.open(fname_relaxed) as handler:
-                relaxed_structure = StructureData(pymatgen_molecule=Molecule.from_file(handler.name))
+            with out_folder.open(fname_relaxed, 'rb') as handle:
+                with tempfile.NamedTemporaryFile('w+b', suffix=pathlib.Path(fname_relaxed).suffix) as tmpfile:
+                    shutil.copyfileobj(handle, tmpfile)
+                    tmpfile.flush()
+                    relaxed_structure = StructureData(pymatgen_molecule=Molecule.from_file(tmpfile.name))
             self.out('relaxed_structure', relaxed_structure)
-            # relaxation_trajectory = SinglefileData(
-            #     file=os.path.join(out_folder._repository._get_base_folder().abspath, fname_traj)  #pylint: disable=protected-access
-            # )
-            # self.out('relaxation_trajectory', relaxation_trajectory)
 
-        pt = PeriodicTable()  #pylint: disable=invalid-name
+        pt = PeriodicTable()  # pylint: disable=invalid-name
 
         if output_dict.get('atommnos'):
             output_dict['elements'] = [pt.element[Z] for Z in output_dict['atomnos'].tolist()]

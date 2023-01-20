@@ -57,10 +57,15 @@ class OrcaCalculation(CalcJob):
         spec.exit_code(
             100, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed.'
         )
-        spec.exit_code(101, 'ERROR_OUTPUT_PARSING', message=f'The ORCA output {cls._OUTPUT_FILE} could not be parsed.')
         spec.exit_code(
-            102, 'ERROR_CALCULATION_UNSUCCESSFUL', message='The ORCA calculation did not finish succesfully.'
+            302,
+            'ERROR_OUTPUT_STDOUT_MISSING',
+            message='The retrieved folder did not contain the required stdout output file.'
         )
+        spec.exit_code(
+            303, 'ERROR_CALCULATION_UNSUCCESSFUL', message='The ORCA calculation did not finish succesfully.'
+        )
+        spec.exit_code(311, 'ERROR_OUTPUT_STDOUT_PARSE', message='The stdout output file could not be parsed.')
 
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')
