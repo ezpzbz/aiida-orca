@@ -74,7 +74,7 @@ class OrcaBaseParser(Parser):
         output_dict = _remove_nan(parsed_dict)
 
         if parsed_dict.get('optdone', False):
-            # TODO: Change this when we drop AiiDA 1.x support
+            # Change this when we drop AiiDA 1.x support
             #with out_folder.base.repository.open(fname_relaxed) as handler:
             with out_folder.open(fname_relaxed) as handler:
                 ase_structure = ase.io.read(handler, format='xyz', index=0)

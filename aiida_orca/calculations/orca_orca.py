@@ -122,7 +122,8 @@ class OrcaCalculation(CalcJob):
 
         return calcinfo
 
-    def _write_structure(self, structure: StructureData, folder: Folder, filename: str) -> None:
+    @staticmethod
+    def _write_structure(structure: StructureData, folder: Folder, filename: str) -> None:
         """Function that writes a structure to a file in an XYZ format"""
 
         # create file with the XYZ structure
