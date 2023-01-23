@@ -5,7 +5,7 @@ import sys
 import click
 import pytest
 
-from pymatgen.core import Molecule
+import ase.io
 
 from aiida.engine import run_get_pk
 from aiida.orm import (Code, Dict, StructureData)
@@ -16,12 +16,15 @@ OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-na
 
 
 def example_opt(orca_code, nproc, submit=True):
-    """Run simple DFT calculation"""
+    """Run simple DFT optimization calculation"""
 
     # structure
     thisdir = os.path.dirname(os.path.realpath(__file__))
     xyz_path = os.path.join(thisdir, 'h2co.xyz')
-    structure = StructureData(pymatgen_molecule=Molecule.from_file(xyz_path))
+    ase_struct = ase.io.read(xyz_path, format='xyz', index=0)
+    # Workaround for aiida-1.0
+    ase_struct.set_cell([1.0, 1.0, 1.0])
+    structure = StructureData(ase=ase_struct)
 
     # parameters
     parameters = Dict(
@@ -36,22 +39,24 @@ def example_opt(orca_code, nproc, submit=True):
                     'nproc': nproc,
                 }
             },
-            'input_keywords': ['PBE', 'SV(P)', 'Opt'],
+            'input_keywords': ['PBE', 'def2-SVP', 'Opt'],
             'extra_input_keywords': [],
         }
     )
 
     # Construct process builder
-
     builder = OrcaCalculation.get_builder()
 
     builder.structure = structure
     builder.parameters = parameters
     builder.code = orca_code
 
+    # 'withmpi' needs to be always set to False even for parallel
+    # calculations, because ORCA uses mpirun internally.
+    builder.metadata.options.withmpi = False
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 1,
+        'num_mpiprocs_per_machine': nproc,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
