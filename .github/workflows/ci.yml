@@ -36,6 +36,7 @@ jobs:
         timeout-minutes: 10
 
         strategy:
+            fail-fast: false
             matrix:
                 versions: [
                     {'python': '3.8', 'aiida-core': '1.6'},
