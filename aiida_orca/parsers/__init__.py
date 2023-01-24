@@ -78,13 +78,13 @@ class OrcaBaseParser(Parser):
             #with out_folder.base.repository.open(fname_relaxed) as handler:
             with out_folder.open(fname_relaxed) as handler:
                 ase_structure = ase.io.read(handler, format='xyz', index=0)
-                if not ase_structure:
-                    self.logger.error(f'Could not read structure from output file {fname_relaxed}')
-                    return self.exit_codes.ERROR_OUTPUT_PARSING
-                # Temporary hack to support AiiDA 1.x, which needs default cell
-                # even for non-periodic structures.
-                ase_structure.set_cell([1.0, 1.0, 1.0])
-                relaxed_structure = StructureData(ase=ase_structure)
+            if not ase_structure:
+                self.logger.error(f'Could not read structure from output file {fname_relaxed}')
+                return self.exit_codes.ERROR_OUTPUT_PARSING
+            # Temporary hack to support AiiDA 1.x, which needs default cell
+            # even for non-periodic structures.
+            ase_structure.set_cell([1.0, 1.0, 1.0])
+            relaxed_structure = StructureData(ase=ase_structure)
             self.out('relaxed_structure', relaxed_structure)
 
         pt = PeriodicTable()  # pylint: disable=invalid-name
