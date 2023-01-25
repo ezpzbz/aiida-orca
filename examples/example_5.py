@@ -52,7 +52,7 @@ def example_opt(orca_code, nproc, submit=True):
     }
     builder.orca.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
-        print('Testing basic Orca workflow...')
+        print('Testing OrcaBaseWorkChain...')
         res, pk = run_get_pk(builder)
         calc = load_node(pk)
         if not calc.is_finished_ok:
