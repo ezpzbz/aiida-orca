@@ -75,9 +75,9 @@ class OrcaBaseParser(Parser):
 
         if parsed_dict.get('optdone', False):
             # Change this when we drop AiiDA 1.x support
-            #with out_folder.base.repository.open(fname_relaxed) as handler:
-            with out_folder.open(fname_relaxed) as handler:
-                ase_structure = ase.io.read(handler, format='xyz', index=0)
+            #with out_folder.base.repository.open(fname_relaxed) as handle:
+            with out_folder.open(fname_relaxed) as handle:
+                ase_structure = ase.io.read(handle, format='xyz', index=0)
             if not ase_structure:
                 self.logger.error(f'Could not read structure from output file {fname_relaxed}')
                 return self.exit_codes.ERROR_OUTPUT_PARSING
