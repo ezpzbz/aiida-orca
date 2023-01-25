@@ -471,44 +471,44 @@ output_parameters:
   zpve: 0.04908242
 relaxed_structure:
   kinds:
-  - mass: 1.00794
-    name: H
-    symbols:
-    - H
-    weights:
-    - 1.0
-  - mass: 12.0107
+  - mass: 12.011
     name: C
     symbols:
     - C
+    weights:
+    - 1.0
+  - mass: 1.008
+    name: H
+    symbols:
+    - H
     weights:
     - 1.0
   pbc1: false
   pbc2: false
   pbc3: false
   sites:
-  - kind_name: H
-    position:
-    - 6.902699000455
-    - 5.5216858017195
-    - 5.8053320967323
-  - kind_name: H
-    position:
-    - 5.2001692130414
-    - 5.0315161533721
-    - 5.4927818117373
-  - kind_name: H
-    position:
-    - 5.5851270640086
-    - 6.1122833355883
-    - 6.878514147756
-  - kind_name: H
-    position:
-    - 5.7170518419807
-    - 6.7285028578902
-    - 5.193470470322
   - kind_name: C
     position:
-    - 5.8512659389612
-    - 5.8484921153149
-    - 5.8425209011877
+    - 5.6454888132719
+    - 5.8099486645379
+    - 5.6434676576406
+  - kind_name: H
+    position:
+    - 6.6969218747656
+    - 5.4831423509425
+    - 5.6062788531853
+  - kind_name: H
+    position:
+    - 4.994392087352
+    - 4.9929727025951
+    - 5.2937285681902
+  - kind_name: H
+    position:
+    - 5.3793499383192
+    - 6.0737398848113
+    - 6.6794609042089
+  - kind_name: H
+    position:
+    - 5.5112747162913
+    - 6.6899594071132
+    - 4.994417226775
