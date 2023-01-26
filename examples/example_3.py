@@ -21,8 +21,8 @@ def example_restart_anfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
 
     # old hess file
     retr_fldr = load_node(freq_calc_pk).outputs.retrieved
-    with retr_fldr.open('aiida.hess', 'rb') as handler:
-        hess_file = SinglefileData(handler)
+    with retr_fldr.open('aiida.hess', 'rb') as handle:
+        hess_file = SinglefileData(handle)
 
     # parameters
     parameters = Dict(

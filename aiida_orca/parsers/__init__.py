@@ -4,8 +4,8 @@ import pathlib
 import shutil
 import tempfile
 
-import numpy as np
 import ase.io
+import numpy as np
 
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
@@ -76,16 +76,17 @@ class OrcaBaseParser(Parser):
 
         if parsed_dict.get('optdone', False):
             # Change this when we drop AiiDA 1.x support
-            #with out_folder.base.repository.open(fname_relaxed) as handler:
-            with out_folder.open(fname_relaxed) as handler:
-                ase_structure = ase.io.read(handler, format='xyz', index=0)
-                if not ase_structure:
-                    self.logger.error(f'Could not read structure from output file {fname_relaxed}')
-                    return self.exit_codes.ERROR_OUTPUT_PARSING
-                # Temporary hack
-                ase_structure.set_cell([1.0, 1.0, 1.0])
-                relaxed_structure = StructureData(ase=ase_structure)
-                self.out('relaxed_structure', relaxed_structure)
+            #with out_folder.base.repository.open(fname_relaxed) as handle:
+            with out_folder.open(fname_relaxed) as handle:
+                ase_structure = ase.io.read(handle, format='xyz', index=0)
+            if not ase_structure:
+                self.logger.error(f'Could not read structure from output file {fname_relaxed}')
+                return self.exit_codes.ERROR_OUTPUT_PARSING
+            # Temporary hack to support AiiDA 1.x, which needs default cell
+            # even for non-periodic structures.
+            ase_structure.set_cell([1.0, 1.0, 1.0])
+            relaxed_structure = StructureData(ase=ase_structure)
+            self.out('relaxed_structure', relaxed_structure)
 
         pt = PeriodicTable()  # pylint: disable=invalid-name
 
