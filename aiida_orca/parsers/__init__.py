@@ -41,9 +41,9 @@ class OrcaBaseParser(Parser):
 
         try:
             # Change this when we drop AiiDA 1.x support
-            # with self.retrieved.base.repository.open(fname_out) as handler:
-            with self.retrieved.open(fname_out) as handler:
-                parsed_obj = ccread(handler)
+            # with self.retrieved.base.repository.open(fname_out) as handle:
+            with self.retrieved.open(fname_out) as handle:
+                parsed_obj = ccread(handle)
                 parsed_dict = parsed_obj.getattributes()
         except Exception:  # pylint: disable=broad-except
             self.logger.error(f'Could not parse file {fname_out}')
