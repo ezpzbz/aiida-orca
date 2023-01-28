@@ -40,12 +40,13 @@ class OrcaBaseParser(Parser):
             return process_cls.exit_codes.ERROR_OUTPUT_STDOUT_MISSING
 
         try:
-            with self.retrieved.open(fname_out, 'rb') as handle:
-                with tempfile.NamedTemporaryFile('w+b') as tmpfile:
-                    shutil.copyfileobj(handle, tmpfile)
-                    parsed_obj = ccread(tmpfile.name)
+            # Change this when we drop AiiDA 1.x support
+            # with self.retrieved.base.repository.open(fname_out) as handle:
+            with self.retrieved.open(fname_out) as handle:
+                parsed_obj = ccread(handle)
                 parsed_dict = parsed_obj.getattributes()
         except Exception:  # pylint: disable=broad-except
+            self.logger.error(f'Could not parse file {fname_out}')
             return self.exit_codes.ERROR_OUTPUT_STDOUT_PARSE
 
         def _remove_nan(parsed_dictionary: dict) -> dict:

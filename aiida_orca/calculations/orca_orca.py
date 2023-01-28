@@ -95,7 +95,6 @@ class OrcaCalculation(CalcJob):
 
         # create calc info
         calcinfo = CalcInfo()
-        calcinfo.uuid = self.uuid
         calcinfo.cmdline_params = codeinfo.cmdline_params
         calcinfo.stdin_name = self._INPUT_FILE
         calcinfo.stdout_name = self._OUTPUT_FILE
