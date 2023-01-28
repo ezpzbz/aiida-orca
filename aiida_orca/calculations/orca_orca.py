@@ -98,7 +98,6 @@ class OrcaCalculation(CalcJob):
 
         # create calc info
         calcinfo = CalcInfo()
-        calcinfo.uuid = self.uuid
         calcinfo.cmdline_params = codeinfo.cmdline_params
         calcinfo.stdin_name = self._INPUT_FILE
         calcinfo.stdout_name = self._OUTPUT_FILE
@@ -126,24 +125,11 @@ class OrcaCalculation(CalcJob):
         return calcinfo
 
     @staticmethod
-    def _write_structure(structure, folder: Folder, name: str) -> None:
-        """Function that writes a structure and takes care of element tags"""
+    def _write_structure(structure: StructureData, folder: Folder, filename: str) -> None:
+        """Function that writes a structure to a file in an XYZ format"""
 
-        # create file with the structure
-        mol = structure.get_pymatgen_molecule()
-
-        # from https://github.com/materialsproject/pymatgen/blob/
-        # 5a3284fd2dce70ee27e8291e6558e73beaba5164/pymatgen/io/gaussian.py#L411
-        def to_string(num):
-            return '%0.6f' % num
-
-        coords = []
-        for site in mol:
-            coords.append(' '.join([site.species_string, ' '.join([to_string(j) for j in site.coords])]))
-
-        with open(folder.get_abs_path(name), mode='w', encoding='utf-8') as fobj:
-            fobj.write('{}\n\n'.format(len(coords)))
-            fobj.write('\n'.join(coords))
-
-
-#EOF
+        # create file with the XYZ structure
+        ase_struct = structure.get_ase()
+        # ORCA cannot read the extended XYZ format, hence plain=True is needed.
+        # https://wiki.fysik.dtu.dk/ase/ase/io/formatoptions.html#ase.io.extxyz.write_extxyz
+        ase_struct.write(folder.get_abs_path(filename), format='extxyz', plain=True)

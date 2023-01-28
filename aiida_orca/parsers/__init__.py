@@ -4,9 +4,8 @@ import pathlib
 import shutil
 import tempfile
 
+import ase.io
 import numpy as np
-
-from pymatgen.core import Molecule
 
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
@@ -41,12 +40,13 @@ class OrcaBaseParser(Parser):
             return process_cls.exit_codes.ERROR_OUTPUT_STDOUT_MISSING
 
         try:
-            with self.retrieved.open(fname_out, 'rb') as handle:
-                with tempfile.NamedTemporaryFile('w+b') as tmpfile:
-                    shutil.copyfileobj(handle, tmpfile)
-                    parsed_obj = ccread(tmpfile.name)
+            # Change this when we drop AiiDA 1.x support
+            # with self.retrieved.base.repository.open(fname_out) as handle:
+            with self.retrieved.open(fname_out) as handle:
+                parsed_obj = ccread(handle)
                 parsed_dict = parsed_obj.getattributes()
         except Exception:  # pylint: disable=broad-except
+            self.logger.error(f'Could not parse file {fname_out}')
             return self.exit_codes.ERROR_OUTPUT_STDOUT_PARSE
 
         def _remove_nan(parsed_dictionary: dict) -> dict:
@@ -75,11 +75,17 @@ class OrcaBaseParser(Parser):
         output_dict = _remove_nan(parsed_dict)
 
         if parsed_dict.get('optdone', False):
-            with out_folder.open(fname_relaxed, 'rb') as handle:
-                with tempfile.NamedTemporaryFile('w+b', suffix=pathlib.Path(fname_relaxed).suffix) as tmpfile:
-                    shutil.copyfileobj(handle, tmpfile)
-                    tmpfile.flush()
-                    relaxed_structure = StructureData(pymatgen_molecule=Molecule.from_file(tmpfile.name))
+            # Change this when we drop AiiDA 1.x support
+            #with out_folder.base.repository.open(fname_relaxed) as handle:
+            with out_folder.open(fname_relaxed) as handle:
+                ase_structure = ase.io.read(handle, format='xyz', index=0)
+            if not ase_structure:
+                self.logger.error(f'Could not read structure from output file {fname_relaxed}')
+                return self.exit_codes.ERROR_OUTPUT_PARSING
+            # Temporary hack to support AiiDA 1.x, which needs default cell
+            # even for non-periodic structures.
+            ase_structure.set_cell([1.0, 1.0, 1.0])
+            relaxed_structure = StructureData(ase=ase_structure)
             self.out('relaxed_structure', relaxed_structure)
 
         pt = PeriodicTable()  # pylint: disable=invalid-name
