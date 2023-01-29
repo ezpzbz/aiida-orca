@@ -88,9 +88,8 @@ class OrcaBaseParser(Parser):
             relaxed_structure = StructureData(ase=ase_structure)
             self.out('relaxed_structure', relaxed_structure)
 
-        pt = PeriodicTable()  # pylint: disable=invalid-name
-
-        if output_dict.get('atommnos'):
+        if output_dict.get('atomnos') is not None:
+            pt = PeriodicTable()  # pylint: disable=invalid-name
             output_dict['elements'] = [pt.element[Z] for Z in output_dict['atomnos']]
 
         self.out('output_parameters', Dict(dict=output_dict))
