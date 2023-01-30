@@ -36,7 +36,7 @@ def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
                 'tddft': {
                     'nroots': 3,
                     'triplets': 'false',
-                    'tda': 'true',
+                    'tda': 'false',
                 },
             },
             'input_keywords': ['RKS', 'BP', 'STO-3G', 'MOREAD'],
