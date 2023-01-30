@@ -26,3 +26,22 @@ def test_orca_default(aiida_localhost, generate_calc_job_node, generate_parser, 
         'relaxed_structure': structure_attributes,
         'output_parameters': results['output_parameters'].attributes,
     })
+
+
+def test_orca_tddft(aiida_localhost, generate_calc_job_node, generate_parser, generate_inputs_orca, data_regression):
+    """Test the ``default`` output example."""
+    name = 'tddft'
+    entry_point_calc_job = 'orca.orca'
+    entry_point_parser = 'orca_base_parser'
+
+    node = generate_calc_job_node(entry_point_calc_job, aiida_localhost, name, generate_inputs_orca())
+    parser = generate_parser(entry_point_parser)
+    results, calcfunction = parser.parse_from_node(node)
+
+    assert calcfunction.is_finished, calcfunction.exception
+    assert calcfunction.is_finished_ok, calcfunction.exit_message
+    assert 'output_parameters' in results
+
+    data_regression.check({
+        'output_parameters': results['output_parameters'].attributes,
+    })
