@@ -22,7 +22,7 @@ jobs:
         -   name: Set up Python
             uses: actions/setup-python@v2
             with:
-                python-version: '3.9'
+                python-version: '3.10'
 
         -   name: Install Python dependencies
             run: pip install -e .[pre-commit,test]
@@ -36,6 +36,7 @@ jobs:
         timeout-minutes: 10
 
         strategy:
+            fail-fast: false
             matrix:
                 versions: [
                     {'python': '3.8', 'aiida-core': '1.6'},
