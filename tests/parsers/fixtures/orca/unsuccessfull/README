@@ -1,0 +1,3 @@
+The data here were copied from the `default` test,
+but the final lines of the ORCA outputs have been deleted,
+which should trigger the parser to return non-zero exit code.
