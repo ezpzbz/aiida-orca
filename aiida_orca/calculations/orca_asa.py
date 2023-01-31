@@ -8,7 +8,7 @@ from aiida.engine import CalcJob
 
 class OrcaAsaCalculation(CalcJob):
     """OrcaAsaCalculation is a subclass of CalcJob to run
-    ORCA ASA calculation which gets the asa input file and genrates the
+    ORCA ASA calculation which gets the asa input file and generates the
     absorption and emission spectra.
     """
 
@@ -28,7 +28,6 @@ class OrcaAsaCalculation(CalcJob):
 
         spec.output('output_file', valid_type=SinglefileData)
 
-    # --------------------------------------------------------------------------
     # pylint: disable = too-many-locals
     def prepare_for_submission(self, folder):
 
@@ -39,11 +38,7 @@ class OrcaAsaCalculation(CalcJob):
 
         # create calculation info
         calcinfo = CalcInfo()
-        calcinfo.uuid = self.uuid
         calcinfo.codes_info = [codeinfo]
         calcinfo.retrieve_list = [self._OUTPUT_FILE]
 
         return calcinfo
-
-
-#EOF

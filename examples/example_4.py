@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Run simple TDDFT Calculation using AiiDA-Orca"""
+"""Run a simple TDDFT Calculation using AiiDA-Orca"""
 
 import sys
 import click
 import pytest
 
 from aiida.engine import run_get_pk
-from aiida.orm import load_node, Code, Dict
+from aiida.orm import load_node, Code, Dict, SinglefileData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
@@ -28,17 +28,18 @@ def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
             'input_blocks': {
                 'scf': {
                     'convergence': 'tight',
+                    'moinp': '"aiida_old.gbw"',
                 },
                 'pal': {
                     'nproc': nproc,
                 },
                 'tddft': {
-                    'nroots': 8,
-                    'maxdim': 2,
-                    'triplets': 'true',
-                }
+                    'nroots': 3,
+                    'triplets': 'false',
+                    'tda': 'false',
+                },
             },
-            'input_keywords': ['RKS', 'PBE', 'SV(P)'],
+            'input_keywords': ['RKS', 'BP', 'STO-3G', 'MOREAD'],
             'extra_input_keywords': [],
         }
     )
@@ -46,20 +47,29 @@ def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
     # Construct process builder
     builder = OrcaCalculation.get_builder()
 
-    builder.structure = load_node(opt_calc_pk).outputs.relaxed_structure
+    # old gbw file
+    opt_calc = load_node(opt_calc_pk)
+    retr_fldr = opt_calc.outputs.retrieved
+    with retr_fldr.open('aiida.gbw', 'rb') as handle:
+        gbw_file = SinglefileData(handle)
+
+    builder.structure = opt_calc.outputs.relaxed_structure
     builder.parameters = parameters
     builder.code = orca_code
+    builder.file = {
+        'gbw': gbw_file,
+    }
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 1,
+        'num_mpiprocs_per_machine': nproc,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
-        print('Testing ORCA  simple TDDFT Calculation...')
+        print('Testing TDDFT calculation...')
         res, pk = run_get_pk(builder)
-        print('calculation pk: ', pk)
-        print('1st ET energy is :', res['output_parameters'].dict['etenergies'][0])
-        print('1st oscillator strength energy is :', res['output_parameters'].dict['etoscs'][0])
+        print(f'calculation pk: {pk}')
+        print(f'1st excited state energy in cm^-1 is: {res["output_parameters"].dict["etenergies"][0]}')
+        print(f'1st oscillator strength is: {res["output_parameters"].dict["etoscs"][0]}')
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
@@ -78,7 +88,7 @@ def cli(codelabel, nproc, previous_calc, submit):
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)
-    example_simple_tddft(code, nproc, previous_calc, submit)
+    example_simple_tddft(code, nproc, submit, previous_calc)
 
 
 if __name__ == '__main__':

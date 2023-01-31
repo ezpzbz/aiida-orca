@@ -12,7 +12,7 @@ class OrcaCalculation(CalcJob):
     This is a OrcaCalculation, subclass of JobCalculation,
     to prepare input for an ab-initio ORCA calculation.
     For information on ORCA, refer to: https://orcaforum.kofo.mpg.de/app.php/portal
-    This is responsible for doing main calculations in ORCA.
+    This class is responsible for doing main calculations in ORCA.
     """
 
     # Defaults
@@ -32,13 +32,13 @@ class OrcaCalculation(CalcJob):
 
         # Input parameters
         spec.input('structure', valid_type=StructureData, required=True, help='Input structure')
-        spec.input('parameters', valid_type=Dict, required=True, help='Input paramters to generate the input file.')
-        spec.input('settings', valid_type=Dict, required=False, help='additional input parameters')
+        spec.input('parameters', valid_type=Dict, required=True, help='Input parameters to generate the input file.')
+        spec.input('settings', valid_type=Dict, required=False, help='Additional input parameters')
         spec.input_namespace(
             'file',
             valid_type=SinglefileData,
             required=False,
-            help='additional input files like gbw or hessian',
+            help='Additional input files like gbw or hessian',
             dynamic=True
         )
 
@@ -55,21 +55,17 @@ class OrcaCalculation(CalcJob):
 
         # Exit codes
         spec.exit_code(
-            300, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed.'
+            100, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed.'
         )
         spec.exit_code(
-            301,
+            302,
             'ERROR_OUTPUT_STDOUT_MISSING',
             message='The retrieved folder did not contain the required stdout output file.'
         )
         spec.exit_code(
-            302, 'ERROR_CALCULATION_UNSUCCESSFUL', message='The ORCA calculation did not finish succesfully.'
+            303, 'ERROR_CALCULATION_UNSUCCESSFUL', message='The ORCA calculation did not finish succesfully.'
         )
-        spec.exit_code(
-            311,
-            'ERROR_OUTPUT_STDOUT_PARSE',
-            message=f'The ORCA stdout output file {cls._OUTPUT_FILE} could not be parsed.'
-        )
+        spec.exit_code(311, 'ERROR_OUTPUT_STDOUT_PARSE', message='The stdout output file could not be parsed.')
 
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')
@@ -102,7 +98,6 @@ class OrcaCalculation(CalcJob):
 
         # create calc info
         calcinfo = CalcInfo()
-        calcinfo.uuid = self.uuid
         calcinfo.cmdline_params = codeinfo.cmdline_params
         calcinfo.stdin_name = self._INPUT_FILE
         calcinfo.stdout_name = self._OUTPUT_FILE
@@ -130,24 +125,11 @@ class OrcaCalculation(CalcJob):
         return calcinfo
 
     @staticmethod
-    def _write_structure(structure, folder: Folder, name: str) -> None:
-        """Function that writes a structure and takes care of element tags"""
+    def _write_structure(structure: StructureData, folder: Folder, filename: str) -> None:
+        """Function that writes a structure to a file in an XYZ format"""
 
-        # create file with the structure
-        mol = structure.get_pymatgen_molecule()
-
-        # from https://github.com/materialsproject/pymatgen/blob/
-        # 5a3284fd2dce70ee27e8291e6558e73beaba5164/pymatgen/io/gaussian.py#L411
-        def to_string(num):
-            return '%0.6f' % num
-
-        coords = []
-        for site in mol:
-            coords.append(' '.join([site.species_string, ' '.join([to_string(j) for j in site.coords])]))
-
-        with open(folder.get_abs_path(name), mode='w', encoding='utf-8') as fobj:
-            fobj.write('{}\n\n'.format(len(coords)))
-            fobj.write('\n'.join(coords))
-
-
-#EOF
+        # create file with the XYZ structure
+        ase_struct = structure.get_ase()
+        # ORCA cannot read the extended XYZ format, hence plain=True is needed.
+        # https://wiki.fysik.dtu.dk/ase/ase/io/formatoptions.html#ase.io.extxyz.write_extxyz
+        ase_struct.write(folder.get_abs_path(filename), format='extxyz', plain=True)

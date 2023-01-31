@@ -189,7 +189,7 @@ output_parameters:
     methods: []
     package: ORCA
     package_version: 5.0.3
-    success: true
+    success: false
     warnings:
     - Geometry OptimizationSwitching off AutoStartFor restart on a previous wavefunction,
       please use MOREAD

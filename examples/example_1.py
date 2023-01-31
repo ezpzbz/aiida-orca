@@ -5,7 +5,7 @@ import sys
 import click
 import pytest
 
-from pymatgen.core import Molecule
+import ase.io
 
 from aiida.engine import run_get_pk
 from aiida.orm import load_node, Code, Dict, SinglefileData, StructureData
@@ -25,12 +25,14 @@ def example_opt_restart(orca_code, nproc, submit=True, opt_calc_pk=None):
     # structure
     thisdir = os.path.dirname(os.path.realpath(__file__))
     xyz_path = os.path.join(thisdir, 'h2co.xyz')
-    structure = StructureData(pymatgen_molecule=Molecule.from_file(xyz_path))
+    ase_struct = ase.io.read(xyz_path, format='xyz', index=0)
+    ase_struct.set_cell([1.0, 1.0, 1.0])
+    structure = StructureData(ase=ase_struct)
 
     # old gbw file
     retr_fldr = load_node(opt_calc_pk).outputs.retrieved
-    with retr_fldr.open('aiida.gbw') as handler:
-        gbw_file = SinglefileData(handler.name)
+    with retr_fldr.open('aiida.gbw', 'rb') as handle:
+        gbw_file = SinglefileData(handle)
 
     # parameters
     parameters = Dict(
@@ -46,7 +48,7 @@ def example_opt_restart(orca_code, nproc, submit=True, opt_calc_pk=None):
                     'nproc': nproc,
                 },
             },
-            'input_keywords': ['PBE', 'def2-TZVP', 'Opt'],
+            'input_keywords': ['PBE', 'def2-SVP', 'Opt'],
             'extra_input_keywords': ['MOREAD'],
         }
     )
@@ -62,14 +64,15 @@ def example_opt_restart(orca_code, nproc, submit=True, opt_calc_pk=None):
     }
     builder.metadata.options.resources = {
         'num_machines': 1,
-        'num_mpiprocs_per_machine': 1,
+        'num_mpiprocs_per_machine': nproc,
     }
     builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
     if submit:
         print('Testing Orca single point calculation...')
         res, pk = run_get_pk(builder)
-        print('calculation pk: ', pk)
-        print('SCF Energy is :', res['output_parameters'].dict['scfenergies'])
+        print(f'Calculation PK: {pk}')
+        print(f'Optimized structure PK: {res["relaxed_structure"].pk}')
+        print(f'SCF Energy: {res["output_parameters"]["scfenergies"]}')
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False
@@ -88,7 +91,7 @@ def cli(codelabel, nproc, previous_calc, submit):
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)
-    example_opt_restart(code, nproc, previous_calc, submit)
+    example_opt_restart(code, nproc, submit, previous_calc)
 
 
 if __name__ == '__main__':
