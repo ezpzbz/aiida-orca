@@ -173,7 +173,7 @@ def generate_inputs_orca(aiida_local_code_factory, generate_structure):
                 }
             },
             'input_keywords': ['PBE', 'SV(P)', 'Opt'],
-            'extra_input_keywords': [],
+            'extra_input_keywords': ['MOREAD'],
         }
 
         base_inputs = {

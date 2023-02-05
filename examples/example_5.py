@@ -35,7 +35,6 @@ def example_opt(orca_code, nproc, submit=True):
                 }
             },
             'input_keywords': ['PBE', 'STO-3G'],
-            'extra_input_keywords': [],
         }
     )
 

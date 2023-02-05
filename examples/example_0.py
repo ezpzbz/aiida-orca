@@ -40,7 +40,6 @@ def example_opt(orca_code, nproc, submit=True):
                 }
             },
             'input_keywords': ['PBE', 'def2-SVP', 'Opt'],
-            'extra_input_keywords': [],
         }
     )
 
