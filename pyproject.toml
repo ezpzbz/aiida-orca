@@ -12,7 +12,7 @@ authors = [
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
-    "Development Status :: 3 - Development",
+    "Development Status :: 5 - Production/Stable",
     "Framework :: AiiDA",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
