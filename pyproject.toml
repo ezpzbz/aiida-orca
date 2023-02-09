@@ -5,7 +5,10 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "aiida_orca"
 dynamic = ["version", "description"]
-authors = [{name = "Pezhman Zarabadi-Poor", email = "pzarabadip@gmail.com"}]
+authors = [
+    {name = "Pezhman Zarabadi-Poor", email = "pzarabadip@gmail.com"},
+    {name = "Daniel Hollas", email = "danekhollas@gmail.com"}
+]
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
