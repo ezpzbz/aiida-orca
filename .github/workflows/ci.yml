@@ -82,7 +82,7 @@ jobs:
         -   name: Run pytest
             env:
                 AIIDA_WARN_v3: True
-            run: pytest --cov-report=xml --cov=./aiida_orca tests
+            run: pytest --cov-report=xml tests
         -   name: Upload coverage to codecov
             uses: codecov/codecov-action@v2
             with:
