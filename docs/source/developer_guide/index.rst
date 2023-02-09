@@ -23,7 +23,7 @@ Please fork the repo and open a PR with your changes when tests are passing loca
     pytest tests
 
 Moreover, to run the end-to-end tests, that require the `ORCA`` package installed, run::
-    
+
     pytest examples/
 
 or using multiple cores with OpenMPI parallelization::

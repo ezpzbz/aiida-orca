@@ -39,14 +39,14 @@ pip install .
 ```
 
 # aiida-common-workflows
-The `aiida-orca` package is available in the 
-[aiida-common-workflow](https://github.com/aiidateam/aiida-common-workflows) package. 
-You may try it to have a quick setup and exploration of `aiida-orca` and many more packages. 
+The `aiida-orca` package is available in the
+[aiida-common-workflow](https://github.com/aiidateam/aiida-common-workflows) package.
+You may try it to have a quick setup and exploration of `aiida-orca` and many more packages.
 For further details, please check [our paper](https://www.nature.com/articles/s41524-021-00594-6) on `aiida-common-worlflows`.
 
 # Contribution guide
-We welcome contribution to the code either it is a new feature implementation or bug fix. 
-Please check the [Developer Guide](https://aiida-orca.readthedocs.io/en/develop/developer_guide/index.html) 
+We welcome contribution to the code either it is a new feature implementation or bug fix.
+Please check the [Developer Guide](https://aiida-orca.readthedocs.io/en/develop/developer_guide/index.html)
 in documentation for the instructions.
 
 # Issue reporting
