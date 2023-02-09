@@ -49,6 +49,7 @@ Home = "https://github.com/pzarabadip/aiida-orca"
 test = [
     "pgtest==1.2.0",
     "pytest~=6.0",
+    "pytest-cov~=4.0",
     "pytest-regressions~=2.3",
 ]
 pre-commit = [
