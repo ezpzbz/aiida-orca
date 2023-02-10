@@ -6,6 +6,8 @@ from aiida.orm import Dict, SinglefileData, StructureData
 from aiida.common import CalcInfo, CodeInfo
 from aiida.common.folders import Folder
 
+from aiida_orca.utils import render_orca_input
+
 
 class OrcaCalculation(CalcJob):
     """
@@ -81,11 +83,12 @@ class OrcaCalculation(CalcJob):
         Returns:
             CalcInfo: ``AiiDA`` CalcInfo Instance
         """
-        from aiida_orca.utils import OrcaInput  #pylint: disable=import-outside-toplevel
 
-        # create input structure(s)
-        if 'structure' in self.inputs:
-            self._write_structure(self.inputs.structure, folder, self._INPUT_COORDS_FILE)
+        # create input structure
+        self._write_structure(self.inputs.structure, folder, self._INPUT_COORDS_FILE)
+
+        # create ORCA input file
+        self._write_input_file(self.inputs.parameters, folder, self._INPUT_FILE)
 
         settings = self.inputs.settings.get_dict() if 'settings' in self.inputs else {}
 
@@ -103,7 +106,7 @@ class OrcaCalculation(CalcJob):
         calcinfo.stdout_name = self._OUTPUT_FILE
         calcinfo.codes_info = [codeinfo]
 
-        # files or additional structures
+        # additional files (e.g. MO guess gbw file)
         if 'file' in self.inputs:
             calcinfo.local_copy_list = []
             for name, obj in self.inputs.file.items():
@@ -112,17 +115,28 @@ class OrcaCalculation(CalcJob):
                 else:
                     calcinfo.local_copy_list.append((obj.uuid, obj.filename, obj.filename))
 
-        # Retrive list
+        # Retrieve list
         calcinfo.retrieve_list = [self._OUTPUT_FILE, self._GBW_FILE, self._HESSIAN_FILE, self._RELAX_COORDS_FILE]
         calcinfo.retrieve_list += settings.pop('additional_retrieve_list', [])
-
-        # create ORCA input file
-        inp = OrcaInput(self.inputs.parameters.get_dict())
-
-        with open(folder.get_abs_path(self._INPUT_FILE), mode='w', encoding='utf-8') as fobj:
-            fobj.write(inp.render())
-
         return calcinfo
+
+    def _write_input_file(self, parameters: Dict, folder: Folder, filename: str) -> None:
+        """Function that writes ORCA input file"""
+        params = parameters.get_dict()
+
+        charge = params.get('charge')
+        if charge is None:
+            raise ValueError('Missing mandatory key "charge" in input parameters')
+        mult = params.get('multiplicity')
+        if mult is None:
+            raise ValueError('Missing mandatory key "multiplicity" in input parameters')
+
+        input_file_string = render_orca_input(params)
+
+        with open(folder.get_abs_path(filename), mode='w', encoding='utf-8') as fobj:
+            fobj.write(input_file_string)
+            # coordinate section
+            fobj.write(f'\n* xyzfile {charge} {mult} {self._INPUT_COORDS_FILE}\n')
 
     @staticmethod
     def _write_structure(structure: StructureData, folder: Folder, filename: str) -> None:

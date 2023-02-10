@@ -40,7 +40,6 @@ def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
                 },
             },
             'input_keywords': ['RKS', 'BP', 'STO-3G', 'MOREAD'],
-            'extra_input_keywords': [],
         }
     )
 
