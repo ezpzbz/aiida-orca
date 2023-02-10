@@ -5,7 +5,7 @@ import click
 import pytest
 
 from aiida.engine import run_get_pk
-from aiida.orm import load_node, Code, Dict, SinglefileData
+from aiida.orm import load_node, Code, SinglefileData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
@@ -25,26 +25,24 @@ def example_restart_anfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
         hess_file = SinglefileData(handle)
 
     # parameters
-    parameters = Dict(
-        dict={
-            'charge': 0,
-            'multiplicity': 1,
-            'input_blocks': {
-                'scf': {
-                    'convergence': 'tight',
-                },
-                'pal': {
-                    'nproc': nproc,
-                },
-                'freq': {
-                    'restart': 'True',
-                    'temp': 273,
-                }
+    parameters = {
+        'charge': 0,
+        'multiplicity': 1,
+        'input_blocks': {
+            'scf': {
+                'convergence': 'tight',
             },
-            'input_keywords': ['RKS', 'BP', 'STO-3G'],
-            'extra_input_keywords': ['AnFreq'],
-        }
-    )
+            'pal': {
+                'nproc': nproc,
+            },
+            'freq': {
+                'restart': 'True',
+                'temp': 273,
+            }
+        },
+        'input_keywords': ['RKS', 'BP', 'STO-3G'],
+        'extra_input_keywords': ['AnFreq'],
+    }
 
     # Construct process builder
     builder = OrcaCalculation.get_builder()
