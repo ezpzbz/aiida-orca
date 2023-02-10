@@ -57,7 +57,7 @@ class OrcaCalculation(CalcJob):
 
         # Exit codes
         spec.exit_code(
-            100, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed.'
+            300, 'ERROR_NO_RETRIEVED_FOLDER', message='The retrieved folder data node could not be accessed.'
         )
         spec.exit_code(
             302,
