@@ -5,11 +5,14 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "aiida_orca"
 dynamic = ["version", "description"]
-authors = [{name = "Pezhman Zarabadi-Poor", email = "pzarabadip@gmail.com"}]
+authors = [
+    {name = "Pezhman Zarabadi-Poor", email = "pzarabadip@gmail.com"},
+    {name = "Daniel Hollas", email = "danekhollas@gmail.com"}
+]
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
-    "Development Status :: 3 - Development",
+    "Development Status :: 5 - Production/Stable",
     "Framework :: AiiDA",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
@@ -46,6 +49,7 @@ Home = "https://github.com/pzarabadip/aiida-orca"
 test = [
     "pgtest==1.2.0",
     "pytest~=6.0",
+    "pytest-cov~=4.0",
     "pytest-regressions~=2.3",
 ]
 pre-commit = [
