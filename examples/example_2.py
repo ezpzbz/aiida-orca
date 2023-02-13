@@ -8,7 +8,7 @@ import pytest
 import ase.io
 
 from aiida.engine import run_get_pk
-from aiida.orm import Code, Dict, StructureData
+from aiida.orm import Code, StructureData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
@@ -26,22 +26,20 @@ def example_opt_numfreq(orca_code, nproc, submit=True):
     structure = StructureData(ase=ase_struct)
 
     # parameters
-    parameters = Dict(
-        dict={
-            'charge': 0,
-            'multiplicity': 1,
-            'input_blocks': {
-                'scf': {
-                    'convergence': 'tight',
-                },
-                'pal': {
-                    'nproc': nproc,
-                },
+    parameters = {
+        'charge': 0,
+        'multiplicity': 1,
+        'input_blocks': {
+            'scf': {
+                'convergence': 'tight',
             },
-            'input_keywords': ['RKS', 'BP', 'STO-3G'],
-            'extra_input_keywords': ['AnFreq', 'OPT'],
-        }
-    )
+            'pal': {
+                'nproc': nproc,
+            },
+        },
+        'input_keywords': ['RKS', 'BP', 'STO-3G'],
+        'extra_input_keywords': ['AnFreq', 'OPT'],
+    }
 
     # Construct process builder
 

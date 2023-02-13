@@ -6,7 +6,7 @@ import click
 import pytest
 
 from aiida.engine import run_get_pk
-from aiida.orm import load_node, Code, Dict, SinglefileData
+from aiida.orm import load_node, Code, SinglefileData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
@@ -21,27 +21,25 @@ def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
         opt_calc_pk = pytest.opt_calc_pk  # pylint: disable=no-member
 
     # parameters
-    parameters = Dict(
-        dict={
-            'charge': 0,
-            'multiplicity': 1,
-            'input_blocks': {
-                'scf': {
-                    'convergence': 'tight',
-                    'moinp': '"aiida_old.gbw"',
-                },
-                'pal': {
-                    'nproc': nproc,
-                },
-                'tddft': {
-                    'nroots': 3,
-                    'triplets': 'false',
-                    'tda': 'false',
-                },
+    parameters = {
+        'charge': 0,
+        'multiplicity': 1,
+        'input_blocks': {
+            'scf': {
+                'convergence': 'tight',
+                'moinp': '"aiida_old.gbw"',
             },
-            'input_keywords': ['RKS', 'BP', 'STO-3G', 'MOREAD'],
-        }
-    )
+            'pal': {
+                'nproc': nproc,
+            },
+            'tddft': {
+                'nroots': 3,
+                'triplets': 'false',
+                'tda': 'false',
+            },
+        },
+        'input_keywords': ['RKS', 'BP', 'STO-3G', 'MOREAD'],
+    }
 
     # Construct process builder
     builder = OrcaCalculation.get_builder()
