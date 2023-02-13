@@ -7,7 +7,7 @@ import click
 import ase.io
 
 from aiida.engine import run_get_pk
-from aiida.orm import load_node, Code, Dict, StructureData
+from aiida.orm import load_node, Code, StructureData
 from aiida.common import NotExistent
 from aiida.plugins import WorkflowFactory
 
@@ -25,18 +25,16 @@ def example_opt(orca_code, nproc, submit=True):
     structure = StructureData(ase=ase_struct)
 
     # parameters
-    parameters = Dict(
-        dict={
-            'charge': 0,
-            'multiplicity': 1,
-            'input_blocks': {
-                'pal': {
-                    'nproc': nproc,
-                }
-            },
-            'input_keywords': ['PBE', 'STO-3G'],
-        }
-    )
+    parameters = {
+        'charge': 0,
+        'multiplicity': 1,
+        'input_blocks': {
+            'pal': {
+                'nproc': nproc,
+            }
+        },
+        'input_keywords': ['PBE', 'STO-3G'],
+    }
 
     # Construct process builder
     builder = OrcaBaseWorkChain.get_builder()

@@ -2,7 +2,7 @@
 """AiiDA-ORCA plugin -- Main Calculations"""
 
 from aiida.engine import CalcJob
-from aiida.orm import Dict, SinglefileData, StructureData
+from aiida.orm import Dict, SinglefileData, StructureData, to_aiida_type
 from aiida.common import CalcInfo, CodeInfo
 from aiida.common.folders import Folder
 
@@ -34,8 +34,16 @@ class OrcaCalculation(CalcJob):
 
         # Input parameters
         spec.input('structure', valid_type=StructureData, required=True, help='Input structure')
-        spec.input('parameters', valid_type=Dict, required=True, help='Input parameters to generate the input file.')
-        spec.input('settings', valid_type=Dict, required=False, help='Additional input parameters')
+        spec.input(
+            'parameters',
+            valid_type=Dict,
+            serializer=to_aiida_type,
+            required=True,
+            help='Input parameters to generate the input file.'
+        )
+        spec.input(
+            'settings', valid_type=Dict, serializer=to_aiida_type, required=False, help='Additional input parameters'
+        )
         spec.input_namespace(
             'file',
             valid_type=SinglefileData,
