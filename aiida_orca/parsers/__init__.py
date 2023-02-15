@@ -3,6 +3,7 @@
 import pathlib
 import shutil
 import tempfile
+import traceback
 
 import ase.io
 import numpy as np
@@ -27,16 +28,12 @@ class OrcaBaseParser(Parser):
         If it would be an optimization run, the relaxed structure also will
         be stored under relaxed_structure key.
         """
-        try:
-            out_folder = self.retrieved
-        except NotExistent:
-            return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
         process_cls = self.node.process_class
         fname_out = process_cls._OUTPUT_FILE  # pylint: disable=protected-access
         fname_relaxed = process_cls._RELAX_COORDS_FILE  # pylint: disable=protected-access
 
-        if fname_out not in out_folder.list_object_names():
+        if fname_out not in self.retrieved.list_object_names():
             return process_cls.exit_codes.ERROR_OUTPUT_STDOUT_MISSING
 
         try:
@@ -46,7 +43,8 @@ class OrcaBaseParser(Parser):
                 parsed_obj = ccread(handle)
                 parsed_dict = parsed_obj.getattributes()
         except Exception:  # pylint: disable=broad-except
-            self.logger.error(f'Could not parse file {fname_out}')
+            self.logger.error(f'ERROR: cclib could not parse file {fname_out}')
+            self.logger.error(f'{traceback.format_exc()}')
             return self.exit_codes.ERROR_OUTPUT_STDOUT_PARSE
 
         def _remove_nan(parsed_dictionary: dict) -> dict:
@@ -86,8 +84,8 @@ class OrcaBaseParser(Parser):
 
         if parsed_dict.get('optdone', False):
             # Change this when we drop AiiDA 1.x support
-            #with out_folder.base.repository.open(fname_relaxed) as handle:
-            with out_folder.open(fname_relaxed) as handle:
+            #with self.retrieved.base.repository.open(fname_relaxed) as handle:
+            with self.retrieved.open(fname_relaxed) as handle:
                 ase_structure = ase.io.read(handle, format='xyz', index=0)
             if not ase_structure:
                 self.logger.error(f'Could not read structure from output file {fname_relaxed}')
