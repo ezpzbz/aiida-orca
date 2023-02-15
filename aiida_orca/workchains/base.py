@@ -28,8 +28,13 @@ class OrcaBaseWorkChain(BaseRestartWorkChain):
         spec.expose_outputs(OrcaCalculation)
         spec.exit_code(
             300,
-            'ERROR_UNRECOVERABLE_FAILURE',
+            'ERROR_UNKNOWN_UNRECOVERABLE_FAILURE',
             message='The calculation failed with an unidentified unrecoverable error.'
+        )
+        spec.exit_code(
+            301,
+            'ERROR_AIIDA_ORCA_UNRECOVERABLE_FAILURE',
+            message='The calculation failed with an unrecoverable error coming from aiida-orca.'
         )
 
     def setup(self):
@@ -38,7 +43,6 @@ class OrcaBaseWorkChain(BaseRestartWorkChain):
         internal loop."""
 
         super().setup()
-
         self.ctx.inputs = AttributeDict(self.exposed_inputs(OrcaCalculation, 'orca'))
 
     def report_error_handled(self, calculation, action):
@@ -47,13 +51,29 @@ class OrcaBaseWorkChain(BaseRestartWorkChain):
         :param calculation: the failed calculation node
         :param action: a string message with the action taken"""
 
-        arguments = [calculation.process_label, calculation.pk, calculation.exit_status, calculation.exit_message]
-        self.report('{}<{}> failed with exit status {}: {}'.format(*arguments))
-        self.report('Action taken: {}'.format(action))
+        self.report(
+            f'{calculation.process_label}<{calculation.pk}> failed with exit status '
+            f'{calculation.exit_status}: {calculation.exit_message}'
+        )
+        self.report(f'Action taken: {action}')
 
-    @process_handler(priority=600)
-    def handle_unrecoverable_failure(self, calculation):
-        """Handle calculations with an exit status below 400 which are unrecoverable, so abort the work chain."""
-        if calculation.is_failed and calculation.exit_status < 400:
-            self.report_error_handled(calculation, 'unrecoverable error, aborting...')
-            return ProcessHandlerReport(True, self.exit_codes.ERROR_UNRECOVERABLE_FAILURE)  # pylint: disable=no-member
+    @process_handler()
+    def handle_known_unrecoverable_failure(self, calculation):
+        """Handle exit status between 300-399.
+
+           These errors should come from aiida-orca plugin and are not recoverable.
+        """
+        if calculation.is_failed and calculation.exit_status < 400 and calculation.exit_status > 299:
+            self.report_error_handled(calculation, 'unrecoverable aiida-orca error, aborting...')
+            return ProcessHandlerReport(True, self.exit_codes.ERROR_AIIDA_ORCA_UNRECOVERABLE_FAILURE)  # pylint: disable=no-member
+
+    @process_handler()
+    def handle_unknown_unrecoverable_failure(self, calculation):
+        """Handle exit status between 1-299
+
+           These errors come from outside of aiida-orca plugin.
+           For now we suppose that all of these are unrecoverable.
+        """
+        if calculation.is_failed and calculation.exit_status < 300:
+            self.report_error_handled(calculation, 'unknown unrecoverable error, aborting...')
+            return ProcessHandlerReport(True, self.exit_codes.ERROR_UNKNOWN_UNRECOVERABLE_FAILURE)  # pylint: disable=no-member
