@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 """AiiDA-Orca plugin"""
 
-__version__ = '0.6.0'
+__version__ = '0.6.1'
