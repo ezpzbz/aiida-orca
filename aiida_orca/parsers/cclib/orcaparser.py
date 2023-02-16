@@ -845,8 +845,8 @@ Dispersion correction           -0.016199959
                 self.mosyms.append([])
 
                 line = next(inputfile)
-                while len(line) > 20:  # actually terminated by ------
-                    info = line.split()
+                info = line.split()
+                while len(line) > 20 and len(info) > 2 and len(info) < 6:  # actually terminated by ------
                     mooccno = int(float(info[1]))
                     moenergy = float(info[2])
                     mosym = 'A'
@@ -857,6 +857,7 @@ Dispersion correction           -0.016199959
                         utils.convertor(moenergy, 'hartree', 'eV'))
                     self.mosyms[1].append(mosym)
                     line = next(inputfile)
+                    info = line.split()
 
             if not hasattr(self, 'homos'):
                 doubly_occupied = self.mooccnos[0].count(2)
@@ -2202,8 +2203,13 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
         # not all of them always -- for example the RMS Density is missing for geometry
         # optimization steps. So, assume the previous value is still valid if it is
         # not found. For additional certainty, assert that the other targets are unchanged.
+
+        # For unrestricted calculations, the RMS Density is never printed,
+        # in which case we set the values and targets to zero.
         while not 'Last Energy change' in line:
             line = next(inputfile)
+        rmsDP_value = 0.0
+        rmsDP_target = 0.0
         deltaE_value = float(line.split()[4])
         deltaE_target = float(line.split()[7])
         line = next(inputfile)
@@ -2214,7 +2220,7 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
             if 'Last RMS-Density change' in line:
                 rmsDP_value = float(line.split()[4])
                 rmsDP_target = float(line.split()[7])
-            else:
+            elif len(self.scftargets) > 0:
                 rmsDP_value = self.scfvalues[-1][-1][2]
                 rmsDP_target = self.scftargets[-1][2]
                 assert deltaE_target == self.scftargets[-1][0]

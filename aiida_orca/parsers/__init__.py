@@ -84,7 +84,7 @@ class OrcaBaseParser(Parser):
 
         output_dict = _remove_nan(parsed_dict)
 
-        if parsed_dict.get('optdone', False):
+        if parsed_dict.get('optdone'):
             # Change this when we drop AiiDA 1.x support
             #with out_folder.base.repository.open(fname_relaxed) as handle:
             with out_folder.open(fname_relaxed) as handle:
