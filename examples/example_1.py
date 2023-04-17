@@ -8,7 +8,7 @@ import pytest
 import ase.io
 
 from aiida.engine import run_get_pk
-from aiida.orm import load_node, Code, Dict, SinglefileData, StructureData
+from aiida.orm import load_node, Code, Dict, StructureData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
@@ -30,9 +30,7 @@ def example_opt_restart(orca_code, nproc, submit=True, opt_calc_pk=None):
     structure = StructureData(ase=ase_struct)
 
     # old gbw file
-    retr_fldr = load_node(opt_calc_pk).outputs.retrieved
-    with retr_fldr.open('aiida.gbw', 'rb') as handle:
-        gbw_file = SinglefileData(handle)
+    gbw_file = load_node(opt_calc_pk).outputs.gbw_file
 
     # parameters
     parameters = Dict(
@@ -71,8 +69,8 @@ def example_opt_restart(orca_code, nproc, submit=True, opt_calc_pk=None):
         print('Testing Orca single point calculation...')
         res, pk = run_get_pk(builder)
         print(f'Calculation PK: {pk}')
-        print(f'Optimized structure PK: {res["relaxed_structure"].pk}')
         print(f'SCF Energy: {res["output_parameters"]["scfenergies"]}')
+        print(f'Optimized structure PK: {res["relaxed_structure"].pk}')
     else:
         builder.metadata.dry_run = True
         builder.metadata.store_provenance = False

@@ -46,6 +46,7 @@ def example_opt(orca_code, nproc, submit=True):
 
     builder.structure = structure
     builder.parameters = parameters
+    builder.store_gbw = True
     builder.code = orca_code
 
     # 'withmpi' needs to be always set to False even for parallel
