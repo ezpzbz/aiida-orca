@@ -6,7 +6,7 @@ import click
 import pytest
 
 from aiida.engine import run_get_pk
-from aiida.orm import load_node, Code, SinglefileData
+from aiida.orm import load_node, Code
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
@@ -44,17 +44,13 @@ def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
     # Construct process builder
     builder = OrcaCalculation.get_builder()
 
-    # old gbw file
     opt_calc = load_node(opt_calc_pk)
-    retr_fldr = opt_calc.outputs.retrieved
-    with retr_fldr.open('aiida.gbw', 'rb') as handle:
-        gbw_file = SinglefileData(handle)
 
     builder.structure = opt_calc.outputs.relaxed_structure
     builder.parameters = parameters
     builder.code = orca_code
     builder.file = {
-        'gbw': gbw_file,
+        'gbw': opt_calc.outputs.gbw_file,
     }
     builder.metadata.options.resources = {
         'num_machines': 1,

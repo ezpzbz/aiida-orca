@@ -17,10 +17,7 @@ def test_default(generate_calc_job, generate_inputs_orca, file_regression):
 
     # pylint: disable=protected-access
     cmdline_params = [OrcaCalculation._INPUT_FILE]
-    retrieve_list = [
-        OrcaCalculation._OUTPUT_FILE, OrcaCalculation._GBW_FILE, OrcaCalculation._HESSIAN_FILE,
-        OrcaCalculation._RELAX_COORDS_FILE
-    ]
+    retrieve_list = [OrcaCalculation._OUTPUT_FILE, OrcaCalculation._HESSIAN_FILE, OrcaCalculation._RELAX_COORDS_FILE]
     filenames_written = [OrcaCalculation._INPUT_FILE, OrcaCalculation._INPUT_COORDS_FILE]
 
     # Check the attributes of the returned `CalcInfo`

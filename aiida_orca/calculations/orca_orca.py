@@ -2,7 +2,7 @@
 """AiiDA-ORCA plugin -- Main Calculations"""
 
 from aiida.engine import CalcJob
-from aiida.orm import Dict, SinglefileData, StructureData, to_aiida_type
+from aiida.orm import Bool, Dict, SinglefileData, StructureData, to_aiida_type
 from aiida.common import CalcInfo, CodeInfo
 from aiida.common.folders import Folder
 
@@ -51,6 +51,13 @@ class OrcaCalculation(CalcJob):
             help='Additional input files like gbw or hessian',
             dynamic=True
         )
+        spec.input(
+            'store_gbw',
+            valid_type=Bool,
+            serializer=to_aiida_type,
+            default=lambda: Bool(False),
+            help='Store gbw file as SinglefileData output node.'
+        )
 
         # Specify default parser
         spec.input('metadata.options.parser_name', valid_type=str, default=cls._PARSER, non_db=True)
@@ -77,6 +84,7 @@ class OrcaCalculation(CalcJob):
         # Output parameters
         spec.output('output_parameters', valid_type=Dict, required=True, help='the results of the calculation')
         spec.output('relaxed_structure', valid_type=StructureData, required=False, help='relaxed structure')
+        spec.output('gbw_file', valid_type=SinglefileData, required=False, help='gbw file')
         spec.default_output_node = 'output_parameters'
 
     def prepare_for_submission(self, folder: Folder) -> CalcInfo:
@@ -121,8 +129,13 @@ class OrcaCalculation(CalcJob):
                     calcinfo.local_copy_list.append((obj.uuid, obj.filename, obj.filename))
 
         # Retrieve list
-        calcinfo.retrieve_list = [self._OUTPUT_FILE, self._GBW_FILE, self._HESSIAN_FILE, self._RELAX_COORDS_FILE]
+        calcinfo.retrieve_list = [self._OUTPUT_FILE, self._HESSIAN_FILE, self._RELAX_COORDS_FILE]
         calcinfo.retrieve_list += settings.pop('additional_retrieve_list', [])
+
+        if 'store_gbw' in self.inputs and self.inputs.store_gbw:
+            # This files is returned as SinglefileData in the parser,
+            # hence in needs to be in a temporary list to avoid duplication.
+            calcinfo.retrieve_temporary_list = [self._GBW_FILE]
         return calcinfo
 
     def _write_input_file(self, parameters: Dict, folder: Folder, filename: str) -> None:

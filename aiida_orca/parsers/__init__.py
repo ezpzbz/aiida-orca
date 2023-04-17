@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """AiiDA-ORCA output parser"""
 import pathlib
-import shutil
-import tempfile
 import traceback
 
 import ase.io
@@ -11,7 +9,7 @@ import numpy as np
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.engine import ExitCode
-from aiida.orm import Dict, StructureData
+from aiida.orm import Dict, StructureData, SinglefileData
 
 from .cclib.utils import PeriodicTable
 from .cclib.ccio import ccread
@@ -101,6 +99,11 @@ class OrcaBaseParser(Parser):
             output_dict['elements'] = [pt.element[Z] for Z in output_dict['atomnos']]
 
         self.out('output_parameters', Dict(dict=output_dict))
+
+        if 'store_gbw' in self.node.inputs and self.node.inputs.store_gbw:
+            retrieved_temp_folder = pathlib.Path(kwargs['retrieved_temporary_folder'])
+            fname_gbw = retrieved_temp_folder / process_cls._GBW_FILE  # pylint: disable=protected-access
+            self.out('gbw_file', SinglefileData(fname_gbw))
 
         if output_dict.get('metadata') and output_dict['metadata'].get('success'):
             return ExitCode(0)
