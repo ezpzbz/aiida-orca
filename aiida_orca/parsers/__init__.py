@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """AiiDA-ORCA output parser"""
 import pathlib
-import shutil
-import tempfile
 import traceback
 
 import ase.io
