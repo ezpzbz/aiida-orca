@@ -122,7 +122,6 @@ class OrcaCalculation(CalcJob):
 
         # Retrieve list
         calcinfo.retrieve_list = [self._OUTPUT_FILE, self._HESSIAN_FILE, self._RELAX_COORDS_FILE]
-        calcinfo.retrieve_list += settings.pop('additional_retrieve_list', [])
         return calcinfo
 
     def _write_input_file(self, parameters: Dict, folder: Folder, filename: str) -> None:
