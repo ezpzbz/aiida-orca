@@ -48,6 +48,9 @@ def example_opt(orca_code, nproc, submit=True):
     builder.parameters = parameters
     builder.code = orca_code
 
+    builder.settings = {
+        'additional_retrieve_list': ['aiida.gbw'],
+    }
     # 'withmpi' needs to be always set to False even for parallel
     # calculations, because ORCA uses mpirun internally.
     builder.metadata.options.withmpi = False
