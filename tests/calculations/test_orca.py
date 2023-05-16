@@ -13,9 +13,8 @@ def test_default(generate_calc_job, generate_inputs_orca, file_regression):
     entry_point_name = 'orca.orca'
 
     inputs = generate_inputs_orca()
-    inputs['settings'] = {}
     # pylint: disable=protected-access
-    inputs['settings']['additional_retrieve_list'] = [OrcaCalculation._GBW_FILE]
+    inputs['settings'] = {'additional_retrieve_list': [OrcaCalculation._GBW_FILE]}
     calc_info, dirpath = generate_calc_job(entry_point_name, inputs)
 
     # pylint: disable=protected-access
