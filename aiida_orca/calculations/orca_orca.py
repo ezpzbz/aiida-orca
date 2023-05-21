@@ -41,9 +41,6 @@ class OrcaCalculation(CalcJob):
             required=True,
             help='Input parameters to generate the input file.'
         )
-        spec.input(
-            'settings', valid_type=Dict, serializer=to_aiida_type, required=False, help='Additional input parameters'
-        )
         spec.input_namespace(
             'file',
             valid_type=SinglefileData,
@@ -95,11 +92,9 @@ class OrcaCalculation(CalcJob):
         # create ORCA input file
         self._write_input_file(self.inputs.parameters, folder, self._INPUT_FILE)
 
-        settings = self.inputs.settings.get_dict() if 'settings' in self.inputs else {}
-
         # create code info
         codeinfo = CodeInfo()
-        codeinfo.cmdline_params = settings.pop('cmdline', []) + [self._INPUT_FILE]
+        codeinfo.cmdline_params = [self._INPUT_FILE]
         codeinfo.stdout_name = self._OUTPUT_FILE
         codeinfo.join_files = True
         codeinfo.code_uuid = self.inputs.code.uuid
@@ -121,8 +116,7 @@ class OrcaCalculation(CalcJob):
                     calcinfo.local_copy_list.append((obj.uuid, obj.filename, obj.filename))
 
         # Retrieve list
-        calcinfo.retrieve_list = [self._OUTPUT_FILE, self._GBW_FILE, self._HESSIAN_FILE, self._RELAX_COORDS_FILE]
-        calcinfo.retrieve_list += settings.pop('additional_retrieve_list', [])
+        calcinfo.retrieve_list = [self._OUTPUT_FILE, self._HESSIAN_FILE, self._RELAX_COORDS_FILE]
         return calcinfo
 
     def _write_input_file(self, parameters: Dict, folder: Folder, filename: str) -> None:
