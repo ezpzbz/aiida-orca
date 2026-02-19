@@ -91,9 +91,9 @@ def generate_calc_job_node(aiida_localhost):
         entry_point = format_entry_point_string('aiida.calculations', entry_point_name)
 
         node = orm.CalcJobNode(computer=computer or aiida_localhost, process_type=entry_point)
-        node.set_attribute('input_filename', 'aiida.in')
-        node.set_attribute('output_filename', 'aiida.out')
-        node.set_attribute('error_filename', 'aiida.err')
+        node.base.attributes.set('input_filename', 'aiida.in')
+        node.base.attributes.set('output_filename', 'aiida.out')
+        node.base.attributes.set('error_filename', 'aiida.err')
         node.set_option('resources', {'num_machines': 1, 'num_mpiprocs_per_machine': 1})
         node.set_option('max_wallclock_seconds', 1800)
 
@@ -103,7 +103,7 @@ def generate_calc_job_node(aiida_localhost):
 
             for link_label, input_node in flatten_inputs(inputs):
                 input_node.store()
-                node.add_incoming(input_node, link_type=LinkType.INPUT_CALC, link_label=link_label)
+                node.base.links.add_incoming(input_node, link_type=LinkType.INPUT_CALC, link_label=link_label)
 
         node.store()
 
@@ -115,11 +115,11 @@ def generate_calc_job_node(aiida_localhost):
             retrieved = orm.FolderData()
             retrieved.put_object_from_tree(filepath_folder)
 
-            retrieved.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
+            retrieved.base.links.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
             retrieved.store()
 
             remote_folder = orm.RemoteData(computer=computer or aiida_localhost, remote_path='/tmp')
-            remote_folder.add_incoming(node, link_type=LinkType.CREATE, link_label='remote_folder')
+            remote_folder.base.links.add_incoming(node, link_type=LinkType.CREATE, link_label='remote_folder')
             remote_folder.store()
 
         return node

@@ -19,14 +19,14 @@ def test_orca_default(aiida_localhost, generate_calc_job_node, generate_parser, 
     assert 'relaxed_structure' in results
     assert 'output_parameters' in results
 
-    structure_attributes = results['relaxed_structure'].attributes
+    structure_attributes = results['relaxed_structure'].base.attributes.all
 
     # Pop the cell if it is there since float precision error can cause the ``data_regression`` comparison to fail
     structure_attributes.pop('cell', None)
 
     data_regression.check({
         'relaxed_structure': structure_attributes,
-        'output_parameters': results['output_parameters'].attributes,
+        'output_parameters': results['output_parameters'].base.attributes.all,
     })
 
 
@@ -45,7 +45,7 @@ def test_orca_tddft(aiida_localhost, generate_calc_job_node, generate_parser, ge
     assert 'output_parameters' in results
 
     data_regression.check({
-        'output_parameters': results['output_parameters'].attributes,
+        'output_parameters': results['output_parameters'].base.attributes.all,
     })
 
 
@@ -66,7 +66,7 @@ def test_orca_unrestricted(
     assert 'output_parameters' in results
 
     data_regression.check({
-        'output_parameters': results['output_parameters'].attributes,
+        'output_parameters': results['output_parameters'].base.attributes.all,
     })
 
 
@@ -87,14 +87,14 @@ def test_orca_unsuccessful(
     assert 'relaxed_structure' in results
     assert 'output_parameters' in results
 
-    structure_attributes = results['relaxed_structure'].attributes
+    structure_attributes = results['relaxed_structure'].base.attributes.all
 
     # Pop the cell if it is there, ORCA does not support periodic cell calculations
     structure_attributes.pop('cell', None)
 
     data_regression.check({
         'relaxed_structure': structure_attributes,
-        'output_parameters': results['output_parameters'].attributes,
+        'output_parameters': results['output_parameters'].base.attributes.all,
     })
 
 
