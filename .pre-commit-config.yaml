@@ -5,7 +5,6 @@ repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
     hooks:
-    -   id: double-quote-string-fixer
     -   id: end-of-file-fixer
         exclude: &exclude_pre_commit_hooks >
             (?x)^(
