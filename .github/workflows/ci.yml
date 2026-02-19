@@ -9,18 +9,10 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-        -   uses: actions/checkout@v3
-
-        -   name: Cache Python dependencies
-            uses: actions/cache@v3
-            with:
-                path: ~/.cache/pip
-                key: pip-pre-commit-${{ hashFiles('**/setup.json') }}
-                restore-keys:
-                    pip-pre-commit-
+        -   uses: actions/checkout@v6
 
         -   name: Set up Python
-            uses: actions/setup-python@v2
+            uses: actions/setup-python@v6
             with:
                 python-version: '3.10'
 
@@ -54,26 +46,15 @@ jobs:
                 -   5672:5672
 
         steps:
-        -   uses: actions/checkout@v3
-
-        -   name: Cache Python dependencies
-            uses: actions/cache@v3
-            with:
-                path: ~/.cache/pip
-                key: pip-${{ matrix.versions.python }}-tests-${{ hashFiles('**/setup.json') }}
-                restore-keys:
-                    pip-${{ matrix.versions.python }}-tests
+        -   uses: actions/checkout@v6
 
         -   name: Set up Python ${{ matrix.versions.python }}
-            uses: actions/setup-python@v3
+            uses: actions/setup-python@v6
             with:
                 python-version: ${{ matrix.versions.python }}
 
         -   name: Install Python dependencies
-            run: pip install -e .[test]
-
-        -   name: Install aiida-core ${{ matrix.versions.aiida-core }}
-            run: pip install aiida-core~=${{ matrix.versions.aiida-core }}
+            run: pip install -e .[test] aiida-core~=${{ matrix.versions.aiida-core }}
 
         -   name: Reentry scan
             if: ${{ startsWith(matrix.versions.aiida-core, '1.6') }}
@@ -84,7 +65,7 @@ jobs:
                 AIIDA_WARN_v3: True
             run: pytest --cov-report=xml --cov=./aiida_orca tests
         -   name: Upload coverage to codecov
-            uses: codecov/codecov-action@v2
+            uses: codecov/codecov-action@v5
             with:
                 token: ${{secrets.CODECOV_TOKEN}}
                 file: ./coverage.xml
