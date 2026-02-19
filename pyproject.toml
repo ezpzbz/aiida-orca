@@ -29,7 +29,7 @@ classifiers = [
 keywords = ["aiida", "orca"]
 requires-python = ">=3.9"
 dependencies = [
-    "aiida_core >= 1.6.0, <3.0.0",
+    "aiida-core~=2.0",
     "ase",
     "periodictable"
 ]

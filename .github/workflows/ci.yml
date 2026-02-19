@@ -75,10 +75,6 @@ jobs:
         -   name: Install Python dependencies
             run: uv pip install -e .[test] aiida-core~=${{ matrix.versions.aiida-core }}
 
-        -   name: Reentry scan
-            if: ${{ startsWith(matrix.versions.aiida-core, '1.6') }}
-            run: reentry scan
-
         -   name: Run pytest
             env:
                 AIIDA_WARN_v3: True

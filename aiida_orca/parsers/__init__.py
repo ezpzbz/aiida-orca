@@ -35,9 +35,7 @@ class OrcaBaseParser(Parser):
             return process_cls.exit_codes.ERROR_OUTPUT_STDOUT_MISSING
 
         try:
-            # Change this when we drop AiiDA 1.x support
-            # with self.retrieved.base.repository.open(fname_out) as handle:
-            with self.retrieved.open(fname_out) as handle:
+            with self.retrieved.base.repository.open(fname_out) as handle:
                 parsed_obj = ccread(handle)
                 parsed_dict = parsed_obj.getattributes()
         except Exception:  # pylint: disable=broad-except
@@ -81,16 +79,11 @@ class OrcaBaseParser(Parser):
         output_dict = _remove_nan(parsed_dict)
 
         if parsed_dict.get('optdone'):
-            # Change this when we drop AiiDA 1.x support
-            #with self.retrieved.base.repository.open(fname_relaxed) as handle:
-            with self.retrieved.open(fname_relaxed) as handle:
+            with self.retrieved.base.repository.open(fname_relaxed) as handle:
                 ase_structure = ase.io.read(handle, format='xyz', index=0)
             if not ase_structure:
                 self.logger.error(f'Could not read structure from output file {fname_relaxed}')
                 return self.exit_codes.ERROR_OUTPUT_PARSING
-            # Temporary hack to support AiiDA 1.x, which needs default cell
-            # even for non-periodic structures.
-            ase_structure.set_cell([1.0, 1.0, 1.0])  # type: ignore[union-attr]
             relaxed_structure = StructureData(ase=ase_structure)
             self.out('relaxed_structure', relaxed_structure)
 
