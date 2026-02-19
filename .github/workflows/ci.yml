@@ -33,8 +33,11 @@ jobs:
                 versions: [
                     {'python': '3.8', 'aiida-core': '1.6'},
                     {'python': '3.8', 'aiida-core': '2.0'},
-                    {'python': '3.9', 'aiida-core': '2.0'},
-                    {'python': '3.10', 'aiida-core': '2.0'},
+                    {'python': '3.9', 'aiida-core': '2.3'},
+                    {'python': '3.10', 'aiida-core': '2.4'},
+                    {'python': '3.11', 'aiida-core': '2.5'},
+                    {'python': '3.12', 'aiida-core': '2.6'},
+                    {'python': '3.13', 'aiida-core': '2.7'},
                 ]
 
         services:
