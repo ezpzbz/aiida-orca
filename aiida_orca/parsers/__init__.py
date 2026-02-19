@@ -31,7 +31,7 @@ class OrcaBaseParser(Parser):
         fname_out = process_cls._OUTPUT_FILE  # pylint: disable=protected-access
         fname_relaxed = process_cls._RELAX_COORDS_FILE  # pylint: disable=protected-access
 
-        if fname_out not in self.retrieved.list_object_names():
+        if fname_out not in self.retrieved.base.repository.list_object_names():
             return process_cls.exit_codes.ERROR_OUTPUT_STDOUT_MISSING
 
         try:

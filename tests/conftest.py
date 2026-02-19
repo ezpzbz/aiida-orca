@@ -113,7 +113,7 @@ def generate_calc_job_node(aiida_localhost):
             filepath_folder = os.path.join(basepath, 'parsers', 'fixtures', filename)
 
             retrieved = orm.FolderData()
-            retrieved.put_object_from_tree(filepath_folder)
+            retrieved.base.repository.put_object_from_tree(filepath_folder)
 
             retrieved.base.links.add_incoming(node, link_type=LinkType.CREATE, link_label='retrieved')
             retrieved.store()
