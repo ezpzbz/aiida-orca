@@ -2,6 +2,9 @@ name: ci
 
 on: [push, pull_request]
 
+env:
+  FORCE_COLOR: 1
+
 jobs:
 
     pre-commit:
@@ -16,8 +19,14 @@ jobs:
             with:
                 python-version: '3.10'
 
+        - name: Set up uv
+          uses: astral-sh/setup-uv@v7
+          with:
+            python-version: ${{ matrix.python-version }}
+            activate-environment: true
+
         -   name: Install Python dependencies
-            run: pip install -e .[pre-commit,test]
+            run: uv pip install -e .[pre-commit,test]
 
         -   name: Run pre-commit
             run: pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
@@ -56,8 +65,14 @@ jobs:
             with:
                 python-version: ${{ matrix.versions.python }}
 
+        - name: Set up uv
+          uses: astral-sh/setup-uv@v7
+          with:
+            python-version: ${{ matrix.python-version }}
+            activate-environment: true
+
         -   name: Install Python dependencies
-            run: pip install -e .[test] aiida-core~=${{ matrix.versions.aiida-core }}
+            run: uv pip install -e .[test] aiida-core~=${{ matrix.versions.aiida-core }}
 
         -   name: Reentry scan
             if: ${{ startsWith(matrix.versions.aiida-core, '1.6') }}
