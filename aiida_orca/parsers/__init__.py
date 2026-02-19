@@ -90,7 +90,7 @@ class OrcaBaseParser(Parser):
                 return self.exit_codes.ERROR_OUTPUT_PARSING
             # Temporary hack to support AiiDA 1.x, which needs default cell
             # even for non-periodic structures.
-            ase_structure.set_cell([1.0, 1.0, 1.0])
+            ase_structure.set_cell([1.0, 1.0, 1.0])  # type: ignore[union-attr]
             relaxed_structure = StructureData(ase=ase_structure)
             self.out('relaxed_structure', relaxed_structure)
 
