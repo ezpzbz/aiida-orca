@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """AiiDA-ORCA output parser"""
+import functools
 import pathlib
 import traceback
 
@@ -58,11 +59,23 @@ class OrcaBaseParser(Parser):
             Returns:
                 dict: Parsed dictionary without `NaN`
             """
+            nan_to_num = functools.partial(np.nan_to_num, nan=123456789, posinf=2e308, neginf=-2e308)
 
             for key, value in parsed_dictionary.items():
+
                 if isinstance(value, np.ndarray):
-                    non_nan_value = np.nan_to_num(value, nan=123456789, posinf=2e308, neginf=-2e308)
-                    parsed_dictionary.update({key: non_nan_value})
+                    parsed_dictionary.update({key: nan_to_num(value)})
+
+                # Sometimes we have a list of ndarrays
+                elif isinstance(value, list) and all(isinstance(v, np.ndarray) for v in value):
+                    parsed_dictionary.update({key: [nan_to_num(v) for v in value]})
+
+            return parsed_dictionary
+
+        def _cleanup_cclib_dict(parsed_dictionary: dict) -> dict:
+            """Transform values in cclib output dict that are not serializable by AiiDA"""
+
+            parsed_dictionary = _remove_nan(parsed_dictionary)
 
             # ORCA does not provide CI coefficients for full TDDFT calculations
             # without the TDA approximation, and cclib parser then returns NaNs in the 'etsecs' field.
@@ -74,9 +87,14 @@ class OrcaBaseParser(Parser):
                 )
                 del parsed_dictionary['etsecs']
 
+            # Convert datetime.timedelta objects into floats (using seconds as units)
+            for time_key in ('wall_time', 'cpu_time'):
+                if timedeltas := parsed_dictionary['metadata'].get(time_key):
+                    parsed_dictionary["metadata"][time_key] = [td.total_seconds() for td in timedeltas]
+
             return parsed_dictionary
 
-        output_dict = _remove_nan(parsed_dict)
+        output_dict = _cleanup_cclib_dict(parsed_dict)
 
         if parsed_dict.get('optdone'):
             with self.retrieved.base.repository.open(fname_relaxed) as handle:
