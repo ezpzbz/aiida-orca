@@ -18,12 +18,14 @@ else:
     def aiida_code_installed(aiida_local_code_factory):
         """Compatibility shim with the new aiida pytest fixtures"""
 
-        def _code(filepath_executable, default_calc_job_plugin, label=None):
+        def _code(filepath_executable='/bin/bash', default_calc_job_plugin=None, label=None):
             return aiida_local_code_factory(
                 executable=filepath_executable,
                 entry_point=default_calc_job_plugin,
                 label=label,
             )
+
+        return _code
 
 
 def recursive_merge(left: dict[t.Any, t.Any], right: dict[t.Any, t.Any]) -> None:
@@ -193,7 +195,7 @@ def generate_inputs_orca(aiida_code_installed, generate_structure):
         }
 
         base_inputs = {
-            'code': aiida_code_installed('orca.orca', '/bin/bash'),
+            'code': aiida_code_installed(default_calcjob_plugin='orca.orca', filepath_executable='/bin/bash'),
             'structure': generate_structure,
             'parameters': Dict(dict=parameters),
             'metadata': {
@@ -202,9 +204,9 @@ def generate_inputs_orca(aiida_code_installed, generate_structure):
                         'num_machines': 1,
                         'num_mpiprocs_per_machine': 1,
                     },
-                    'max_wallclock_seconds': 1800
+                    'max_wallclock_seconds': 1800,
                 }
-            }
+            },
         }
 
         recursive_merge(base_inputs, inputs or {})
