@@ -195,7 +195,7 @@ def generate_inputs_orca(aiida_code_installed, generate_structure):
         }
 
         base_inputs = {
-            'code': aiida_code_installed(default_calcjob_plugin='orca.orca', filepath_executable='/bin/bash'),
+            'code': aiida_code_installed(default_calc_job_plugin='orca.orca', filepath_executable='/bin/bash'),
             'structure': generate_structure,
             'parameters': Dict(dict=parameters),
             'metadata': {
