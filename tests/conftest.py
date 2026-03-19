@@ -5,9 +5,25 @@ from __future__ import annotations
 
 import typing as t
 
+from aiida import __version__ as aiida_version
+from packaging.version import Version
 import pytest
 
-pytest_plugins = ['aiida.tools.pytest_fixtures']  # pylint: disable=invalid-name
+if Version(aiida_version) >= Version('2.6.0'):
+    pytest_plugins = ['aiida.tools.pytest_fixtures']  # pylint: disable=invalid-name
+else:
+    pytest_plugins = ['aiida.manage.tests.pytest_fixtures']  # pylint: disable=invalid-name
+
+    @pytest.fixture
+    def aiida_code_installed(aiida_local_code_factory):
+        """Compatibility shim with the new aiida pytest fixtures"""
+
+        def _code(filepath_executable, default_calc_job_plugin, label=None):
+            return aiida_local_code_factory(
+                executable=filepath_executable,
+                entry_point=default_calc_job_plugin,
+                label=label,
+            )
 
 
 def recursive_merge(left: dict[t.Any, t.Any], right: dict[t.Any, t.Any]) -> None:
