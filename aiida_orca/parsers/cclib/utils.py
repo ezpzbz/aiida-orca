@@ -3,8 +3,14 @@
 # This file is part of cclib (http://cclib.github.io) and is distributed under
 # the terms of the BSD 3-Clause License.
 #
-# This is a copy to be used as part of aiida-orca package.
-# This file is based on the `cclib/parser/utils.py` from commit 263928e9
+# This is a lightly modified copy to be used as part of aiida-orca package.
+# This file is based on the `cclib/parser/utils.py` from commit 263928e9.
+# The original file is preserved here as utils.py.orig
+#
+# Notable changes:
+# - removed unused `get_rotation` function (and the corresponding scipy import)
+# - removed unused `find_package` function
+# - inlined periodictable import
 
 """Utilities often used by cclib parsers and scripts"""
 
@@ -14,19 +20,6 @@ from math import sqrt
 from typing import List, Sequence
 
 import numpy
-import periodictable
-import scipy.spatial
-
-
-def find_package(package: str) -> bool:
-    """Check if a package exists without importing it.
-
-    Derived from https://stackoverflow.com/a/14050282
-    """
-    from importlib.util import find_spec
-
-    module_spec = find_spec(package)
-    return module_spec is not None and module_spec.loader is not None
 
 
 def symmetrize(m: numpy.ndarray, use_triangle: str = "lower") -> numpy.ndarray:
@@ -133,44 +126,6 @@ def _get_rmat_from_vecs(a, b):
     return rmat
 
 
-def get_rotation(a, b):
-    """Get rotation part for transforming a to b, where a and b are same positions with different orientations
-    If one atom positions, i.e (1,3) shape array, are given, it returns identify transformation
-
-    Args:
-        a (numpy.ndarray): positions with shape(N,3)
-        b (numpy.ndarray): positions with shape(N,3)
-    Returns:
-        A scipy.spatial.transform.Rotation object
-    """
-
-    assert a.shape == b.shape
-    if a.shape[0] == 1:
-        return scipy.spatial.transform.Rotation.from_euler("xyz", [0, 0, 0])
-    # remove translation part
-    a_ = a - a[0]
-    b_ = b - b[0]
-    if hasattr(scipy.spatial.transform.Rotation, "align_vectors"):
-        r, _ = scipy.spatial.transform.Rotation.align_vectors(b_, a_)
-    else:
-        if numpy.linalg.matrix_rank(a_) == 1:
-            # in the case of linear molecule, e.g. O2, C2H2
-            idx = numpy.argmax(numpy.linalg.norm(a_, ord=2, axis=1))
-            rmat = _get_rmat_from_vecs(a_[idx], b_[idx])
-            r = scipy.spatial.transform.Rotation.from_dcm(rmat)
-        else:
-            # scipy.spatial.transform.Rotation.match_vectors has bug
-            # Kabsch Algorithm
-            cov = numpy.dot(b_.T, a_)
-            V, S, W = numpy.linalg.svd(cov)
-            if (numpy.linalg.det(V) * numpy.linalg.det(W)) < 0.0:
-                S[-1] = -S[-1]
-                V[:, -1] = -V[:, -1]
-            rmat = numpy.dot(V, W)
-            r = scipy.spatial.transform.Rotation.from_dcm(rmat)
-    return r
-
-
 def skip_until_no_match(inputfile, regex):
     """Skip lines that match a regex. First non-matching line is returned.
 
@@ -193,6 +148,8 @@ class PeriodicTable:
     """Allows conversion between element name and atomic no."""
 
     def __init__(self) -> None:
+        import periodictable
+
         self.element = [None]
         self.number = {}
 
