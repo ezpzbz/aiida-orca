@@ -7,7 +7,7 @@ import typing as t
 
 import pytest
 
-pytest_plugins = ['aiida.manage.tests.pytest_fixtures']  # pylint: disable=invalid-name
+pytest_plugins = ['aiida.tools.pytest_fixtures']  # pylint: disable=invalid-name
 
 
 def recursive_merge(left: dict[t.Any, t.Any], right: dict[t.Any, t.Any]) -> None:
@@ -154,7 +154,7 @@ def generate_structure():
 
 
 @pytest.fixture
-def generate_inputs_orca(aiida_local_code_factory, generate_structure):
+def generate_inputs_orca(aiida_code_installed, generate_structure):
     """Generate default inputs for an ``OrcaCalculation``."""
 
     def factory(inputs=None):
@@ -177,7 +177,7 @@ def generate_inputs_orca(aiida_local_code_factory, generate_structure):
         }
 
         base_inputs = {
-            'code': aiida_local_code_factory('orca.orca', '/bin/bash'),
+            'code': aiida_code_installed('orca.orca', '/bin/bash'),
             'structure': generate_structure,
             'parameters': Dict(dict=parameters),
             'metadata': {
