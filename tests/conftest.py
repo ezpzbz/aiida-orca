@@ -165,11 +165,11 @@ def generate_inputs_orca(aiida_code_installed, generate_structure):
             'charge': 0,
             'multiplicity': 1,
             'input_blocks': {
-                'scf': {
-                    'convergence': 'tight',
-                },
                 'pal': {
                     'nproc': 1,
+                },
+                'scf': {
+                    'convergence': 'tight',
                 }
             },
             'input_keywords': ['PBE', 'SV(P)', 'Opt'],
