@@ -120,6 +120,7 @@ testpaths = [
 ]
 filterwarnings = [
     'ignore:Creating AiiDA configuration folder.*:UserWarning',
+    'ignore:Object of type <DbNode> not in session, add operation along .* will not proceed:sqlalchemy.exc.SAWarning:aiida',
 ]
 
 [[tool.mypy.overrides]]
