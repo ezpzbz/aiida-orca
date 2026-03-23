@@ -107,6 +107,7 @@ output_parameters:
   - 4
   - 3
   metadata:
+    basis_set: STO-3G
     coord_type: xyz
     coords:
     - - C
@@ -129,6 +130,8 @@ output_parameters:
       - 5.51243226
       - 6.682387
       - 5.0
+    cpu_time:
+    - 4.176
     info:
     - the flag for use of the SHARK integral package has been found!
     input_file_contents: "! STO-3G PBE OPT MINIPRINT LOOSEOPT\n\n%geom\n  MaxIter\
@@ -144,10 +147,16 @@ output_parameters:
     - MINIPRINT
     - LOOSEOPT
     legacy_package_version: 5.0.3
-    methods: []
+    memory_used: 9000000
+    methods:
+    - HF
+    - HF
+    num_cpu: 1
     package: ORCA
     package_version: 5.0.3
     success: true
+    wall_time:
+    - 4.176
     warnings:
     - Old DensityContainer found on disk!Will remove this file -If you want to keep
       old densities, please start your calculation with a different basename.
@@ -155,28 +164,28 @@ output_parameters:
     - Geometry OptimizationSwitching off AutoStartFor restart on a previous wavefunction,
       please use MOREAD
   moenergies:
-  - - -277.07704386481
-    - -27.999399549663
-    - -20.782069470081
-    - -19.921754320341
-    - -19.921727108956
-    - -0.74545589344475
-    - -0.22348710541565
-    - -0.22348710541565
-    - 0.87160787453655
-  - - -276.89178875539
-    - -27.003871027609
-    - -19.339294623345
-    - -19.339294623345
-    - -18.986145268166
-    - 0.42376289938365
-    - 0.42376289938365
-    - 0.85936275126405
-    - 1.8227002048042
+  - - -10.182394
+    - -1.028959
+    - -0.763727
+    - -0.732111
+    - -0.73211
+    - -0.027395
+    - -0.008213
+    - -0.008213
+    - 0.032031
+  - - -10.175586
+    - -0.992374
+    - -0.710706
+    - -0.710706
+    - -0.697728
+    - 0.015573
+    - 0.015573
+    - 0.031581
+    - 0.066983
   moments:
-  - - 0.0
-    - 0.0
-    - 0.0
+  - - 10.668429
+    - 10.979212
+    - 10.664612
   - - 0.0001016698492
     - -5.08349246e-05
     - 0.0
@@ -201,6 +210,9 @@ output_parameters:
     - A
   natom: 5
   optdone: false
+  optstatus:
+  - 1
+  - 0
   scfenergies:
   - -1073.8033008331
   - -1074.7870264169

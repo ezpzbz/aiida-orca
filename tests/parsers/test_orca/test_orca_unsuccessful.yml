@@ -172,6 +172,7 @@ output_parameters:
   homos:
   - 4
   metadata:
+    basis_set: STO-3G
     coord_type: xyzfile
     coords: []
     info:
@@ -186,7 +187,13 @@ output_parameters:
     - TightOpt
     - AnFreq
     legacy_package_version: 5.0.3
-    methods: []
+    memory_used: 47400000
+    methods:
+    - DFT
+    - DFT
+    - DFT
+    - DFT
+    num_cpu: 1
     package: ORCA
     package_version: 5.0.3
     success: false
@@ -204,9 +211,9 @@ output_parameters:
     - 11.048584249081
     - 11.859837271577
   moments:
-  - - 0.0
-    - 0.0
-    - 0.0
+  - - 10.668426
+    - 10.979214
+    - 10.66461
   - - -0.0
     - 0.0
     - 0.0
@@ -225,6 +232,10 @@ output_parameters:
   nbasis: 9
   nmo: 9
   optdone: true
+  optstatus:
+  - 1
+  - 0
+  - 4
   pressure: 1.0
   scfenergies:
   - -1087.5769243392

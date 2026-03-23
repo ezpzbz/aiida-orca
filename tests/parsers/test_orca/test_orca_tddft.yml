@@ -72,8 +72,12 @@ output_parameters:
   homos:
   - 4
   metadata:
+    basis_set: def2-SVP
     coord_type: xyzfile
     coords: []
+    cpu_time:
+    - 4.112
+    excited_states_method: TD-DFT
     info:
     - Checking CIS options ...
     - Since TDDFT/CIS Mode == RPA_AOINTS, the TAMMDANCOFF/TDA keyword is ignored.
@@ -87,10 +91,20 @@ output_parameters:
     - CPCM(Water)
     - PBE
     legacy_package_version: 5.0.3
-    methods: []
+    memory_available: 3000000000
+    memory_used: 43100000
+    methods:
+    - DFT
+    num_cpu: 1
     package: ORCA
     package_version: 5.0.3
+    solvent_model: CPCM
+    solvent_params:
+      epsilon: 80.4
+      refractive_index: 1.33
     success: true
+    wall_time:
+    - 4.112
     warnings: []
   moenergies:
   - - -268.76325823602
@@ -128,9 +142,9 @@ output_parameters:
     - 77.152385609495
     - 77.15241282088
   moments:
-  - - 0.0
-    - 0.0
-    - 0.0
+  - - 10.668422
+    - 10.97922
+    - 10.664615
   - - -0.0001270873115
     - -0.0001016698492
     - -5.08349246e-05
