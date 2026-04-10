@@ -1395,7 +1395,8 @@ Dispersion correction           -0.016199959
                         # Must be spin forbidden and thus no intensity
                         energy = utils.float(line.split()[1])
                         intensity = 0
-                    energy = utils.convertor(energy, "wavenumber", "hartree")
+                    # DH TO_BE_REVERTED
+                    #energy = utils.convertor(energy, "wavenumber", "hartree")
                     return energy, intensity
 
             elif (
@@ -1426,9 +1427,11 @@ Dispersion correction           -0.016199959
                         tz,
                     ) = line.split()
 
-                    energy = utils.convertor(
-                        utils.float(energy_wavenumber), "wavenumber", "hartree"
-                    )
+                    # DH TO_BE_REVERTED
+                    energy = utils.float(energy_wavenumber)
+                    #energy = utils.convertor(
+                    #    utils.float(energy_wavenumber), "wavenumber", "hartree"
+                    #)
                     return energy, utils.float(intensity)
 
             # Check for variations
@@ -1459,7 +1462,8 @@ Dispersion correction           -0.016199959
                         m2_contrib,
                         q2_contrib,
                     ) = (utils.float(x) for x in line.split())
-                    energy = utils.convertor(energy, "wavenumber", "hartree")
+                    # DH TO_BE_REVERTED
+                    #energy = utils.convertor(energy, "wavenumber", "hartree")
                     return energy, intensity
 
             elif (
@@ -1478,7 +1482,9 @@ Dispersion correction           -0.016199959
                        1 61784150.6      0.2      0.00000         0.00000         3.23572         0.00000         0.00000         0.00000323571519         0.00000         0.00000         1.00000         0.00000          0.00000
                        2 61793079.3      0.2      0.00000         0.00000         2.85949         0.00000        -0.00000         0.00000285948800         0.00000         0.00000         1.00000         0.00000         -0.00000"""
                     vals = [utils.float(x) for x in line.split()]
-                    energy = utils.convertor(vals[1], "wavenumber", "hartree")
+                    # DH TO_BE_REVERTED
+                    energy = vals[1]
+                    # energy = utils.convertor(vals[1], "wavenumber", "hartree")
                     if len(vals) < 14:
                         return energy, 0
                     return energy, vals[8]
@@ -1550,7 +1556,8 @@ Dispersion correction           -0.016199959
                     state, state2, energy, wavelength, intensity, t2, tx, ty, tz = (
                         utils.float(x) for x in line.split()
                     )
-                    energy = utils.convertor(energy, "wavenumber", "hartree")
+                    # DH TO_BE_REVERTED
+                    # energy = utils.convertor(energy, "wavenumber", "hartree")
                     return energy, intensity
 
             elif line[
@@ -1581,7 +1588,9 @@ Dispersion correction           -0.016199959
                         ty,
                         tz,
                     ) = line.split()
-                    energy = utils.convertor(float(wavenumber), "wavenumber", "hartree")
+                    # DH: TO_BE_REVERTED
+                    # energy = utils.convertor(float(wavenumber), "wavenumber", "hartree")
+                    energy = float(wavenumber)
                     return energy, float(intensity)
 
             elif (
@@ -1614,7 +1623,8 @@ Dispersion correction           -0.016199959
                         m2_contrib,
                         q2_contrib,
                     ) = (utils.float(x) for x in line.split())
-                    energy = utils.convertor(energy, "wavenumber", "hartree")
+                    # DH: TO_BE_REVERTED
+                    # energy = utils.convertor(energy, "wavenumber", "hartree")
                     return energy, intensity
 
             elif (
@@ -1650,7 +1660,9 @@ Dispersion correction           -0.016199959
                         m2_contrib,
                         q2_contrib,
                     ) = line.split()
-                    energy = utils.convertor(float(wavenumber), "wavenumber", "hartree")
+                    # DH: TO_BE_REVERTED
+                    # energy = utils.convertor(float(wavenumber), "wavenumber", "hartree")
+                    energy = float(wavenumber)
                     return energy, float(intensity)
 
             # Clashes with Orca 2.6 (and presumably before) TDDFT absorption spectrum printing
@@ -1685,7 +1697,9 @@ Dispersion correction           -0.016199959
                         ty,
                         tz,
                     ) = res.groups()
-                    energy = utils.convertor(utils.float(energy), "wavenumber", "hartree")
+                    # DH: TO_BE_REVERTED
+                    #energy = utils.convertor(utils.float(energy), "wavenumber", "hartree")
+                    energy = float(energy)
                     return energy, intensity
 
             name = line
