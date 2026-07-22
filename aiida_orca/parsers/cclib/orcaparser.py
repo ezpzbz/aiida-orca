@@ -6,6 +6,18 @@
 #
 # It is modified to be used as part of aiida-orca package.
 """Parser for ORCA output files"""
+# ORCA 6 support status: the standard TDDFT "ABSORPTION SPECTRUM VIA TRANSITION
+# ELECTRIC DIPOLE MOMENTS" table format change is handled below (see `self.version`
+# checks), verified with synthetic snippet tests since no real ORCA 6 log fixtures
+# are available yet (tests/parsers/test_orca6_format.py).
+#
+# Known NOT-yet-ported ORCA 6 changes (see github.com/ezpzbz/aiida-orca PR #79 for a
+# community reference patch): the new "SOC CORRECTED ABSORPTION SPECTRUM VIA
+# TRANSITION" section, ORCA 6 reordering excited states by energy in spectrum
+# sections (needs a `sort_et()`-style fix-up), and a stray "Calculating
+# Transition_Moments" line in the CD SPECTRUM block. These are deeper, interdependent
+# changes to excited-state bookkeeping that need real ORCA 6 output to validate
+# safely; land them as a follow-up once fixtures are available.
 
 import re
 from itertools import zip_longest
@@ -23,6 +35,9 @@ class ORCA(logfileparser.Logfile):
     """An ORCA log file."""
     def __init__(self, *args, **kwargs):
         super().__init__(logname='ORCA', *args, **kwargs)
+        # Overwritten once the "Program Version" line is parsed; defaults to
+        # a very old version so pre-parsing accesses fall back to legacy behavior.
+        self.version = (0, 0)
 
     def __str__(self):
         """Return a string representation of the object."""
@@ -85,6 +100,10 @@ class ORCA(logfileparser.Logfile):
             if 'SVN: $Rev' in possible_revision_line:
                 version = re.search(r'\d+', possible_revision_line).group()
                 self.metadata['package_version'] += f'+{version}'
+            # Cache the parsed (major, minor, ...) version tuple for comparisons
+            # such as `self.version >= (6, 0)`, used to branch on ORCA-6-specific
+            # output format changes.
+            self.version = parse_version(self.metadata['package_version']).release
 
         # ================================================================================
         #                                         WARNINGS
@@ -1184,7 +1203,7 @@ Dispersion correction           -0.016199959
             header = ['d', 'header', 'header', 'd']
             energy_intensity = None
 
-            if line == 'ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS':
+            if line == 'ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS' and self.version < (6, 0):
 
                 def energy_intensity(line):
                     """ TDDFT and related methods standard method of output
@@ -1202,6 +1221,31 @@ State   Energy  Wavelength   fosc         T2         TX        TY        TZ
                     except ValueError as e:
                         # Must be spin forbidden and thus no intensity
                         energy = line.split()[1]
+                        intensity = 0
+                    return energy, intensity
+
+            # ORCA 6 renamed/restructured this table: an alphanumeric "Transition"
+            # column (e.g. "0-1Ag -> 1-3Bu") replaces the plain integer "State" column,
+            # a separate eV energy column was added, and moment columns are now
+            # labelled D2/DX/DY/DZ instead of T2/TX/TY/TZ.
+            elif line == 'ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS' and self.version >= (6, 0):
+
+                def energy_intensity(line):
+                    """ ORCA 6 standard method of output
+----------------------------------------------------------------------------------------------------
+ ABSORPTION SPECTRUM VIA TRANSITION ELECTRIC DIPOLE MOMENTS
+----------------------------------------------------------------------------------------------------
+     Transition      Energy     Energy  Wavelength fosc(D2)      D2        DX        DY        DZ
+                      (eV)      (cm-1)    (nm)                 (au**2)    (au)      (au)      (au)
+----------------------------------------------------------------------------------------------------
+  0-1Ag ->  1-3Bu   3.129277   25239.3   396.2   0.000000000   0.00000   0.00000   0.00000   0.00000
+"""
+                    fields = line.split()
+                    try:
+                        _state1, _arrow, _state2, _energy_ev, energy, wavelength, intensity, d2, dx, dy, dz = fields
+                    except ValueError:
+                        # Must be spin forbidden and thus no intensity
+                        energy = fields[4]
                         intensity = 0
                     return energy, intensity
 
