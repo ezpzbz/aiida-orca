@@ -38,9 +38,10 @@ jobs:
             fail-fast: false
             matrix:
                 versions: [
-                    {'python': '3.9', 'aiida-core': '2.1'},
-                    {'python': '3.10', 'aiida-core': '2.1'},
                     {'python': '3.11', 'aiida-core': '2.1'},
+                    {'python': '3.12', 'aiida-core': '2.1'},
+                    {'python': '3.13', 'aiida-core': '2.1'},
+                    {'python': '3.14', 'aiida-core': '2.1'},
                 ]
 
         services:

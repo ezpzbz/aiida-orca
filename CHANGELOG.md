@@ -7,7 +7,8 @@
 - Dropped support for AiiDA 1.x. `aiida-orca` now requires `aiida-core>=2.1,<3`.
   Existing installations pinned to AiiDA 1.x must upgrade AiiDA before
   upgrading this package.
-- Dropped support for Python 3.8; now requires Python `>=3.9`.
+- Dropped support for Python 3.8-3.10; now requires Python `>=3.11` (tested
+  against 3.11-3.14).
 - **Reinstall required**: the build backend changed from `flit_core` to
   `hatchling`. Existing editable (`pip install -e .`) installs may have stale
   entry-point metadata after pulling this change — reinstall (`uv sync` or

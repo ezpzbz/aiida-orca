@@ -7,7 +7,7 @@ inputs:
         default: "3.11"
     uv-version:
         description: "uv version to use"
-        default: "0.4.29"
+        default: "0.11.21"
 
 runs:
     using: "composite"
@@ -16,7 +16,7 @@ runs:
         with:
             python-version: ${{ inputs.python-version }}
 
-    -   uses: astral-sh/setup-uv@v3
+    -   uses: astral-sh/setup-uv@v6
         with:
             version: ${{ inputs.uv-version }}
             enable-cache: true

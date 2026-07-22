@@ -19,14 +19,15 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering"
 ]
 
 keywords = ["aiida", "orca"]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "aiida-core>=2.1,<3",
     "ase",
@@ -72,7 +73,7 @@ path = "aiida_orca/__init__.py"
 packages = ["aiida_orca"]
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py311"
 line-length = 120
 fix = true
 extend-exclude = ["aiida_orca/parsers/cclib"]
