@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
 """Run Opt and Numerical Freq Calculation using AiiDA-Orca"""
+
 import os
 import sys
-import click
-import pytest
 
 import ase.io
-
-from aiida.engine import run_get_pk
-from aiida.orm import Code, StructureData
+import click
+import pytest
 from aiida.common import NotExistent
+from aiida.engine import run_get_pk
+from aiida.orm import StructureData, load_code
 from aiida.plugins import CalculationFactory
 
-OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-name
+OrcaCalculation = CalculationFactory('orca.orca')  # pylint: disable = invalid-name
 
 
 def example_opt_numfreq(orca_code, nproc, submit=True):
@@ -79,7 +78,7 @@ def example_opt_numfreq(orca_code, nproc, submit=True):
 def cli(codelabel, nproc, submit):
     """Click interface"""
     try:
-        code = Code.get_from_string(codelabel)
+        code = load_code(codelabel)
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)

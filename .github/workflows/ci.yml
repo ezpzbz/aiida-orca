@@ -1,34 +1,36 @@
 name: ci
 
-on: [push, pull_request]
+on:
+    push:
+        branches: [develop]
+    pull_request:
 
 jobs:
 
-    pre-commit:
+    quality:
 
         runs-on: ubuntu-latest
 
         steps:
-        -   uses: actions/checkout@v3
+        -   uses: actions/checkout@v7
 
-        -   name: Cache Python dependencies
-            uses: actions/cache@v3
-            with:
-                path: ~/.cache/pip
-                key: pip-pre-commit-${{ hashFiles('**/setup.json') }}
-                restore-keys:
-                    pip-pre-commit-
+        -   uses: ./.github/actions/setup-python-env
 
-        -   name: Set up Python
-            uses: actions/setup-python@v2
-            with:
-                python-version: '3.10'
+        -   name: Check uv.lock is up to date
+            run: uv lock --locked
 
-        -   name: Install Python dependencies
-            run: pip install -e .[pre-commit,test]
+        -   name: Run ruff
+            run: |
+                uv run ruff check .
+                uv run ruff format --check .
 
-        -   name: Run pre-commit
-            run: pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
+        -   name: Run mypy
+            run: >
+                uv run mypy
+                aiida_orca/calculations/orca_orca.py
+                aiida_orca/parsers/__init__.py
+                aiida_orca/utils/input_generator.py
+                aiida_orca/workchains/base.py
 
     tests:
 
@@ -39,10 +41,10 @@ jobs:
             fail-fast: false
             matrix:
                 versions: [
-                    {'python': '3.8', 'aiida-core': '1.6'},
-                    {'python': '3.8', 'aiida-core': '2.0'},
-                    {'python': '3.9', 'aiida-core': '2.0'},
-                    {'python': '3.10', 'aiida-core': '2.0'},
+                    {'python': '3.11', 'aiida-core': '2.1'},
+                    {'python': '3.12', 'aiida-core': '2.1'},
+                    {'python': '3.13', 'aiida-core': '2.1'},
+                    {'python': '3.14', 'aiida-core': '2.1'},
                 ]
 
         services:
@@ -54,37 +56,22 @@ jobs:
                 -   5672:5672
 
         steps:
-        -   uses: actions/checkout@v3
+        -   uses: actions/checkout@v7
 
-        -   name: Cache Python dependencies
-            uses: actions/cache@v3
-            with:
-                path: ~/.cache/pip
-                key: pip-${{ matrix.versions.python }}-tests-${{ hashFiles('**/setup.json') }}
-                restore-keys:
-                    pip-${{ matrix.versions.python }}-tests
-
-        -   name: Set up Python ${{ matrix.versions.python }}
-            uses: actions/setup-python@v3
+        -   uses: ./.github/actions/setup-python-env
             with:
                 python-version: ${{ matrix.versions.python }}
 
-        -   name: Install Python dependencies
-            run: pip install -e .[test]
-
         -   name: Install aiida-core ${{ matrix.versions.aiida-core }}
-            run: pip install aiida-core~=${{ matrix.versions.aiida-core }}
-
-        -   name: Reentry scan
-            if: ${{ startsWith(matrix.versions.aiida-core, '1.6') }}
-            run: reentry scan
+            run: uv pip install "aiida-core~=${{ matrix.versions.aiida-core }}"
 
         -   name: Run pytest
             env:
                 AIIDA_WARN_v3: True
-            run: pytest --cov-report=xml --cov=./aiida_orca tests
+            run: uv run pytest --cov-report=xml --cov=./aiida_orca tests
+
         -   name: Upload coverage to codecov
-            uses: codecov/codecov-action@v2
+            uses: codecov/codecov-action@v7
             with:
                 token: ${{secrets.CODECOV_TOKEN}}
                 file: ./coverage.xml

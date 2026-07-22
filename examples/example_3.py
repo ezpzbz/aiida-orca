@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
 """Run restart numerical Freq Calculation using AiiDA-Orca"""
+
 import sys
+
 import click
 import pytest
-
-from aiida.engine import run_get_pk
-from aiida.orm import load_node, Code, SinglefileData
 from aiida.common import NotExistent
+from aiida.engine import run_get_pk
+from aiida.orm import SinglefileData, load_code, load_node
 from aiida.plugins import CalculationFactory
 
 OrcaCalculation = CalculationFactory('orca.orca')
@@ -38,7 +38,7 @@ def example_restart_anfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
             'freq': {
                 'restart': 'True',
                 'temp': 273,
-            }
+            },
         },
         'input_keywords': ['RKS', 'BP', 'STO-3G'],
         'extra_input_keywords': ['AnFreq'],
@@ -84,7 +84,7 @@ def example_restart_anfreq(orca_code, nproc, submit=True, freq_calc_pk=None):
 def cli(codelabel, nproc, previous_calc, submit):
     """Click interface"""
     try:
-        code = Code.get_from_string(codelabel)
+        code = load_code(codelabel)
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)

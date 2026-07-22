@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Functions for rendering ORCA input files"""
 
 
@@ -23,7 +22,7 @@ def render_orca_input(params: dict) -> str:
         output.append(f'! {" ".join(extra_keywords)}')
 
     if blocks := params.get('input_blocks'):
-        for key in blocks.keys():
+        for key in blocks:
             output.append(f'%{key} ')
             for keyword, val in blocks[key].items():
                 if val is None:
