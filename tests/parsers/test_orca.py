@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for the :class:`aiida_orca.parsers.OrcaBaseParser` parser."""
 
 from aiida_orca.calculations import OrcaCalculation
@@ -24,10 +23,12 @@ def test_orca_default(aiida_localhost, generate_calc_job_node, generate_parser, 
     # Pop the cell if it is there since float precision error can cause the ``data_regression`` comparison to fail
     structure_attributes.pop('cell', None)
 
-    data_regression.check({
-        'relaxed_structure': structure_attributes,
-        'output_parameters': results['output_parameters'].attributes,
-    })
+    data_regression.check(
+        {
+            'relaxed_structure': structure_attributes,
+            'output_parameters': results['output_parameters'].attributes,
+        }
+    )
 
 
 def test_orca_tddft(aiida_localhost, generate_calc_job_node, generate_parser, generate_inputs_orca, data_regression):
@@ -44,9 +45,11 @@ def test_orca_tddft(aiida_localhost, generate_calc_job_node, generate_parser, ge
     assert calcfunction.is_finished_ok, calcfunction.exit_message
     assert 'output_parameters' in results
 
-    data_regression.check({
-        'output_parameters': results['output_parameters'].attributes,
-    })
+    data_regression.check(
+        {
+            'output_parameters': results['output_parameters'].attributes,
+        }
+    )
 
 
 def test_orca_unrestricted(
@@ -65,9 +68,11 @@ def test_orca_unrestricted(
     assert calcfunction.is_finished_ok, calcfunction.exit_message
     assert 'output_parameters' in results
 
-    data_regression.check({
-        'output_parameters': results['output_parameters'].attributes,
-    })
+    data_regression.check(
+        {
+            'output_parameters': results['output_parameters'].attributes,
+        }
+    )
 
 
 def test_orca_unsuccessful(
@@ -92,10 +97,12 @@ def test_orca_unsuccessful(
     # Pop the cell if it is there, ORCA does not support periodic cell calculations
     structure_attributes.pop('cell', None)
 
-    data_regression.check({
-        'relaxed_structure': structure_attributes,
-        'output_parameters': results['output_parameters'].attributes,
-    })
+    data_regression.check(
+        {
+            'relaxed_structure': structure_attributes,
+            'output_parameters': results['output_parameters'].attributes,
+        }
+    )
 
 
 def test_orca_missing_stdout(aiida_localhost, generate_calc_job_node, generate_parser, generate_inputs_orca):

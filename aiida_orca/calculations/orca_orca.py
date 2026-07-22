@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """AiiDA-ORCA plugin -- Main Calculations"""
 
-from aiida.engine import CalcJob
-from aiida.orm import Dict, SinglefileData, StructureData, to_aiida_type
 from aiida.common import CalcInfo, CodeInfo
 from aiida.common.folders import Folder
+from aiida.engine import CalcJob
+from aiida.orm import Dict, SinglefileData, StructureData, to_aiida_type
 
 from aiida_orca.utils import render_orca_input
 
@@ -30,7 +29,7 @@ class OrcaCalculation(CalcJob):
 
     @classmethod
     def define(cls, spec):
-        super(OrcaCalculation, cls).define(spec)
+        super().define(spec)
 
         # Input parameters
         spec.input('structure', valid_type=StructureData, required=True, help='Input structure')
@@ -39,14 +38,14 @@ class OrcaCalculation(CalcJob):
             valid_type=Dict,
             serializer=to_aiida_type,
             required=True,
-            help='Input parameters to generate the input file.'
+            help='Input parameters to generate the input file.',
         )
         spec.input_namespace(
             'file',
             valid_type=SinglefileData,
             required=False,
             help='Additional input files like gbw or hessian',
-            dynamic=True
+            dynamic=True,
         )
 
         # Specify default parser
@@ -64,7 +63,7 @@ class OrcaCalculation(CalcJob):
         spec.exit_code(
             302,
             'ERROR_OUTPUT_STDOUT_MISSING',
-            message='The retrieved folder did not contain the required stdout output file.'
+            message='The retrieved folder did not contain the required stdout output file.',
         )
         spec.exit_code(
             303, 'ERROR_CALCULATION_UNSUCCESSFUL', message='The ORCA calculation did not finish succesfully.'

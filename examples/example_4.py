@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
 """Run a simple TDDFT Calculation using AiiDA-Orca"""
 
 import sys
+
 import click
 import pytest
-
-from aiida.engine import run_get_pk
-from aiida.orm import load_node, Code, SinglefileData
 from aiida.common import NotExistent
+from aiida.engine import run_get_pk
+from aiida.orm import SinglefileData, load_code, load_node
 from aiida.plugins import CalculationFactory
 
-OrcaCalculation = CalculationFactory('orca.orca')  #pylint: disable = invalid-name
+OrcaCalculation = CalculationFactory('orca.orca')  # pylint: disable = invalid-name
 
 
 def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
@@ -81,7 +80,7 @@ def example_simple_tddft(orca_code, nproc, submit=True, opt_calc_pk=None):
 def cli(codelabel, nproc, previous_calc, submit):
     """Click interface"""
     try:
-        code = Code.get_from_string(codelabel)
+        code = load_code(codelabel)
     except NotExistent:
         print(f'The code {codelabel} does not exist.')
         sys.exit(1)

@@ -1,0 +1,27 @@
+name: "Setup Python environment"
+description: "Set up Python and uv, then sync dependencies"
+
+inputs:
+    python-version:
+        description: "Python version to use"
+        default: "3.11"
+    uv-version:
+        description: "uv version to use"
+        default: "0.4.29"
+
+runs:
+    using: "composite"
+    steps:
+    -   uses: actions/setup-python@v5
+        with:
+            python-version: ${{ inputs.python-version }}
+
+    -   uses: astral-sh/setup-uv@v3
+        with:
+            version: ${{ inputs.uv-version }}
+            enable-cache: true
+            cache-suffix: ${{ inputs.python-version }}
+
+    -   name: Install dependencies
+        run: uv sync --frozen --group dev
+        shell: bash

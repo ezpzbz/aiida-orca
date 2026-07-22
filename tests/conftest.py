@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=redefined-outer-name,unused-argument
 """Configuration and fixtures for unit test suite."""
+
 from __future__ import annotations
 
 import typing as t
@@ -17,7 +17,7 @@ def recursive_merge(left: dict[t.Any, t.Any], right: dict[t.Any, t.Any]) -> None
     :param right: Dictionary to recurisvely merge on top of ``left`` dictionary.
     """
     for key, value in right.items():
-        if (key in left and isinstance(left[key], dict) and isinstance(value, dict)):
+        if key in left and isinstance(left[key], dict) and isinstance(value, dict):
             recursive_merge(left[key], value)
         else:
             left[key] = value
@@ -27,6 +27,7 @@ def recursive_merge(left: dict[t.Any, t.Any], right: dict[t.Any, t.Any]) -> None
 def fixture_sandbox():
     """Return a `SandboxFolder`."""
     from aiida.common.folders import SandboxFolder
+
     with SandboxFolder() as folder:
         yield folder
 
@@ -65,6 +66,7 @@ def generate_calc_job_node(aiida_localhost):
     def flatten_inputs(inputs, prefix=''):
         """Flatten inputs recursively like :meth:`aiida.engine.processes.process::Process._flatten_inputs`."""
         from collections.abc import Mapping
+
         flat_inputs = []
         for key, value in inputs.items():
             if isinstance(value, Mapping):
@@ -109,7 +111,7 @@ def generate_calc_job_node(aiida_localhost):
 
         if test_name is not None:
             basepath = os.path.dirname(os.path.abspath(__file__))
-            filename = os.path.join(entry_point_name[len('orca.'):], test_name)
+            filename = os.path.join(entry_point_name[len('orca.') :], test_name)
             filepath_folder = os.path.join(basepath, 'parsers', 'fixtures', filename)
 
             retrieved = orm.FolderData()
@@ -138,6 +140,7 @@ def generate_parser():
         :return: the `Parser` sub class
         """
         from aiida.plugins import ParserFactory
+
         return ParserFactory(entry_point_name)
 
     return _generate_parser
@@ -146,11 +149,10 @@ def generate_parser():
 @pytest.fixture
 def generate_structure():
     """Return a ``StructureData`` representing a water molecule."""
-    from ase.build import molecule
     from aiida.orm import StructureData
-    # NOTE: Adding a default cell, even if PBC=false,
-    # is here only temporarily for compatibility with AiiDA 1.x
-    return StructureData(ase=molecule('H2O', vacuum=5.0))
+    from ase.build import molecule
+
+    return StructureData(ase=molecule('H2O'))
 
 
 @pytest.fixture
@@ -170,7 +172,7 @@ def generate_inputs_orca(aiida_local_code_factory, generate_structure):
                 },
                 'pal': {
                     'nproc': 1,
-                }
+                },
             },
             'input_keywords': ['PBE', 'SV(P)', 'Opt'],
             'extra_input_keywords': ['MOREAD'],
@@ -186,9 +188,9 @@ def generate_inputs_orca(aiida_local_code_factory, generate_structure):
                         'num_machines': 1,
                         'num_mpiprocs_per_machine': 1,
                     },
-                    'max_wallclock_seconds': 1800
+                    'max_wallclock_seconds': 1800,
                 }
-            }
+            },
         }
 
         recursive_merge(base_inputs, inputs or {})

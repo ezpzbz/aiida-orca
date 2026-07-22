@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Tests for the :class:`aiida_orca.calculations.orca_orca.OrcaCalculation` plugin."""
+
 import io
 
 from aiida.common import datastructures
