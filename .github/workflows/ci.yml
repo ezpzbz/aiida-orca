@@ -1,6 +1,9 @@
 name: ci
 
-on: [push, pull_request]
+on:
+    push:
+        branches: [develop]
+    pull_request:
 
 jobs:
 
@@ -9,7 +12,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-        -   uses: actions/checkout@v4
+        -   uses: actions/checkout@v7
 
         -   uses: ./.github/actions/setup-python-env
 
@@ -53,7 +56,7 @@ jobs:
                 -   5672:5672
 
         steps:
-        -   uses: actions/checkout@v4
+        -   uses: actions/checkout@v7
 
         -   uses: ./.github/actions/setup-python-env
             with:
@@ -68,7 +71,7 @@ jobs:
             run: uv run pytest --cov-report=xml --cov=./aiida_orca tests
 
         -   name: Upload coverage to codecov
-            uses: codecov/codecov-action@v4
+            uses: codecov/codecov-action@v7
             with:
                 token: ${{secrets.CODECOV_TOKEN}}
                 file: ./coverage.xml
