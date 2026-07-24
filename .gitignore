@@ -102,3 +102,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# macOS
+.DS_Store
+
+# FACCTS ORCA tutorial corpus — copyrighted, local dev reference only (never commit/ship)
+tutorials/
+docs/orca61_hftype.md
