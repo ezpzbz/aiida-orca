@@ -1,9 +1,27 @@
 """Functions for rendering ORCA input files"""
 
+# ORCA requires these %blocks to appear *after* the coordinate section, since
+# they reference already-read nuclei/atoms (e.g. `%eprnmr NUCLEI = ...`).
+# Rendered separately by ``render_blocks_after_coordinates``.
+BLOCKS_AFTER_COORDINATES = frozenset({'eprnmr'})
+
+
+def _render_block(key: str, block: dict) -> list[str]:
+    """Render a single ``%key ... end`` block as a list of lines."""
+    lines = [f'%{key} ']
+    for keyword, val in block.items():
+        if val is None:
+            lines.append(f'\t{keyword}')
+        else:
+            lines.append(f'\t{keyword} {val}')
+    lines.append('end\n')
+    return lines
+
 
 def render_orca_input(params: dict) -> str:
     """Rendering ORCA input file.
-    The only thing missing is the coordinate section.
+    The only thing missing is the coordinate section, and any blocks in
+    :data:`BLOCKS_AFTER_COORDINATES` (see ``render_blocks_after_coordinates``).
 
     Args:
         params (dict): Input parameters
@@ -23,12 +41,26 @@ def render_orca_input(params: dict) -> str:
 
     if blocks := params.get('input_blocks'):
         for key in blocks:
-            output.append(f'%{key} ')
-            for keyword, val in blocks[key].items():
-                if val is None:
-                    output.append(f'\t{keyword}')
-                else:
-                    output.append(f'\t{keyword} {val}')
-            output.append('end\n')
+            if key in BLOCKS_AFTER_COORDINATES:
+                continue
+            output.extend(_render_block(key, blocks[key]))
 
+    return '\n'.join(output)
+
+
+def render_blocks_after_coordinates(params: dict) -> str:
+    """Render the ``%block ... end`` sections that ORCA requires *after* the
+    coordinate section (see :data:`BLOCKS_AFTER_COORDINATES`).
+
+    Args:
+        params (dict): Input parameters
+
+    Returns:
+        str: The blocks rendered as a single string, or an empty string if none apply.
+    """
+    blocks = params.get('input_blocks') or {}
+    output: list[str] = []
+    for key in blocks:
+        if key in BLOCKS_AFTER_COORDINATES:
+            output.extend(_render_block(key, blocks[key]))
     return '\n'.join(output)

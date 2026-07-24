@@ -5,7 +5,7 @@ from aiida.common.folders import Folder
 from aiida.engine import CalcJob
 from aiida.orm import Dict, SinglefileData, StructureData, to_aiida_type
 
-from aiida_orca.utils import render_orca_input
+from aiida_orca.utils import render_blocks_after_coordinates, render_orca_input
 
 
 class OrcaCalculation(CalcJob):
@@ -130,11 +130,15 @@ class OrcaCalculation(CalcJob):
             raise ValueError('Missing mandatory key "multiplicity" in input parameters')
 
         input_file_string = render_orca_input(params)
+        blocks_after_coordinates = render_blocks_after_coordinates(params)
 
         with open(folder.get_abs_path(filename), mode='w', encoding='utf-8') as fobj:
             fobj.write(input_file_string)
             # coordinate section
             fobj.write(f'\n* xyzfile {charge} {mult} {self._INPUT_COORDS_FILE}\n')
+            # blocks that must come after the coordinate section (e.g. %eprnmr)
+            if blocks_after_coordinates:
+                fobj.write(f'\n{blocks_after_coordinates}\n')
 
     @staticmethod
     def _write_structure(structure: StructureData, folder: Folder, filename: str) -> None:

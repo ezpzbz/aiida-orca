@@ -28,7 +28,9 @@ def build_nmr_inputs(
 
     merged_blocks = {key: dict(value) for key, value in (blocks or {}).items()}
     if nuclei:
-        merged_blocks.setdefault('eprnmr', {})['NUCLEI'] = nuclei
+        # ORCA's %eprnmr NUCLEI keyword requires an `=` before its value
+        # (e.g. `NUCLEI = ALL H {SHIFT, SSALL}`), unlike other block keywords.
+        merged_blocks.setdefault('eprnmr', {})['NUCLEI'] = f'= {nuclei}'
 
     return build_parameters(
         keywords=keywords,
