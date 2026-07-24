@@ -109,3 +109,6 @@ venv.bak/
 # FACCTS ORCA tutorial corpus — copyrighted, local dev reference only (never commit/ship)
 tutorials/
 docs/orca61_hftype.md
+
+# Local-only dev tool for mining the tutorial corpus above; not needed to build/use the package
+scripts/extract_tutorials.py
