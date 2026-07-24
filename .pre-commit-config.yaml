@@ -42,5 +42,6 @@ repos:
                 aiida_orca/calculations/orca_orca.py |
                 aiida_orca/parsers/__init__.py |
                 aiida_orca/utils/input_generator.py |
-                aiida_orca/workchains/base.py
+                aiida_orca/workchains/base.py |
+                aiida_orca/inputs/.*\.py
             )$

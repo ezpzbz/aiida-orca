@@ -7,7 +7,7 @@ install: ## Install the virtual environment and pre-commit hooks
 check: ## Run code quality tools
 	@uv lock --locked
 	@uv run pre-commit run -a
-	@uv run mypy aiida_orca/calculations/orca_orca.py aiida_orca/parsers/__init__.py aiida_orca/utils/input_generator.py aiida_orca/workchains/base.py
+	@uv run mypy aiida_orca/calculations/orca_orca.py aiida_orca/parsers/__init__.py aiida_orca/utils/input_generator.py aiida_orca/workchains/base.py aiida_orca/inputs
 
 .PHONY: test
 test: ## Run the test suite
