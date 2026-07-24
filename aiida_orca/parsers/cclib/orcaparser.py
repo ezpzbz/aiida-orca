@@ -840,8 +840,11 @@ Dispersion correction           -0.016199959
             self.mosyms = [[]]
 
             line = next(inputfile)
-            while len(line) > 20:  # restricted calcs are terminated by ------
-                info = line.split()
+            info = line.split()
+            # Restricted calcs are terminated by ------; ORCA 6 may also print a
+            # "*Only the first N virtual orbitals were printed." notice line before
+            # that, which the token-count check below excludes (it isn't 3-5 fields).
+            while len(line) > 20 and 2 < len(info) < 6:
                 mooccno = int(float(info[1]))
                 moenergy = float(info[2])
                 mosym = 'A'
@@ -852,6 +855,7 @@ Dispersion correction           -0.016199959
                     utils.convertor(moenergy, 'hartree', 'eV'))
                 self.mosyms[0].append(mosym)
                 line = next(inputfile)
+                info = line.split()
 
             line = next(inputfile)
 
@@ -1101,9 +1105,13 @@ Dispersion correction           -0.016199959
             total_thermal_energy = float(next(inputfile).split()[3])
 
             # Enthalpy
-            while line[:17] != 'Total free energy':
+            # The line preceding this one carries over the total thermal/free
+            # energy from the INNER ENERGY section above for reference (labelled
+            # 'Total free energy' pre-ORCA-6, 'Total thermal energy' in ORCA 6+);
+            # its value isn't used here, so trigger on the line actually needed.
+            while 'Thermal Enthalpy correction' not in line:
                 line = next(inputfile)
-            thermal_enthalpy_correction = float(next(inputfile).split()[4])
+            thermal_enthalpy_correction = float(line.split()[4])
             next(inputfile)
 
             # For a single atom, ORCA provides the total free energy or inner energy
@@ -1720,10 +1728,13 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
         #
         if line.strip() == 'DIPOLE MOMENT':
 
-            self.skip_lines(inputfile,
-                            ['d', 'XYZ', 'electronic', 'nuclear', 'd'])
+            # ORCA 6 inserts extra metadata lines (Method, Type of density,
+            # Multiplicity, Irrep, Energy, Basis, ...) before the X/Y/Z table
+            # that older versions didn't print; scan forward to the one line
+            # this block actually needs instead of assuming a fixed line count.
             total = next(inputfile)
-            assert 'Total Dipole Moment' in total
+            while 'Total Dipole Moment' not in total:
+                total = next(inputfile)
 
             reference = [0.0, 0.0, 0.0]
             dipole = numpy.array([float(d) for d in total.split()[-3:]])
@@ -2252,6 +2263,12 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
         # in which case we set the values and targets to zero.
         while not 'Last Energy change' in line:
             line = next(inputfile)
+        if not self.scfvalues:
+            # ORCA 6's "LEAN-SCF" solver prints per-iteration convergence data
+            # under different D-I-I-S / S-O-S-C-F banners that aren't parsed into
+            # scfvalues yet (see parse_scf_condensed_format/parse_scf_expanded_format).
+            # Avoid crashing here; record only the final convergence values below.
+            self.scfvalues.append([])
         rmsDP_value = 0.0
         rmsDP_target = 0.0
         deltaE_value = float(line.split()[4])
@@ -2264,7 +2281,7 @@ States  Energy Wavelength    D2        m2        Q2         D2+m2+Q2       D2/TO
             if 'Last RMS-Density change' in line:
                 rmsDP_value = float(line.split()[4])
                 rmsDP_target = float(line.split()[7])
-            elif len(self.scftargets) > 0:
+            elif len(self.scftargets) > 0 and self.scfvalues[-1]:
                 rmsDP_value = self.scfvalues[-1][-1][2]
                 rmsDP_target = self.scftargets[-1][2]
                 assert deltaE_target == self.scftargets[-1][0]
